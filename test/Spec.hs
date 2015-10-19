@@ -280,6 +280,7 @@ run = do
             git' ["init"]
             git' ["config", "user.name", "Main User"]
             git' ["config", "user.email", "main@gitomail.com"]
+            git' ["config", "core.abbrev", "12"]
 
             tests
 
