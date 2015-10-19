@@ -305,6 +305,7 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                               return []
 
                       emailFooter <- getFooter
+                      emailAddress <- getFromEMail
 
                       let mail = Mail
                             { mailFrom = fromAddress
@@ -318,8 +319,8 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                           flists = parsedFLists ++ emailFooter
                           html = TL.fromChunks [ htmlOnlyHeader, F.flistToInlineStyleHtml flists ]
                           plain = TL.fromChunks [ T.decodeUtf8 commit ]
-                          fromEMail = fromMaybe "fake@email.com" (config ^. CFG.fromEMail) -- FIXME
-                          fromAddress = Address (Just authorName) fromEMail
+                          Address _ actualSenderEmail = emailAddress
+                          fromAddress = Address (Just authorName) actualSenderEmail
                           replyTo = Address (Just authorName) authorEMail
 
                       return $ Right $ MailInfo mail diffInexactHash subjectLine (Just commitSubjectLine)

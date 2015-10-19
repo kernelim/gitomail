@@ -207,6 +207,7 @@ makeHeaderMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints =
                 return (toList flist ++ emailFooter, toList $ mails)
 
             (cc, to) <- getExtraCCTo
+
             emailAddress <- getFromEMail
             let toAddreses = nub $ to ++ (concat $ map mailTo mails)
                 ccAddresses = nub $ cc ++ (concat $ map mailCc mails)
