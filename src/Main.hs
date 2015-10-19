@@ -52,6 +52,7 @@ runCmd = do
 
             -- Debug
             O.CheckBranchPoints            -> checkBranchPoints
+            O.ForgetHash                   -> forgetHash
             O.ShowAutoMailerRefs           -> showAutoMailerRefs
             O.ParseMaintainerFile filepath -> do
                 content <- liftIO $ BL.readFile filepath

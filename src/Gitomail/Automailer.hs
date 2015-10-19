@@ -18,6 +18,7 @@ module Gitomail.Automailer
     , getAutoMailerRefs
     , showAutoMailerRefs
     , checkBranchPoints
+    , forgetHash
     , UnexpectedGitState(..)
     ) where
 
@@ -265,6 +266,21 @@ getAutoMailerRefs = do
 
 commitSeenKey :: BS8.ByteString -> BS8.ByteString
 commitSeenKey commit = BS8.concat [ "commit-seen-",  commit]
+
+forgetHash :: (MonadGitomail m) => m ()
+forgetHash = do
+    opts <- gets opts
+    case opts ^. O.gitRef of
+        Just hash -> do
+            withDB $ do
+                db <- get
+                let k = commitSeenKey (T.encodeUtf8 hash)
+                v <- DB.get db DB.defaultReadOptions k
+                case v of
+                    Nothing -> putStrLn "Hash not in DB"
+                    Just _ -> do DB.delete db DB.defaultWriteOptions k
+                                 putStrLn "Sucesss"
+        Nothing -> putStrLn "Hash not specified"
 
 refsMapDBKey :: BS8.ByteString
 refsMapDBKey = "refs-map"
