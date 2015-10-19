@@ -1,8 +1,8 @@
 flags: {}
 packages:
 - location:
-    git: /home/dan/dev/gh/da-x/HaskellNet-SSL
-    commit: fcc3b3f6efaea67c55263226f604568755241abd
+    git: https://github.com/dpwright/HaskellNet-SSL.git
+    commit: 35c03e8f844f14fb063b4efeff94d864207efb29
   extra-dep: true
 - location:
     git: https://github.com/snoyberg/mime-mail
