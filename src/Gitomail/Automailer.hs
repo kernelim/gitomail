@@ -74,10 +74,10 @@ data RefState = NewRef | ModifiedRef GIT.GitCommitHash
 data RefModState = RefModFastForward | RefModNoFastForward
 
 data CommitIterationInfo = CommitIterationInfo
-      { cCommitHash          :: GIT.GitCommitHash
-      , cIsNew               :: Bool
-      , cNotReachedOldRef    :: Bool
-      , cIsBranchPoint       :: Bool
+      { cCommitHash          :: !GIT.GitCommitHash
+      , cIsNew               :: !Bool
+      , cNotReachedOldRef    :: !Bool
+      , cIsBranchPoint       :: !Bool
       } deriving Show
 
 makeHeaderMail :: (MonadGitomail m)
@@ -292,7 +292,7 @@ autoMailer = do
         mOldRefs <- DB.get db DB.defaultReadOptions refsMapDBKey
         let initTracking = (mOldRefs == Nothing)
         when initTracking $ do
-            putStrLn "Initial save of ref map. Will start tracking refs from now"
+            putStrLn "Initial save of ref map. Will start tracking refs from now (this may take awhile)"
 
         let oldRefsMap = maybe refsMap (read . BS8.unpack) mOldRefs
         alreadySeenI <- newIORef Set.empty
@@ -307,9 +307,10 @@ autoMailer = do
                     putStrLn $ "WARNING: " ++ (show ref) ++ " has no branch point, this is odd"
                     return Nothing
                 Just branchPoints -> do
-                    fmap (fmap (\x -> ((ref, topCommit), x))) $
-                       iterateRefCommits repoPath db topCommit
-                            (Map.lookup ref oldRefsMap) branchPoints alreadySeenI
+                    fmap (fmap (\x -> ((ref, topCommit), x))) $ do
+                        iterateRefCommits repoPath db topCommit
+                            (if initTracking then Nothing else Map.lookup ref oldRefsMap)
+                            branchPoints alreadySeenI
 
         mailsI <- newIORef []
 
@@ -321,36 +322,40 @@ autoMailer = do
 
         forM_ newCommits $ \((ref, topCommit), (refMod, nonRootBranchPoints,
                                                 isNewRef, commitsinfo)) -> do
-            putStrLn $ "Checking ref " ++ (T.unpack ref)
+            let syncOp = False
+                asyncOp = True
+                markSeen sync cCommitHash =
+                    putDB (DB.defaultWriteOptions {DB.sync = sync })
+                       (commitSeenKey (T.encodeUtf8 cCommitHash))
+                       "true"
+            if initTracking
+                then do
+                    forM_ commitsinfo $ \CommitIterationInfo {..} -> do
+                        markSeen asyncOp cCommitHash
+                else do
+                    putStrLn $ "Checking ref " ++ (T.unpack ref)
 
-            (numbersMap, summaryMailInfo) <-
-                lift $ makeHeaderMail db (ref, topCommit) refMod
-                        isNewRef commitsinfo nonRootBranchPoints
-            modifyIORef' mailsI ((:) (return (), summaryMailInfo))
+                    (numbersMap, summaryMailInfo) <-
+                        lift $ makeHeaderMail db (ref, topCommit) refMod
+                            isNewRef commitsinfo nonRootBranchPoints
+                    modifyIORef' mailsI ((:) (return (), summaryMailInfo))
 
-            forM_ commitsinfo $ \CommitIterationInfo {..} -> do
-                let syncOp = False
-                    asyncOp = True
-                    markSeen sync =
-                        putDB (DB.defaultWriteOptions {DB.sync = sync })
-                           (commitSeenKey (T.encodeUtf8 cCommitHash))
-                           "true"
-                shownCommitHash <- lift $ mapCommitHash cCommitHash
-                if | initTracking && cIsNew -> markSeen syncOp
-                   | cIsNew -> do putStrLn $ "  Formatting " ++ (T.unpack shownCommitHash)
-                                  mailinfo <- lift $ makeOneMailCommit CommitMailFull
-                                        db cCommitHash (Map.lookup cCommitHash numbersMap)
-                                  let mailinfoAndAction = (action, mailinfo)
-                                      action = do
-                                          markSeen asyncOp
-                                          modifyIORef' updatedRefsI $ Map.insert ref cCommitHash
-                                          updateRefsMap
-                                          case mailinfo of
-                                              Right (MailInfo {..}) ->
-                                                  putInexactDiffHashInDB db miInexactDiffHash
-                                              Left _ -> return ()
-                                  modifyIORef' mailsI ((:) mailinfoAndAction)
-                   | otherwise -> putStrLn $ "  Skipping old commit " ++ (T.unpack shownCommitHash)
+                    forM_ commitsinfo $ \CommitIterationInfo {..} -> do
+                        shownCommitHash <- lift $ mapCommitHash cCommitHash
+                        if | cIsNew -> do putStrLn $ "  Formatting " ++ (T.unpack shownCommitHash)
+                                          mailinfo <- lift $ makeOneMailCommit CommitMailFull
+                                                db cCommitHash (Map.lookup cCommitHash numbersMap)
+                                          let mailinfoAndAction = (action, mailinfo)
+                                              action = do
+                                                  markSeen syncOp cCommitHash
+                                                  modifyIORef' updatedRefsI $ Map.insert ref cCommitHash
+                                                  updateRefsMap
+                                                  case mailinfo of
+                                                      Right (MailInfo {..}) ->
+                                                          putInexactDiffHashInDB db miInexactDiffHash
+                                                      Left _ -> return ()
+                                          modifyIORef' mailsI ((:) mailinfoAndAction)
+                           | otherwise -> putStrLn $ "  Skipping old commit " ++ (T.unpack shownCommitHash)
 
         mails <- fmap reverse $ readIORef mailsI
         lift $ sendMails mails
@@ -392,8 +397,7 @@ autoMailer = do
                 u = GIT.iterateHistoryUntil True $ \notReachedOldRef commit parents -> do
                         if isNotBranchPoint commit
                             then do let commitT = GIT.oidToText commit
-
-                                    isNew <- do
+                                    (isNew, alreadySeen) <- do
                                         v <- DB.get db DB.defaultReadOptions
                                             $ commitSeenKey $ T.encodeUtf8 commitT
                                         alreadySeenSet <- readIORef alreadySeenI
@@ -401,7 +405,7 @@ autoMailer = do
                                             alreadySeen = commit `Set.member` alreadySeenSet
                                         when (not alreadySeen) $
                                             writeIORef alreadySeenI (commit `Set.insert` alreadySeenSet)
-                                        return isNew
+                                        return (isNew, alreadySeen)
 
                                     case mOldRefOid of
                                         Nothing -> return ()
@@ -427,7 +431,7 @@ autoMailer = do
                                                 modifyIORef' newCommitsListI ((:) parentCommitsInfo)
                                                 return False
 
-                                    return $ (notReachedOldRef', nextParents)
+                                    return $ (notReachedOldRef', if not alreadySeen then nextParents else [])
                             else return (notReachedOldRef, [])
 
             if Just topCommit /= mOldRef

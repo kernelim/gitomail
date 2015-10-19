@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Lib.LiftedIO
        (print, putStrLn, newIORef, modifyIORef', readIORef,
@@ -30,4 +31,4 @@ readIORef :: MonadIO m => IOREF.IORef a -> m a
 readIORef = liftIO . IOREF.readIORef
 
 writeIORef :: MonadIO m => IOREF.IORef a -> a ->  m ()
-writeIORef x y = liftIO $ IOREF.writeIORef x y
+writeIORef x !y = liftIO $ IOREF.writeIORef x y
