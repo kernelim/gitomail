@@ -187,16 +187,18 @@ gitDerandomizeHash hash = do
 gitDerandomizeHashHEAD :: (MonadSpec m) => m ()
 gitDerandomizeHashHEAD = gitDerandomizeHash "HEAD"
 
-tests :: (MonadSpec m) => m ()
-tests = do
+tests :: (MonadSpec m) =>  FilePath -> m ()
+tests tempDir = do
     let add = "add"
         commit = "commit"
         readme = "README.md"
         file2 = "Maintainers"
         other = "Other.txt"
         automailer = ["auto-mailer"]
+        repoDir = tempDir </> "repo"
+        repo2Dir = tempDir </> "repo2"
 
-    let fileAppend file i = do
+        fileAppend file i = do
             appendFile' (T.unpack file) $ "Added content " +@ showT (i :: Int) +@ "\n"
             git' [add, file]
             git' [commit, "-m", "Updating " +@ file +@ " [" +@ showT i +@ "]" ]
@@ -207,6 +209,15 @@ tests = do
         checkoutCreate branch = git' ["checkout", "-b", branch]
         checkout branch = git' ["checkout", branch]
         rebase branch = git' ["rebase", branch]
+        initRepo r = do
+            liftIO $ createDirectory r
+            liftIO $ setCurrentDirectory r
+            git' ["init"]
+            git' ["config", "user.name", "Main User"]
+            git' ["config", "user.email", "main@gitomail.com"]
+            git' ["config", "core.abbrev", "12"]
+
+    initRepo repoDir
 
     writeFile' readme "Content\n"
     writeFile' "Maintainers" $
@@ -249,7 +260,7 @@ tests = do
     gitomailC "4-auto" automailer
 
     msg "Verifying after a topic branch rebase"
-    -------------------------------------------
+    ---------------------------------------------------------
 
     checkout "topic2"
     rebase "master"
@@ -259,11 +270,29 @@ tests = do
 
     gitomailC "5-auto" automailer
 
-    msg "Verifying numbering after added comits to topic branch"
-    ------------------------------------------------------------
+    msg "Verifying numbering after added commits to topic branch"
+    ---------------------------------------------------------
 
     forM_ [10..11] otherAppend
     gitomailC "6-auto" automailer
+
+    msg "Ref going backward after init"
+    ----------------------------------
+
+    initRepo repo2Dir
+
+    writeFile' readme "Content\n"
+    writeFile' "Maintainers" $
+         "alias user  Main User <main@gitomail.com>\n" +@
+         "maintainer user\n"
+    forM_ [1..5] readmeAppend
+
+    gitomailC "7-auto" automailer
+
+    git' ["branch", "older", "HEAD~2"]
+    git' ["reset", "--hard", "HEAD~3"]
+
+    gitomailC "8-auto" automailer
 
 run :: (MonadSpec m) => m ()
 run = do
@@ -272,25 +301,13 @@ run = do
            wrap "help" $ msgLines help
 
         withSystemTempDirectory "gitomail-test" $ \tempDir -> do
-            let repoDir = tempDir </> "repo"
             let outputDir = tempDir </> "output"
 
             modify (\r -> r {contextOutputs = Just outputDir})
 
-            cur <- liftIO $ do
-                cur <- getCurrentDirectory
-                createDirectory outputDir
-                createDirectory repoDir
-                setCurrentDirectory repoDir
-                return cur
-
-            git' ["init"]
-            git' ["config", "user.name", "Main User"]
-            git' ["config", "user.email", "main@gitomail.com"]
-            git' ["config", "core.abbrev", "12"]
-
-            tests
-
+            cur <- liftIO $ getCurrentDirectory
+            liftIO $ createDirectory outputDir
+            tests tempDir
             liftIO $ setCurrentDirectory cur
 
             let actual = T.pack outputDir
