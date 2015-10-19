@@ -12,13 +12,14 @@
 
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted  as E
-import           Control.Monad               (void, forM_)
+import           Control.Monad               (void, forM_, forM, when)
 import           Control.Monad.Catch         (MonadMask)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (StateT, evalStateT, get, MonadState,
                                               modify, gets)
 import           Control.Monad.Trans.Control (MonadBaseControl)
-import           Data.Typeable            (Typeable)
+import           Data.Typeable               (Typeable)
+import           Data.Maybe                  (catMaybes)
 import           Data.List                   (intersperse)
 import           Data.Text                   (Text)
 import qualified Data.Text                 as T
@@ -30,14 +31,14 @@ import           System.Console.ANSI
 import           System.FilePath            ((</>))
 import           System.Directory           (setCurrentDirectory,
                                             createDirectory, getCurrentDirectory,
-                                            getDirectoryContents, doesFileExist)
+                                            getDirectoryContents, doesFileExist,
+                                            removeDirectory)
 import           System.IO.Temp             (withSystemTempDirectory)
 import           System.Exit                (ExitCode (..), exitWith)
 import qualified Data.Yaml                  as Yaml
 import           Text.Regex.TDFA            ((=~))
 import           Text.Regex.TDFA.Text       ()
 ----
-import           Lib.Monad                  (mapMM_, whenM)
 import           Lib.Process                (readProcess, readProcess'')
 import           Lib.Text                   (removeTrailingNewLine, (+@), showT)
 import           Lib.LiftedPrelude
@@ -136,14 +137,20 @@ gitomailC save params = do
             let tD = T.replace (T.pack outputDirForThis) "$TEMP" t
             writeFile' (outputDir </> (T.unpack $ save +@ ".stdout.txt")) tD
 
-            mapMM_ (liftIO $ getDirectoryContents outputDirForThis) $ \filename -> do
+            contents <- liftIO $ getDirectoryContents outputDirForThis
+            files <- fmap catMaybes $ forM contents $ \filename -> do
                 let filenameInDir = outputDirForThis </> filename
-                whenM (liftIO $ doesFileExist filenameInDir) $ do
-                    content <- readFile' filenameInDir
-                    let regex = "Content-Type: multipart/alternative; boundary=\"([^\"]+)\"\n" :: Text
-                    case (content =~ regex) :: [[Text]] of
-                        ([_, sig]:_) -> writeFile' filenameInDir $ T.replace sig "<random-replaced-for-test>" content
-                        _ -> return ()
+                exist <- liftIO $ doesFileExist filenameInDir
+                case exist of
+                    True -> do  content <- readFile' filenameInDir
+                                let regex = "Content-Type: multipart/alternative; boundary=\"([^\"]+)\"\n" :: Text
+                                case (content =~ regex) :: [[Text]] of
+                                    ([_, sig]:_) -> writeFile' filenameInDir $ T.replace sig "<random-replaced-for-test>" content
+                                    _ -> return ()
+                                return $ Just filename
+                    False -> return Nothing
+
+            when (files == []) $ do liftIO $ removeDirectory outputDirForThis
 
             return tD
 
