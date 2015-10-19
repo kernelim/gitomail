@@ -218,6 +218,8 @@ makeHeaderMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints =
 
             repoName <- getRepoName
             githashToNumber <- readIORef githashtoNumberI
+            extraHeaders <- genExtraEMailHeaders emailAddress
+
             case toAddreses of
                 [] -> return (githashToNumber, Left "No E-Mail destination for summary")
                 _ -> do
@@ -233,7 +235,7 @@ makeHeaderMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints =
                           , mailTo      = toAddreses'
                           , mailCc      = ccAddreses'
                           , mailBcc     = []
-                          , mailHeaders = [("Subject", subjectLine)]
+                          , mailHeaders = extraHeaders ++ [("Subject", subjectLine)]
                           , mailParts   = [[plainPart plain, htmlPart html]]
                           }
                     return (githashToNumber, Right $ MailInfo mail "" subjectLine Nothing)

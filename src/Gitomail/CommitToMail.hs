@@ -307,20 +307,24 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                       emailFooter <- getFooter
                       emailAddress <- getFromEMail
 
+                      let Address _ actualSenderEmail = emailAddress
+                          fromAddress = Address (Just authorName) actualSenderEmail
+
+                      extraHeaders <- genExtraEMailHeaders fromAddress
+
                       let mail = Mail
                             { mailFrom = fromAddress
                             , mailTo = toList
                             , mailCc = ccListAddress
                             , mailBcc = []
-                            , mailHeaders = [("Reply-to", renderAddress replyTo),
+                            , mailHeaders = extraHeaders ++
+                                            [("Reply-to", renderAddress replyTo),
                                              ("Subject", subjectLine)]
                             , mailParts = [[plainPart plain, htmlPart html]]
                             }
                           flists = parsedFLists ++ emailFooter
                           html = TL.fromChunks [ htmlOnlyHeader, F.flistToInlineStyleHtml flists ]
                           plain = TL.fromChunks [ T.decodeUtf8 commit ]
-                          Address _ actualSenderEmail = emailAddress
-                          fromAddress = Address (Just authorName) actualSenderEmail
                           replyTo = Address (Just authorName) authorEMail
 
                       return $ Right $ MailInfo mail diffInexactHash subjectLine (Just commitSubjectLine)

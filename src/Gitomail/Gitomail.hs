@@ -22,6 +22,7 @@ module Gitomail.Gitomail
   , getRepoName
   , getRepositoryPath
   , getVersion
+  , genExtraEMailHeaders
   , gitCmd
   , githashRepr
   , mapCommitHash
@@ -240,4 +241,13 @@ mapCommitHash :: (MonadGitomail m) => GIT.GitCommitHash -> m (GIT.GitCommitHash)
 mapCommitHash h = do
     config <- getConfig
     return $  maybe h (\m -> fromMaybe h (Map.lookup h m)) (config ^. CFG.hashMap)
+
+genExtraEMailHeaders :: (MonadGitomail m) => Address -> m [(BS8.ByteString, Text)]
+genExtraEMailHeaders (Address _ _) = do
+    config <- getConfig
+
+    let v = case config ^. CFG.hashMap of
+               Nothing -> T.concat [T.pack $ showVersion version, " ", V.version]
+               Just _ -> "0.0.0"
+    return [("X-Mailer", T.concat ["gitomail ", v])]
 
