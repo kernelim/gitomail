@@ -1,0 +1,109 @@
+name:                gitomail
+version:             0.7.0
+synopsis:            Gitomail - Automatic E-Mail generation for Git
+homepage:            http://github.com/kernelim/gitomail
+license:             Apache-2.0
+license-file:        LICENSE
+author:              Dan Aloni
+maintainer:          dan@kernelim.com
+category:            Devtool
+build-type:          Custom
+cabal-version:       >=1.10
+Data-files:          extra/diff-highlight
+
+executable gitomail
+  hs-source-dirs:    src/
+  main-is:           Main.hs
+  ghc-options:       -Wall -O2
+  other-modules:     Gitomail.Maintainers.Parser
+                   , Gitomail.Maintainers.Lexer
+                   , Gitomail.Maintainers.Base
+                   , Gitomail.Maintainers
+                   , Gitomail.Config
+                   , Gitomail.Gitomail
+                   , Gitomail.WhoMaintains
+                   , Gitomail.CommitToMail
+                   , Gitomail.Automailer
+                   , Gitomail.Version
+                   , Gitomail.Opts
+                   , Lib.EMail
+                   , Lib.InlineFormatting
+                   , Lib.Git
+                   , Lib.LiftedIO
+                   , Lib.LiftedPrelude
+                   , Lib.Maybe
+                   , Lib.Memo
+                   , Lib.Monad
+                   , Lib.Regex
+                   , Lib.Process
+                   , Lib.Text
+                   , Paths_gitomail
+  build-depends:       Glob                 >= 0.7    &&  < 0.8
+                     , HaskellNet
+                     , HaskellNet-SSL
+                     , aeson                >= 0.8.0.2
+                     , array
+                     , base                 >= 4.7    &&  < 5.0
+                     , base16-bytestring    >= 0.1.1.6
+                     , blaze-html
+                     , bytestring
+                     , containers           >= 0.5.6.2
+                     , cryptohash           >= 0.11.6
+                     , directory
+                     , either               >= 4.4.1
+                     , exceptions           >= 0.8.0.2
+                     , filepath
+                     , gitlib
+                     , gitlib-libgit2
+                     , lens                 >= 4.12.3
+                     , leveldb-haskell      >= 0.6.3
+                     , lifted-base          >= 0.2.3.6
+                     , mime-mail            >= 0.4.11
+                     , monad-control
+                     , mtl                  >= 2.2.1
+                     , optparse-applicative >= 0.11   &&  < 0.12
+                     , process-extras
+                     , regex-base           >= 0.93.2
+                     , regex-tdfa           >= 1.2.1
+                     , regex-tdfa-text
+                     , stringsearch
+                     , tagged               >= 0.8.1
+                     , text
+                     , transformers         >= 0.4.2.0
+                     , tuple
+                     , yaml                 >= 0.8.15.1
+  build-tools:         happy, alex
+  default-language:    Haskell2010
+
+test-suite gitomail-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test, src
+  main-is:             Spec.hs
+  other-modules:       Lib.LiftedIO
+                       Lib.LiftedPrelude
+                       Lib.Process
+                       Lib.Text
+                       Paths_gitomail
+  build-depends:       ansi-terminal
+                     , base
+                     , filepath
+                     , lifted-base          >= 0.2.3.6
+                     , monad-control
+                     , mtl                  >= 2.2.1
+                     , process-extras
+                     , exceptions
+                     , directory
+                     , temporary >= 1.2.0.3
+                     , containers
+                     , yaml
+                     , text
+                     , regex-tdfa           >= 1.2.1
+                     , regex-tdfa-text
+                     , transformers         >= 0.4.2.0
+  ghc-options:         -O2 -Wall
+  build-tools:         gitomail
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/kernelim/gitomail

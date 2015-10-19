@@ -1,0 +1,19 @@
+Checking ref heads/master
+  Skipping old commit 00002fffffffffffffffffffffffffffffffffff
+  Formatting 00005fffffffffffffffffffffffffffffffffff
+  Formatting 00006fffffffffffffffffffffffffffffffffff
+  Formatting 00009fffffffffffffffffffffffffffffffffff
+  Formatting 00010fffffffffffffffffffffffffffffffffff
+Checking ref heads/topic2
+  Skipping old commit 00006fffffffffffffffffffffffffffffffffff
+  Formatting 00007fffffffffffffffffffffffffffffffffff
+  Formatting 00008fffffffffffffffffffffffffffffffffff
+Sending E-Mails!
+  Writing $TEMP/1 - '[repo] master branch added 4 commits: 00002ffff..00010ffff'
+  Writing $TEMP/2 - '[repo master 00005ffff, #1] Updating README.md [4]'
+  Writing $TEMP/3 - '[repo master 00006ffff, #2] Updating README.md [5]'
+  Writing $TEMP/4 - '[repo master 00009ffff, #3] Updating README.md [8]'
+  Writing $TEMP/5 - '[repo master 00010ffff, #4] Updating README.md [9]'
+  Writing $TEMP/6 - '[repo] topic2 branch is new with 2 commits, from master branch @ 00006ffff'
+  Writing $TEMP/7 - '[repo topic2 00007ffff, #1] Updating Other.txt [6]'
+  Writing $TEMP/8 - '[repo topic2 00008ffff, #2] Updating Other.txt [7]'

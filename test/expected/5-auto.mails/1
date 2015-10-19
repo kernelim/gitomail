@@ -1,0 +1,40 @@
+From: <bot@gitomail.com>
+To:  =?utf-8?Q?Main_User?=<main@gitomail.com>
+Subject: [repo] topic2 branch *rebased* having 2 commits total: 00008ffff...00012ffff, from master branch @ 00010ffff
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
+
+--<random-replaced-for-test>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+
+Content
+#2 00012ffff: Updating Other=2Etxt [7]
+#1 00011ffff: Updating Other=2Etxt [6]
+
+Branch points
+00010ffff: Updating README=2Emd [9]
+Sent by Gitomail =20
+--<random-replaced-for-test>
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+
+Content
+<ul><li><font size=3D"3"><span style=3D"font-family: monospace">#2 <a href=
+=3D"https://github=2Ecom/gitomail/repo/commit/00012ffffffffffffffffffffffff=
+fffffffffff">00012ffff</a></span></font>: Updating Other&#8203;=2Etxt [7]</=
+li>
+<li><font size=3D"3"><span style=3D"font-family: monospace">#1 <a href=3D"h=
+ttps://github=2Ecom/gitomail/repo/commit/00011fffffffffffffffffffffffffffff=
+ffffff">00011ffff</a></span></font>: Updating Other&#8203;=2Etxt [6]</li>
+</ul>
+Branch points
+<ul><li><font size=3D"3"><span style=3D"font-family: monospace"><a href=3D"=
+https://github=2Ecom/gitomail/repo/commit/00010ffffffffffffffffffffffffffff=
+fffffff">00010ffff</a></span></font>: Updating README&#8203;=2Emd [9]</li>
+</ul><div style=3D"color: #b0b0b0; font-size: 10px">Sent by <a href=3D"http=
+://github=2Ecom/kernelim/gitomail"><span style=3D"color: #a0a0a0;">Gitomail=
+ </span></a> </div>
+--<random-replaced-for-test>--

@@ -1,0 +1,17 @@
+flags: {}
+packages:
+- location:
+    git: /home/dan/dev/gh/da-x/HaskellNet-SSL
+    commit: fcc3b3f6efaea67c55263226f604568755241abd
+  extra-dep: true
+- location:
+    git: https://github.com/snoyberg/mime-mail
+    commit: 88e4f6c614b6a7925125d7c61329a4e3ae2a0194
+  subdirs:
+  - mime-mail
+  extra-dep: true
+- .
+resolver: lts-3.7
+extra-deps:
+- leveldb-haskell-0.6.3
+- regex-tdfa-text-1.0.0.3
