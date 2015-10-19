@@ -417,7 +417,8 @@ autoMailer = do
                                             notReachedOldRef && Just commit /= mOldRefOid
                                         thisCommitsInfo = CommitIterationInfo commitT isNew notReachedOldRef' False
 
-                                    modifyIORef' newCommitsListI ((:) thisCommitsInfo)
+                                    when (length parents == 1) $ do
+                                        modifyIORef' newCommitsListI ((:) thisCommitsInfo)
 
                                     nextParents <- flip filterM parents $ \parent ->
                                         case isNotBranchPoint parent of
