@@ -69,40 +69,19 @@ makeLenses ''Opts
 
 optsParse :: Parser Opts
 optsParse = Opts
-     <$> switch
-         ( long "debug"
-        <> short 'd'
-        <> help "Enable debug prints" )
-     <*> switch
-         ( long "version"
-        <> short 'v'
-        <> help "Just print version and exit" )
-     <*> switch
-         ( long "dry-run"
-        <> short 'n'
-        <> help "Don't actually send or output E-Mails, nor update DB" )
+     <$> switch ( long "debug"     <> short 'd'  <> help "Enable debug prints" )
+     <*> switch ( long "version"   <> short 'v'  <> help "Just print version and exit" )
+     <*> switch ( long "dry-run"   <> short 'n'  <> help "Don't actually send or output E-Mails, nor update DB" )
      <*> ( optional . strOption)
-         ( long "output-path"
-        <> short 'o'
-        <> help "Local directory in which to place E-Mails instead of sending by SMTP" )
+         ( long "output-path"      <> short 'o'  <> help "Local directory in which to place E-Mails instead of sending by SMTP" )
      <*> ( many . strOption)
-         ( long "config"
-        <> short 'c'
-        <> help "Configuration files" )
-     <*> ( many . textOption)
-         ( long "cc"
-        <> help "Extra people for 'Cc:' in this invocation" )
-     <*> ( many . textOption)
-         ( long "to"
-        <> help "Extra people for 'To:' in this invocation" )
+         ( long "config"           <> short 'c'  <> help "Configuration files" )
+     <*> ( many . textOption)      ( long "cc"    <> help "Extra people for 'Cc:' in this invocation" )
+     <*> ( many . textOption)      ( long "to"    <> help "Extra people for 'To:' in this invocation" )
      <*> ( optional . strOption)
-         ( long "repo"
-        <> short 'r'
-        <> help "Repository pathname" )
+                ( long "repo"      <> short 'r'   <> help "Repository pathname" )
      <*> ( optional . textOption)
-         ( long "h"
-        <> short 'h'
-        <> help "Git revision" )
+                ( long "g"         <> short 'g'   <> help "Git revision" )
      <*> optional (subparser
            (
               command "who-maintains" showWhoMaintains
