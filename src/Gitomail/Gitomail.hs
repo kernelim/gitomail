@@ -49,8 +49,10 @@ import           Data.Version                (showVersion)
 import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
 import           Network.Mail.Mime           (Address (..))
-import           System.Directory            (doesDirectoryExist, canonicalizePath)
+import           System.Directory            (canonicalizePath,
+                                              getCurrentDirectory, setCurrentDirectory)
 import           System.FilePath             ((</>), takeBaseName)
+import           System.Exit              (ExitCode (..))
 ----
 import           Paths_gitomail              (version)
 import qualified Gitomail.Config             as CFG
@@ -61,7 +63,7 @@ import           Lib.EMail                   (parseEMail', InvalidEMail(..))
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as F
 import           Lib.Memo                    (cacheIO, cacheIO')
-import           Lib.Process                 (readProcess)
+import           Lib.Process                 (readProcess, readProcess'')
 import           Lib.Regex                   (matchWhole)
 import qualified Paths_gitomail              as Paths_gitomail
 ------------------------------------------------------------------------------------
@@ -83,6 +85,12 @@ data ParameterNeeded = ParameterNeeded String deriving (Typeable)
 instance E.Exception ParameterNeeded
 instance Show ParameterNeeded where
     show (ParameterNeeded msgstr) = "ParameterNeeded: " ++ msgstr
+
+data GitRepoNotFound = GitRepoNotFound String deriving (Typeable)
+instance E.Exception GitRepoNotFound
+instance Show GitRepoNotFound where
+    show (GitRepoNotFound msgstr) = "GitRepoNotFound: " ++ msgstr
+
 
 getDataFile :: MonadIO m => FilePath -> m FilePath
 getDataFile path = do
@@ -107,18 +115,18 @@ getGitomail opts = do
         patternsCompiled <- _compilePatterns v
         Maintainers.matchFiles (Maintainers.assignDefinitionFiles patternsCompiled)
 
-    let
-        fromMaybeParam getter name f =
-            cacheIO' $ maybe (E.throw $
-                 ParameterNeeded $ BS8.unpack name) (\x -> f x >>= return) (opts ^. getter)
-        lookupRep path = do
-            let metadata_dir = path </> ".git"
-            r <- doesDirectoryExist metadata_dir
-            case r of
-                 False -> return path
-                 True -> return metadata_dir
+    _getRepositoryPath <- cacheIO' $ do
+        -- On which repository are we working on? We need assistance from
+        -- 'git' to find the '.git', and we use it either on O.repositoryPath
+        -- or the current directory.
 
-    _getRepositoryPath <- fromMaybeParam O.repositoryPath "repository path" lookupRep
+        origDir <- getCurrentDirectory
+        maybe (return ()) setCurrentDirectory (opts ^. O.repositoryPath)
+        (exitcode, stdout, stderr) <- readProcess'' "git" ["rev-parse", "--git-dir"] ""
+        setCurrentDirectory origDir
+        case exitcode of
+            ExitSuccess -> return $ T.unpack $ T.strip stdout
+            _ -> E.throw $ GitRepoNotFound $ (show (exitcode, stderr))
 
     _getConfig <-  cacheIO' $ do
         case opts ^. O.configPaths of
