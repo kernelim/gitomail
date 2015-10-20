@@ -63,6 +63,7 @@ executable gitomail
                      , mtl                  >= 2.2.1
                      , optparse-applicative >= 0.11   &&  < 0.12
                      , process-extras
+                     , random >= 1.1
                      , regex-base           >= 0.93.2
                      , regex-tdfa           >= 1.2.1
                      , regex-tdfa-text
@@ -71,6 +72,7 @@ executable gitomail
                      , text
                      , transformers         >= 0.4.2.0
                      , tuple
+                     , unix-time
                      , yaml                 >= 0.8.15.1
   build-tools:         happy, alex
   default-language:    Haskell2010

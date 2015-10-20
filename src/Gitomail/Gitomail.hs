@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE FlexibleInstances         #-}
 {-# LANGUAGE KindSignatures            #-}
@@ -50,11 +51,14 @@ import           Data.Version                (showVersion)
 import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
 import           Network.Mail.Mime           (Address (..))
+import           Data.UnixTime               (getUnixTime, UnixTime(..))
 import           System.Directory            (canonicalizePath, doesFileExist,
                                               getCurrentDirectory, setCurrentDirectory)
 import           System.FilePath             ((</>), takeBaseName)
 import           System.Exit                 (ExitCode (..))
 import           System.Environment          (getEnv)
+import           System.Random               as Rand
+import           Data.Char                   (chr, ord)
 ----
 import           Paths_gitomail              (version)
 import qualified Gitomail.Config             as CFG
@@ -269,12 +273,32 @@ mapCommitHash h = do
     config <- getConfig
     return $  maybe h (\m -> fromMaybe h (Map.lookup h m)) (config ^. CFG.hashMap)
 
+randomNumbers :: Int -> StdGen -> [Char]
+randomNumbers count g = randomBytes count g
+  where
+    randomBytes 0 _     = []
+    randomBytes count' g' =
+            (chr ((ord '0') + (value `mod` 10))):randomBytes (count' - 1) nextG
+        where
+            (value, nextG) = next g'
+
 genExtraEMailHeaders :: (MonadGitomail m) => Address -> m [(BS8.ByteString, Text)]
-genExtraEMailHeaders (Address _ _) = do
+genExtraEMailHeaders (Address _ email) = do
     config <- getConfig
 
     let v = case config ^. CFG.hashMap of
                Nothing -> T.concat [T.pack $ showVersion version, " ", V.version]
                Just _ -> "0.0.0"
-    return [("X-Mailer", T.concat ["gitomail ", v])]
 
+    UnixTime secs nsecs <- liftIO getUnixTime
+    numbers <- case config ^. CFG.hashMap of
+        Nothing -> do
+            g <- liftIO $ Rand.getStdGen
+            return $ T.pack $ show secs ++ "-" ++ show nsecs ++ "-" ++ (randomNumbers 10 g)
+        Just _ ->
+            return "0000000000-0000000-0000"
+
+    return [
+        ("Message-Id", T.concat ["<", numbers, "-gitomail-", email, ">"]),
+        ("X-Mailer", T.concat ["gitomail ", v])
+      ]
