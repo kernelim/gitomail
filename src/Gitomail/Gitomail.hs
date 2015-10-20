@@ -265,7 +265,7 @@ getFooter = do
         v' = maybe v (const []) $ config ^. CFG.hashMap
 
     return $ [ (T.concat ["Sent by "], [F.Footer])
-             , (T.concat ["Gitomail "], [F.Footer, F.Link "http://github.com/kernelim/gitomail", F.Dark])
+             , (T.concat ["Gitomail"], [F.Footer, F.Link "http://github.com/kernelim/gitomail", F.Dark])
              , (T.concat [" "], [F.Footer])] ++ v'
 
 mapCommitHash :: (MonadGitomail m) => GIT.GitCommitHash -> m (GIT.GitCommitHash)

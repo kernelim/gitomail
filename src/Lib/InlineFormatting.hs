@@ -168,7 +168,7 @@ flistToInlineStyleHtml l = crux
           html End   _ List           = "</ul>"
           html Start _ ListItem       = "<li>"
           html End   _ ListItem       = "</li>"
-          html Start _ (Link t)       = T.concat ["<a href=\"" , t, "\">"]
+          html Start _ (Link t)       = T.concat ["<a href=\"" , t, "\" style=\"text-decoration: none\">"]
           html End   _ (Link _)       = "</a>"
           html Start s Inverse        = if | DiffRemove `elem` s -> "<span style=\"background: #F8CBCB;\">"
                                            | DiffAdd    `elem` s -> "<span style=\"background: #A6F3A6;\">"
@@ -176,7 +176,7 @@ flistToInlineStyleHtml l = crux
           html End   s Inverse        = if | DiffRemove `elem` s -> "</span>"
                                            | DiffAdd    `elem` s -> "</span>"
                                            | otherwise           -> ""
-          html Start _ Dark           = "<span style=\"color: #a0a0a0;\">"
+          html Start _ Dark           = "<span style=\"color: #a0a0a0\">"
           html End   _ Dark           = "</span>"
           html Start _ Footer         = "<div style=\"color: #b0b0b0; font-size: 10px\">"
           html End   _ Footer         = "</div>"
