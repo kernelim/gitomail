@@ -124,8 +124,10 @@ getGitomail opts = do
         maybe (return ()) setCurrentDirectory (opts ^. O.repositoryPath)
         (exitcode, stdout, stderr) <- readProcess'' "git" ["rev-parse", "--git-dir"] ""
         setCurrentDirectory origDir
+
+        let path = fromMaybe origDir (opts ^. O.repositoryPath)
         case exitcode of
-            ExitSuccess -> return $ T.unpack $ T.strip stdout
+            ExitSuccess -> return $ path </> (T.unpack $ T.strip stdout)
             _ -> E.throw $ GitRepoNotFound $ (show (exitcode, stderr))
 
     _getConfig <-  cacheIO' $ do
