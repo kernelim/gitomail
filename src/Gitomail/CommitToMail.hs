@@ -263,18 +263,19 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                           (_:_) -> Just $ T.decodeUtf8 $ BS8.concat $ ["Flags: "] ++ (intersperse ", " flags)
                     where flags = catMaybes [diffInexactMatches]
 
-            toListE <- do
+            (toListE, ccList) <- do
                   (cc, to) <- getExtraCCTo
                   return $
                       let mkTo (Just m) = to ++ [m]
                           mkTo Nothing = to
                           maintainerM = fmap (address . splitAddress) fsMaintainer
-                       in case (cmk, mkTo maintainerM, cc ++ ccListAddress) of
+                          ccList = cc ++ ccListAddress
+                          toList = mkTo maintainerM
+                       in case (cmk, toList, ccList) of
                           (CommitMailFull    , [],   [])   ->
-                              Left $ "skipped - no destination for commit '" ++ T.unpack subjectLine ++ " '"
-                          (_                 , [],   x:xs) -> Right (x:xs)
-                          (_                 , x:xs, _)    -> Right (x:xs)
-                          (CommitMailSummary , _,    _)    -> Right []
+                              (Left $ "skipped - no destination for commit '" ++ T.unpack subjectLine ++ " '", [])
+                          (_                 , [],   x:xs) -> (Right (x:xs), [])
+                          (_                 , _,   _)    -> (Right toList, ccList)
 
             case toListE of
                 Left s -> return $ Left s
@@ -315,7 +316,7 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                       let mail = Mail
                             { mailFrom = fromAddress
                             , mailTo = toList
-                            , mailCc = ccListAddress
+                            , mailCc = ccList
                             , mailBcc = []
                             , mailHeaders = extraHeaders ++
                                             [("Reply-to", renderAddress replyTo),
