@@ -38,7 +38,7 @@ import qualified Data.ByteString.Char8       as BS8
 import qualified Data.ByteString.Lazy        as BL
 import           Data.ByteString.Search      as StrSearch
 import           Data.Either                 (rights)
-import           Data.List                   (intersperse)
+import           Data.List                   (intersperse, (\\))
 import           Data.Maybe                  (fromMaybe, catMaybes)
 import qualified Data.Set                    as Set
 import           Data.Text                   (Text)
@@ -316,7 +316,7 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                       let mail = Mail
                             { mailFrom = fromAddress
                             , mailTo = toList
-                            , mailCc = ccList
+                            , mailCc = ccList \\ toList
                             , mailBcc = []
                             , mailHeaders = extraHeaders ++
                                             [("Reply-to", renderAddress replyTo),

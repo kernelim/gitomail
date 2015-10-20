@@ -28,7 +28,8 @@ import           Control.Lens.Operators      ((^.), (&))
 import           Control.Monad               (forM, forM_, when, filterM)
 import           Control.Monad.IO.Class      (liftIO)
 import qualified Data.ByteString.Char8       as BS8
-import           Data.List                   (sortOn, groupBy, nub, intersperse)
+import           Data.List                   (sortOn, groupBy, nub, intersperse,
+                                              (\\))
 import qualified Data.Map                    as Map
 import           Data.Maybe                  (fromMaybe, catMaybes)
 import qualified Data.Set                    as Set
@@ -233,7 +234,7 @@ makeHeaderMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints =
                         mail        = Mail
                           { mailFrom    = emailAddress
                           , mailTo      = toAddreses'
-                          , mailCc      = ccAddreses'
+                          , mailCc      = ccAddreses' \\ toAddreses'
                           , mailBcc     = []
                           , mailHeaders = extraHeaders ++ [("Subject", subjectLine)]
                           , mailParts   = [[plainPart plain, htmlPart html]]
