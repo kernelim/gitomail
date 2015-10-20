@@ -10,6 +10,7 @@ module Gitomail.Opts
   , opts
   , runCommand
   , configPaths
+  , noImplicitConfigs
   , repositoryPath
   , outputPath
   , version
@@ -52,17 +53,18 @@ data Command
 textOption :: Mod OptionFields String -> Parser Text
 textOption = (fmap T.pack) . strOption
 
-data Opts = Opts {
-      _verbose        :: Bool
-    , _version        :: Bool
-    , _dryRun         :: DryRun
-    , _outputPath     :: Maybe FilePath
-    , _configPaths    :: [FilePath]
-    , _extraCC        :: [EMailAddress]
-    , _extraTo        :: [EMailAddress]
-    , _repositoryPath :: Maybe RepPath
-    , _gitRef         :: Maybe GitRef
-    , _runCommand     :: Maybe Command
+data Opts = Opts
+    { _verbose             :: Bool
+    , _version             :: Bool
+    , _dryRun              :: DryRun
+    , _outputPath          :: Maybe FilePath
+    , _configPaths         :: [FilePath]
+    , _noImplicitConfigs   :: Bool
+    , _extraCC             :: [EMailAddress]
+    , _extraTo             :: [EMailAddress]
+    , _repositoryPath      :: Maybe RepPath
+    , _gitRef              :: Maybe GitRef
+    , _runCommand          :: Maybe Command
     } deriving (Show)
 
 makeLenses ''Opts
@@ -76,6 +78,7 @@ optsParse = Opts
          ( long "output-path"      <> short 'o'  <> help "Local directory in which to place E-Mails instead of sending by SMTP" )
      <*> ( many . strOption)
          ( long "config"           <> short 'c'  <> help "Configuration files" )
+     <*> switch ( long "no-implicit-configs"     <> help "Don't read configs paths such as ~/.gitomailconf.yaml or $GIT_DIR/gitomailconf.yaml" )
      <*> ( many . textOption)      ( long "cc"    <> help "Extra people for 'Cc:' in this invocation" )
      <*> ( many . textOption)      ( long "to"    <> help "Extra people for 'To:' in this invocation" )
      <*> ( optional . strOption)

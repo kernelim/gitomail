@@ -6,6 +6,7 @@
 {-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE RankNTypes                #-}
 {-# LANGUAGE RecordWildCards           #-}
+{-# LANGUAGE ScopedTypeVariables       #-}
 
 module Gitomail.Gitomail
   ( MonadGitomail
@@ -49,10 +50,11 @@ import           Data.Version                (showVersion)
 import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
 import           Network.Mail.Mime           (Address (..))
-import           System.Directory            (canonicalizePath,
+import           System.Directory            (canonicalizePath, doesFileExist,
                                               getCurrentDirectory, setCurrentDirectory)
 import           System.FilePath             ((</>), takeBaseName)
-import           System.Exit              (ExitCode (..))
+import           System.Exit                 (ExitCode (..))
+import           System.Environment          (getEnv)
 ----
 import           Paths_gitomail              (version)
 import qualified Gitomail.Config             as CFG
@@ -131,7 +133,22 @@ getGitomail opts = do
             _ -> E.throw $ GitRepoNotFound $ (show (exitcode, stderr))
 
     _getConfig <-  cacheIO' $ do
-        case opts ^. O.configPaths of
+        let safeGetEnv v =
+                E.catch (fmap Just $ getEnv v) (\(_ :: E.SomeException) -> return Nothing)
+            existence e = fmap (\case True -> [e] ; False -> []) $ doesFileExist e
+            homeConfig' =
+                safeGetEnv "HOME" >>= \case
+                    Nothing -> return []
+                    Just homePath -> existence $ homePath </> ".gitomailconf.yaml"
+            repoConfig' = do
+                repoPath <- _getRepositoryPath
+                existence $ repoPath </> "gitomailconf.yaml"
+            checkOpt a = if opts ^. O.noImplicitConfigs then return [] else a
+
+        homeConfig <- checkOpt homeConfig'
+        repoConfig <- checkOpt repoConfig'
+
+        case homeConfig ++ repoConfig ++ opts ^. O.configPaths of
             []    -> (E.throw $ ParameterNeeded $ BS8.unpack "config paths")
             paths -> fmap CFG.final $ fmap (foldl1 CFG.combine) $ forM paths $ CFG.parse
 

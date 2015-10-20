@@ -133,6 +133,7 @@ gitomailC save params = do
             let outputDirForThis = outputDir </> (T.unpack save ++ ".mails")
             liftIO $ createDirectory outputDirForThis
             t <- gitomail $ ["-o", T.pack outputDirForThis,
+                             "--no-implicit-configs",
                              "-c", fp, "-r", "."] ++ params
             let tD = T.replace (T.pack outputDirForThis) "$TEMP" t
             writeFile' (outputDir </> (T.unpack $ save +@ ".stdout.txt")) tD
