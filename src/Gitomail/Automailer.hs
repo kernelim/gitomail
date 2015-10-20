@@ -82,7 +82,7 @@ data CommitIterationInfo = CommitIterationInfo
       , cIsBranchPoint       :: !Bool
       } deriving Show
 
-makeHeaderMail :: (MonadGitomail m)
+makeSummaryEMail :: (MonadGitomail m)
                   => DB
                   -> (Text, GIT.GitCommitHash)
                   -> RefModState
@@ -90,7 +90,7 @@ makeHeaderMail :: (MonadGitomail m)
                   -> [CommitIterationInfo]
                   -> [(GIT.GitOid, O.GitRef)]
                   -> m ((Map.Map GIT.GitCommitHash Int, Either String MailInfo))
-makeHeaderMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints = do
+makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints = do
     config <- getConfig
     case length commits >= 1 of
         True -> do
@@ -162,9 +162,9 @@ makeHeaderMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints =
             githashtoNumberI <- newIORef Map.empty
             (flist, mails) <- do
                 let commitLists = [
-                        ("Content"          , newCommits)
-                      , ("Previously pushed", belowOrEqOldRef)
-                      , ("Branch points"    , branchPoints)
+                        ("Content"          , newCommits,       True)
+                      , ("Previously pushed", belowOrEqOldRef,  True)
+                      , ("Branch points"    , branchPoints,     False)
                       ]
                 let insert sI x = modifyIORef' sI (Seq.|> x)
 
@@ -172,7 +172,7 @@ makeHeaderMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints =
                 mailsI <- newIORef Seq.empty
                 -- insert flistI $ ("AD", [])
 
-                forM_ commitLists $ \(name, list) -> do
+                forM_ commitLists $ \(name, list, includeCCTo) -> do
                    emptySoFarI <- newIORef True
                    forM_ list $ \(maybeNr, commitHash) -> do
                        mailinfo <- makeOneMailCommit CommitMailSummary db commitHash maybeNr
@@ -184,7 +184,9 @@ makeHeaderMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints =
 
                                mappedCommitHash <- mapCommitHash commitHash
                                githash <- githashRepr mappedCommitHash
-                               insert mailsI miMail
+                               insert mailsI $ if includeCCTo
+                                                    then miMail
+                                                    else miMail { mailCc = [], mailTo = [] }
                                case maybeNr of
                                    Just nr -> do
                                        modifyIORef' githashtoNumberI (Map.insert commitHash nr)
@@ -355,7 +357,7 @@ autoMailer = do
                     putStrLn $ "Checking ref " ++ (T.unpack ref)
 
                     (numbersMap, summaryMailInfo) <-
-                        lift $ makeHeaderMail db (ref, topCommit) refMod
+                        lift $ makeSummaryEMail db (ref, topCommit) refMod
                             isNewRef commitsinfo nonRootBranchPoints
                     modifyIORef' mailsI ((:) (return (), summaryMailInfo))
 
