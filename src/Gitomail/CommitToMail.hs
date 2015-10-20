@@ -333,7 +333,7 @@ makeOneMailCommit cmk db gitRef maybeNr = do
 sendMails :: (MonadGitomail m) => [(IO (), Either String MailInfo)] -> m ()
 sendMails mails = do
     if length (rights $ map snd mails) == 0
-        then putStrLn $ "No Emails to send."
+        then putStrLn $ "No E-Mails to send."
         else sendEmails
   where sendEmails = do
             putStrLn $ "Sending E-Mails!"
