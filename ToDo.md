@@ -8,6 +8,7 @@
     * To track who we have already sent a welcome message - need a different DB for that.
 * Support ref names adding people to CC automatically according to
   their maintainer alias.
+* Add in-reply-to from the commit mails to the summary E-Mails.
 * Implement manual E-Mail sending similar to the old git-send-email.
 * Fixme: Commits that only remove files are skipped (no maintainers).
 * Prepare Github, Bitbucket and Gitolite presets for easier integartion.
