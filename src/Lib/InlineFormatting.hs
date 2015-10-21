@@ -91,11 +91,17 @@ highlightDiff text = parse
                       else' root x xs
         root []     = []
 
-        diff (x:xs) = case' "index " DiffMain       diff x xs $
-                      case' "new "   DiffMain       diff x xs $
-                      case' "--- "   DiffRemove     diff x xs $
-                      case' "+++ "   DiffAdd        hunk x xs $
-                      else' diff x xs
+        diff (x:xs) = case' "index "         DiffMain       diff x xs $
+                      case' "new "           DiffMain       diff x xs $
+                      case' "old "           DiffMain       diff x xs $
+                      case' "delete "        DiffMain       diff x xs $
+                      case' "copy "          DiffMain       diff x xs $
+                      case' "rename "        DiffMain       diff x xs $
+                      case' "similarity "    DiffMain       diff x xs $
+                      case' "dissimilarity " DiffMain       diff x xs $
+                      case' "--- "           DiffRemove     diff x xs $
+                      case' "+++ "           DiffAdd        hunk x xs $
+                      else'                  diff x xs
         diff []     = []
 
         hunk (x:xs) = case' "@@ "    DiffHunkHeader hunk x xs $
