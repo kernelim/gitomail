@@ -36,6 +36,7 @@ data ConfigA a = Config
   , _commitSubjectLine  :: a     Text
   , _summarySubjectLine :: a     Text
   , _commitURL          :: Maybe Text
+  , _blobInCommitURL    :: Maybe Text
   , _fromEMail          :: Maybe Text
   , _repoName           :: Maybe Text
   , _hashSize           :: a     Int
@@ -68,6 +69,7 @@ combine a b = runIdentity $ Config
     <*> x _includeRefs
     <*> x _rootRefs
     <*> x _commitURL
+    <*> x _blobInCommitURL
     <*> x _fromEMail
     <*> x _commitSubjectLine
     <*> x _summarySubjectLine
@@ -92,6 +94,7 @@ final a = runIdentity $ Config
     <*> defl _commitSubjectLine   "[%r %b %h%n] %s"
     <*> defl _summarySubjectLine  "[%r] %s"
     <*> pass _commitURL
+    <*> pass _blobInCommitURL
     <*> pass _fromEMail
     <*> pass _repoName
     <*> defl _hashSize     9
@@ -115,6 +118,7 @@ instance FromJSON (ConfigA Maybe) where
                   <*> field "commit_subject_line"
                   <*> field "summary_subject_line"
                   <*> field "commit_url"
+                  <*> field "blob_in_commit_url"
                   <*> field "from_email"
                   <*> field "repo_name"
                   <*> field "hash_size"

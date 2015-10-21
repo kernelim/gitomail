@@ -231,7 +231,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                             & T.replace "%r" repoName
                             & T.replace "%b" ref
                             & (T.replace "%s" $ T.concat subject)
-                        html        = TL.fromChunks [ F.flistToInlineStyleHtml flist ]
+                        html        = TL.fromChunks [ F.flistToInlineStyleHtml Nothing flist ]
                         plain       = TL.fromChunks [ F.flistToText flist ]
                         mail        = Mail
                           { mailFrom    = emailAddress

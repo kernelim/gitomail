@@ -175,13 +175,13 @@ makeOneMailCommit cmk db gitRef maybeNr = do
             if parentHashesStr == "" then [] else T.splitOn " " parentHashesStr
         formatPatchArgsEither =
             case parentHashes of
-                   []  -> Right $ ["--root", gitRef]
-                   [_] -> Right $ [T.concat [ gitRef, "~1..", gitRef]]
-                   _   -> Left "Skipping Merge commits"
+                   []       -> Right (Nothing, ["--root", gitRef])
+                   [parent] -> Right (Just parent, [T.concat [ gitRef, "~1..", gitRef]])
+                   _        -> Left "Skipping Merge commits"
 
     case formatPatchArgsEither of
         Left s -> return $ Left s
-        Right formatPatchArgs -> do
+        Right (maybeParentHash, formatPatchArgs) -> do
             config <- getConfig
             repoPath <- getRepositoryPath
             matched <- matchFiles (repoPath, gitRef)
@@ -280,7 +280,17 @@ makeOneMailCommit cmk db gitRef maybeNr = do
             case toListE of
                 Left s -> return $ Left s
                 Right toList ->
-                   do commitURL <- mapCommitHash commitHash >>= getCommitURL
+                   do commitHash' <- mapCommitHash commitHash
+                      parentCommitHash' <- case maybeParentHash of
+                          Nothing -> mapCommitHash commitHash
+                          Just parentHash -> mapCommitHash parentHash
+                      commitURL <- getCommitURL commitHash'
+                      blobInCommitURL <- getBlobInCommitURL
+
+                      let blobInCommitURLFunc = fmap f blobInCommitURL
+                          f z True filename = z commitHash' filename
+                          f z False filename = z parentCommitHash' filename
+
                       let htmlOnlyHeader = T.concat $ (intersperse "<br>" extraInfo) ++ ["<br>"]
                           extraInfo = catMaybes [
                                   commitURL
@@ -324,7 +334,7 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                             , mailParts = [[plainPart plain, htmlPart html]]
                             }
                           flists = parsedFLists ++ emailFooter
-                          html = TL.fromChunks [ htmlOnlyHeader, F.flistToInlineStyleHtml flists ]
+                          html = TL.fromChunks [ htmlOnlyHeader, F.flistToInlineStyleHtml blobInCommitURLFunc flists ]
                           plain = TL.fromChunks [ T.decodeUtf8 commit ]
                           replyTo = Address (Just authorName) authorEMail
 

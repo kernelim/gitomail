@@ -14,6 +14,7 @@ module Gitomail.Gitomail
   , ParameterNeeded(..)
   , compilePatterns
   , getCommitURL
+  , getBlobInCommitURL
   , getConfig
   , getDataFile
   , getExtraCCTo
@@ -227,6 +228,17 @@ getCommitURL hash = do
         Just t -> return $ Just $ t
                      & T.replace "%r" repoName
                      & T.replace "%H" hash
+
+getBlobInCommitURL :: (MonadGitomail m) => m (Maybe (Text -> Text -> Text))
+getBlobInCommitURL = do
+    config <- getConfig
+    repoName <- getRepoName
+    case config ^. CFG.blobInCommitURL of
+        Nothing -> return Nothing
+        Just t -> return $ Just $ (\hash filename -> t
+                     & T.replace "%r" repoName
+                     & T.replace "%H" hash
+                     & T.replace "%f" filename)
 
 withDB :: (MonadGitomail m) => StateT DB m a -> m a
 withDB = (\x -> gets _withDB >>= \f -> f x) . evalStateT

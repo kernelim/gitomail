@@ -33,21 +33,28 @@ Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00010ffffffffffffffffffffffffffff=
 fffffff<br>Branches: master<br><font size=3D"3"><div><pre style=3D"line-hei=
-ght: 125%"><div style=3D"background: #F8F8F5;"> README&#8203;=2Emd | 1 +
+ght: 125%"><div style=3D"background: #F8F8F5; font-family: monospace"> READ=
+ME&#8203;=2Emd | 1 +
  1 file changed, 1 insertion(+)
 
-</div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold"=
->diff --git a/README&#8203;=2Emd b/README&#8203;=2Emd
-index 95f3541370e6&#8203;=2E&#8203;=2Ee6019f41c77f 100644
-</div><div style=3D"background: #FFE0E0;">--- a/README&#8203;=2Emd
-</div><div style=3D"background: #E0FFE0;">+++ b/README&#8203;=2Emd
-</div><div style=3D"background: #E0E0E0; font-weight: bold">@@ -3,3 +3,4 @@=
- Added content 1
-</div><div style=3D"background: #F8F8F5;"> Added content 4
+</div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
+ font-family: monospace">diff --git a/README&#8203;=2Emd b/README&#8203;=2E=
+md
+</div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=
+pace">index 95f3541370e6&#8203;=2E&#8203;=2Ee6019f41c77f 100644
+</div><div style=3D"background: #FFE0E0; font-family: monospace">--- a/READ=
+ME&#8203;=2Emd
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/READ=
+ME&#8203;=2Emd
+</div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
+nospace">@@ -3,3 +3,4 @@ Added content 1
+</div><div style=3D"background: #F8F8F5; font-family: monospace"> Added con=
+tent 4
  Added content 5
  Added content 8
-</div><div style=3D"background: #E0FFE0;">+Added content 9
-</div><div style=3D"background: #F8F8F5;">
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+Added con=
+tent 9
+</div><div style=3D"background: #F8F8F5; font-family: monospace">
 </div></pre></div></font><div style=3D"color: #b0b0b0; font-size: 10px">Sen=
 t by <a href=3D"http://github=2Ecom/kernelim/gitomail" style=3D"text-decora=
 tion: none"><span style=3D"color: #a0a0a0">Gitomail</span></a> </div>

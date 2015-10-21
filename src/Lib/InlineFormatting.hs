@@ -22,9 +22,12 @@ import           Text.Blaze.Html.Renderer.Text (renderHtml)
 
 data Format
     = DiffMain
+    | DiffMainExtra
     | DiffHunkHeader
     | DiffAdd
     | DiffRemove
+    | DiffAddFile
+    | DiffRemoveFile
     | DiffUnchanged
     | Inverse
     | Emphesis
@@ -87,20 +90,20 @@ highlightDiff :: Text -> FList
 highlightDiff text = parse
     where
         parse       = root $ lineSplit text
-        root (x:xs) = case' "diff "  DiffMain       diff x xs $
+        root (x:xs) = case' "diff "          DiffMain       diff x xs $
                       else' root x xs
         root []     = []
 
-        diff (x:xs) = case' "index "         DiffMain       diff x xs $
-                      case' "new "           DiffMain       diff x xs $
-                      case' "old "           DiffMain       diff x xs $
-                      case' "delete "        DiffMain       diff x xs $
-                      case' "copy "          DiffMain       diff x xs $
-                      case' "rename "        DiffMain       diff x xs $
-                      case' "similarity "    DiffMain       diff x xs $
-                      case' "dissimilarity " DiffMain       diff x xs $
-                      case' "--- "           DiffRemove     diff x xs $
-                      case' "+++ "           DiffAdd        hunk x xs $
+        diff (x:xs) = case' "index "         DiffMainExtra  diff x xs $
+                      case' "new "           DiffMainExtra  diff x xs $
+                      case' "old "           DiffMainExtra  diff x xs $
+                      case' "delete "        DiffMainExtra  diff x xs $
+                      case' "copy "          DiffMainExtra  diff x xs $
+                      case' "rename "        DiffMainExtra  diff x xs $
+                      case' "similarity "    DiffMainExtra  diff x xs $
+                      case' "dissimilarity " DiffMainExtra  diff x xs $
+                      case' "--- "           DiffRemoveFile diff x xs $
+                      case' "+++ "           DiffAddFile    hunk x xs $
                       else'                  diff x xs
         diff []     = []
 
@@ -141,8 +144,8 @@ combineFLists [] []    = Right []
 data FormatPos = Start | End
     deriving Eq
 
-flistToInlineStyleHtml :: FList -> Text
-flistToInlineStyleHtml l = crux
+flistToInlineStyleHtml :: Maybe (Bool -> Text -> Text) -> FList -> Text
+flistToInlineStyleHtml fileURL l = crux
     where crux   = T.concat $ toList $ Seq.zipWith3 r seq'a seq' seq'b
           seq'   = Seq.fromList l
           seq'a  = ("", [])            Seq.<|  (Seq.take (Seq.length seq' - 1) seq')
@@ -150,11 +153,15 @@ flistToInlineStyleHtml l = crux
           delink x               = T.replace "://" ":/&#8203;/" $ T.replace "." "&#8203;." x
           plain t                = T.concat $ map delink $ TL.toChunks $ renderHtml $ toHtml t
           substract la lb        = filter (not . (`elem` lb)) la
-          r (_, a) (t, m) (_, b) = T.concat $ concat [map (html Start m) (am),
+          r (_, a) (t, m) (_, b) = T.concat $ concat [map (html Start (t, m)) (am),
                                                       [plain t],
-                                                      map (html End m) (reverse rm)]
+                                                      map (html End (t, m)) (reverse rm)]
                                    where am = m `substract` a  -- added to M
                                          rm = m `substract` b  -- remove from M
+          linkStart h = T.concat ["<a href=\"" , h, "\" style=\"text-decoration: none\">"]
+          diffStartFile n t color = T.concat [maybe "" (\f -> linkStart (f n (T.drop 6 t))) fileURL,
+                                            "<div style=\"background: ", color, "; font-family: monospace\">" ]
+          diffEndFile             = T.concat ["</div>", maybe "" (const "</a>") fileURL]
 
           html Start _ MonospacePar   = "<font size=\"3\"><div><pre style=\"line-height: 125%\">"
           html End   _ MonospacePar   = "</pre></div></font>"
@@ -162,10 +169,16 @@ flistToInlineStyleHtml l = crux
           html End   _ Monospace      = "</span></font>"
           html Start _ DiffMain       = "<div style=\"background: #DCDCFF; color: #000080; font-weight: bold; font-family: monospace\">"
           html End   _ DiffMain       = "</div>"
+          html Start _ DiffMainExtra  = "<div style=\"background: #DCDCFF; color: #000080; font-family: monospace\">"
+          html End   _ DiffMainExtra  = "</div>"
           html Start _ DiffRemove     = "<div style=\"background: #FFE0E0; font-family: monospace\">"
           html End   _ DiffRemove     = "</div>"
           html Start _ DiffAdd        = "<div style=\"background: #E0FFE0; font-family: monospace\">"
           html End   _ DiffAdd        = "</div>"
+          html Start (t, _) DiffRemoveFile = diffStartFile False t "#FFE0E0"
+          html End   _ DiffRemoveFile = diffEndFile
+          html Start (t, _) DiffAddFile    = diffStartFile True t "#E0FFE0"
+          html End   _ DiffAddFile    = diffEndFile
           html Start _ DiffHunkHeader = "<div style=\"background: #E0E0E0; font-weight: bold; font-family: monospace\">"
           html End   _ DiffHunkHeader = "</div>"
           html Start _ DiffUnchanged  = "<div style=\"background: #F8F8F5; font-family: monospace\">"
@@ -174,14 +187,14 @@ flistToInlineStyleHtml l = crux
           html End   _ List           = "</ul>"
           html Start _ ListItem       = "<li>"
           html End   _ ListItem       = "</li>"
-          html Start _ (Link t)       = T.concat ["<a href=\"" , t, "\" style=\"text-decoration: none\">"]
+          html Start _ (Link t)       = linkStart t
           html End   _ (Link _)       = "</a>"
-          html Start s Inverse        = if | DiffRemove `elem` s -> "<span style=\"background: #F8CBCB;\">"
-                                           | DiffAdd    `elem` s -> "<span style=\"background: #A6F3A6;\">"
-                                           | otherwise           -> ""
-          html End   s Inverse        = if | DiffRemove `elem` s -> "</span>"
-                                           | DiffAdd    `elem` s -> "</span>"
-                                           | otherwise           -> ""
+          html Start (_, m) Inverse        = if | DiffRemove `elem` m -> "<span style=\"background: #F8CBCB;\">"
+                                                | DiffAdd    `elem` m -> "<span style=\"background: #A6F3A6;\">"
+                                                | otherwise           -> ""
+          html End   (_, m) Inverse        = if | DiffRemove `elem` m -> "</span>"
+                                                | DiffAdd    `elem` m -> "</span>"
+                                                | otherwise           -> ""
           html Start _ Dark           = "<span style=\"color: #a0a0a0\">"
           html End   _ Dark           = "</span>"
           html Start _ Footer         = "<div style=\"color: #b0b0b0; font-size: 10px\">"

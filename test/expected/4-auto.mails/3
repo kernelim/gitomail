@@ -33,22 +33,27 @@ Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00006ffffffffffffffffffffffffffff=
 fffffff<br>Branches: master, topic2<br><font size=3D"3"><div><pre style=3D"=
-line-height: 125%"><div style=3D"background: #F8F8F5;"> README&#8203;=2Emd =
-| 1 +
+line-height: 125%"><div style=3D"background: #F8F8F5; font-family: monospac=
+e"> README&#8203;=2Emd | 1 +
  1 file changed, 1 insertion(+)
 
-</div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold"=
->diff --git a/README&#8203;=2Emd b/README&#8203;=2Emd
-index f8a2deb648ab&#8203;=2E&#8203;=2E16f4e2266859 100644
-</div><div style=3D"background: #FFE0E0;">--- a/README&#8203;=2Emd
-</div><div style=3D"background: #E0FFE0;">+++ b/README&#8203;=2Emd
-</div><div style=3D"background: #E0E0E0; font-weight: bold">@@ -1,3 +1,4 @@=
-
-</div><div style=3D"background: #F8F8F5;"> Content
+</div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
+ font-family: monospace">diff --git a/README&#8203;=2Emd b/README&#8203;=2E=
+md
+</div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=
+pace">index f8a2deb648ab&#8203;=2E&#8203;=2E16f4e2266859 100644
+</div><div style=3D"background: #FFE0E0; font-family: monospace">--- a/READ=
+ME&#8203;=2Emd
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/READ=
+ME&#8203;=2Emd
+</div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
+nospace">@@ -1,3 +1,4 @@
+</div><div style=3D"background: #F8F8F5; font-family: monospace"> Content
  Added content 1
  Added content 4
-</div><div style=3D"background: #E0FFE0;">+Added content 5
-</div><div style=3D"background: #F8F8F5;">
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+Added con=
+tent 5
+</div><div style=3D"background: #F8F8F5; font-family: monospace">
 </div></pre></div></font><div style=3D"color: #b0b0b0; font-size: 10px">Sen=
 t by <a href=3D"http://github=2Ecom/kernelim/gitomail" style=3D"text-decora=
 tion: none"><span style=3D"color: #a0a0a0">Gitomail</span></a> </div>
