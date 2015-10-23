@@ -12,6 +12,7 @@
 * Implement manual E-Mail sending similar to the old git-send-email.
 * Fixme: Commits that only remove files are skipped (no maintainers).
 * Prepare Github, Bitbucket and Gitolite presets for easier integartion.
+    * Gitolite integration will be able to tell Gitomail which user did the push.
 * Add lots of documetation.
 * Use the git executable for rev-parsing for '-v'.
 * Formatting of the ASCII E-Mail should be improved.
