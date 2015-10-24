@@ -28,7 +28,7 @@ import           Data.Text                   (Text)
 import qualified Data.Text                 as T
 import qualified Data.Text.Encoding        as T
 import qualified Data.Text.IO              as T
-import qualified Data.Map                  a Map
+import qualified Data.Map                  as Map
 import           Data.Map                   (Map)
 import           System.Console.ANSI
 import           System.FilePath            ((</>))
