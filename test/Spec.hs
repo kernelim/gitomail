@@ -28,7 +28,7 @@ import           Data.Text                   (Text)
 import qualified Data.Text                 as T
 import qualified Data.Text.Encoding        as T
 import qualified Data.Text.IO              as T
-import qualified Data.Map                  as Map
+import qualified Data.Map                  a Map
 import           Data.Map                   (Map)
 import           System.Console.ANSI
 import           System.FilePath            ((</>))
@@ -54,8 +54,8 @@ instance Show UnexpectedState where
   show (UnexpectedState msgstr) = "UnexpectedState: " ++ msgstr
 
 data Context = Context {
-      _contextStrs    :: (IORef [Text])
-    , _testRunId       :: Int
+      contextStrs     :: (IORef [Text])
+    , _testRunId      :: Int
     , contextOutputs  :: (Maybe FilePath)
     , contextDerandom :: (IORef (Map Text Text))
     }

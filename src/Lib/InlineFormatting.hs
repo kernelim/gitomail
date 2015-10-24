@@ -19,6 +19,8 @@ import qualified Data.Text.Encoding            as T
 import           Text.Blaze.Html               (toHtml)
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
 ------------------------------------------------------------------------------------
+import           Lib.Text                      ((+@), showT)
+------------------------------------------------------------------------------------
 
 data Format
     = DiffMain
@@ -30,11 +32,16 @@ data Format
     | DiffRemoveFile
     | DiffUnchanged
     | Inverse
-    | Emphesis
+    | Emphesis Int
     | MonospacePar
     | Monospace
+    | Underline
     | List
     | ListItem
+    | Table
+    | TableRow Int
+    | TableCol Int Int
+    | TableCellPad Int
     | Link Text
     | Footer
     | Dark
@@ -183,10 +190,22 @@ flistToInlineStyleHtml fileURL l = crux
           html End   _ DiffHunkHeader = "</div>"
           html Start _ DiffUnchanged  = "<div style=\"background: #F8F8F5; font-family: monospace\">"
           html End   _ DiffUnchanged  = "</div>"
+          html Start _ Underline      = "<div style=\"text-decoration: underline\">"
+          html End   _ Underline      = "</div>"
+          html Start _ (Emphesis _)   = "<div style=\"font-weight: bold\">"
+          html End   _ (Emphesis _)   = "</div>"
           html Start _ List           = "<ul>"
           html End   _ List           = "</ul>"
           html Start _ ListItem       = "<li>"
           html End   _ ListItem       = "</li>"
+          html Start _ Table          = "<blockqoute><table cellpadding=\"2\">"
+          html End   _ Table          = "</table></blockqoute>"
+          html Start _ (TableRow _)   = "<tr>"
+          html End   _ (TableRow _)   = "</tr>"
+          html Start _ (TableCellPad i) = "<td width=\"" +@ showT i +@ "\">"
+          html End   _ (TableCellPad _) = "</td>"
+          html Start _ (TableCol _ i)  = "<td colspan=\"" +@ showT i +@ "\">"
+          html End   _ (TableCol _ _)  = "</td>"
           html Start _ (Link t)       = linkStart t
           html End   _ (Link _)       = "</a>"
           html Start (_, m) Inverse        = if | DiffRemove `elem` m -> "<span style=\"background: #F8CBCB;\">"
@@ -197,10 +216,8 @@ flistToInlineStyleHtml fileURL l = crux
                                                 | otherwise           -> ""
           html Start _ Dark           = "<span style=\"color: #a0a0a0\">"
           html End   _ Dark           = "</span>"
-          html Start _ Footer         = "<div style=\"color: #b0b0b0; font-size: 10px\">"
+          html Start _ Footer         = "<div height=\"20\">&nbsp;</div><div style=\"color: #b0b0b0; font-size: 10px\">"
           html End   _ Footer         = "</div>"
-          html Start _ Emphesis       = ""
-          html End   _ Emphesis       = ""
 
 flistToText :: FList -> Text
 flistToText l = T.concat $ map f l
@@ -213,8 +230,8 @@ test :: IO ()
 test = do
     let Right v1 = ansiToFList "bla\x1b[7mbold\x1b[27mokay, foo\x1b[7mbold\x1b[27mrrr"
     print $ combineFLists v1 v1 == Right v1
-    let v2 = [("blabo", []), ("ldokay, fooboldr", [Emphesis]), ("rr", [])]
-    let v3 = Right [("bla",[]),("bo",[Inverse]),("ld",[Inverse,Emphesis]),("okay, foo",[Emphesis]),("bold",[Inverse,Emphesis]),("r",[Emphesis]),("rr",[])]
+    let v2 = [("blabo", []), ("ldokay, fooboldr", [Emphesis 0]), ("rr", [])]
+    let v3 = Right [("bla",[]),("bo",[Inverse]),("ld",[Inverse,Emphesis 0]),("okay, foo",[Emphesis 0]),("bold",[Inverse,Emphesis 0]),("r",[Emphesis 0]),("rr",[])]
     print $ combineFLists v1 v2 == v3
     print $ highlightDiff "diff \nindex \n--- \n+++ \n@@ bla\n x\n-x\n+x\n @@ bla\ndiff \n"
     return ()

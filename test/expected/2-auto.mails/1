@@ -12,28 +12,38 @@ Content-Transfer-Encoding: quoted-printable
 
 
 Content
-#1 00002ffff: Updating README=2Emd [1]
+Main User 00002ffff #1 Updating README=2Emd [1]
 
 Branch points
-00001ffff: Adding README=2Emd
+Main User 00001ffff  Adding README=2Emd
+
 Sent by Gitomail=20
 --<random-replaced-for-test>
 Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-
+<blockqoute><table cellpadding=3D"2"><tr><td colspan=3D"5"><div style=3D"te=
+xt-decoration: underline">
 Content
-<ul><li><font size=3D"3"><span style=3D"font-family: monospace">#1 <a href=
-=3D"https://github=2Ecom/gitomail/repo/commit/00002ffffffffffffffffffffffff=
-fffffffffff" style=3D"text-decoration: none">00002ffff</a></span></font>: U=
-pdating README&#8203;=2Emd [1]</li>
-</ul>
+</div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
+<td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
+a href=3D"https://github=2Ecom/gitomail/repo/commit/00002ffffffffffffffffff=
+fffffffffffffffff" style=3D"text-decoration: none">00002ffff </a></span></f=
+ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#1 </div></td><=
+td colspan=3D"1"><div style=3D"font-weight: bold">Updating README&#8203;=2E=
+md [1]
+</div></td></tr><tr><td colspan=3D"5"><div style=3D"text-decoration: underl=
+ine">
 Branch points
-<ul><li><font size=3D"3"><span style=3D"font-family: monospace"><a href=3D"=
-https://github=2Ecom/gitomail/repo/commit/00001ffffffffffffffffffffffffffff=
-fffffff" style=3D"text-decoration: none">00001ffff</a></span></font>: Addin=
-g README&#8203;=2Emd</li>
-</ul><div style=3D"color: #b0b0b0; font-size: 10px">Sent by <a href=3D"http=
-://github=2Ecom/kernelim/gitomail" style=3D"text-decoration: none"><span st=
-yle=3D"color: #a0a0a0">Gitomail</span></a> </div>
+</div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
+<td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
+a href=3D"https://github=2Ecom/gitomail/repo/commit/00001ffffffffffffffffff=
+fffffffffffffffff" style=3D"text-decoration: none">00001ffff </a></span></f=
+ont></td><td colspan=3D"1"><div style=3D"font-weight: bold"> </div></td><td=
+ colspan=3D"1"><div style=3D"font-weight: bold">Adding README&#8203;=2Emd
+</div></td></tr>
+</table></blockqoute><div height=3D"20">&nbsp;</div><div style=3D"color: #b=
+0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/git=
+omail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">Gitom=
+ail</span></a> </div>
 --<random-replaced-for-test>--

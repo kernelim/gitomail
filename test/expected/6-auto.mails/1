@@ -12,47 +12,64 @@ Content-Transfer-Encoding: quoted-printable
 
 
 Content
-#4 00014ffff: Updating Other=2Etxt [11]
-#3 00013ffff: Updating Other=2Etxt [10]
+Main User 00014ffff #4 Updating Other=2Etxt [11]
+Main User 00013ffff #3 Updating Other=2Etxt [10]
 
 Previously pushed
-#2 00012ffff: Updating Other=2Etxt [7]
-#1 00011ffff: Updating Other=2Etxt [6]
+Main User 00012ffff #2 Updating Other=2Etxt [7]
+Main User 00011ffff #1 Updating Other=2Etxt [6]
 
 Branch points
-00010ffff: Updating README=2Emd [9]
+Main User 00010ffff  Updating README=2Emd [9]
+
 Sent by Gitomail=20
 --<random-replaced-for-test>
 Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-
+<blockqoute><table cellpadding=3D"2"><tr><td colspan=3D"5"><div style=3D"te=
+xt-decoration: underline">
 Content
-<ul><li><font size=3D"3"><span style=3D"font-family: monospace">#4 <a href=
-=3D"https://github=2Ecom/gitomail/repo/commit/00014ffffffffffffffffffffffff=
-fffffffffff" style=3D"text-decoration: none">00014ffff</a></span></font>: U=
-pdating Other&#8203;=2Etxt [11]</li>
-<li><font size=3D"3"><span style=3D"font-family: monospace">#3 <a href=3D"h=
-ttps://github=2Ecom/gitomail/repo/commit/00013fffffffffffffffffffffffffffff=
-ffffff" style=3D"text-decoration: none">00013ffff</a></span></font>: Updati=
-ng Other&#8203;=2Etxt [10]</li>
-</ul>
+</div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
+<td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
+a href=3D"https://github=2Ecom/gitomail/repo/commit/00014ffffffffffffffffff=
+fffffffffffffffff" style=3D"text-decoration: none">00014ffff </a></span></f=
+ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#4 </div></td><=
+td colspan=3D"1"><div style=3D"font-weight: bold">Updating Other&#8203;=2Et=
+xt [11]
+</div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
+<td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
+a href=3D"https://github=2Ecom/gitomail/repo/commit/00013ffffffffffffffffff=
+fffffffffffffffff" style=3D"text-decoration: none">00013ffff </a></span></f=
+ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#3 </div></td><=
+td colspan=3D"1"><div style=3D"font-weight: bold">Updating Other&#8203;=2Et=
+xt [10]
+</div></td></tr><tr><td colspan=3D"5"><div style=3D"text-decoration: underl=
+ine">
 Previously pushed
-<ul><li><font size=3D"3"><span style=3D"font-family: monospace">#2 <a href=
-=3D"https://github=2Ecom/gitomail/repo/commit/00012ffffffffffffffffffffffff=
-fffffffffff" style=3D"text-decoration: none">00012ffff</a></span></font>: U=
-pdating Other&#8203;=2Etxt [7]</li>
-<li><font size=3D"3"><span style=3D"font-family: monospace">#1 <a href=3D"h=
-ttps://github=2Ecom/gitomail/repo/commit/00011fffffffffffffffffffffffffffff=
-ffffff" style=3D"text-decoration: none">00011ffff</a></span></font>: Updati=
-ng Other&#8203;=2Etxt [6]</li>
-</ul>
+</div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
+<td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
+a href=3D"https://github=2Ecom/gitomail/repo/commit/00012ffffffffffffffffff=
+fffffffffffffffff" style=3D"text-decoration: none">00012ffff </a></span></f=
+ont></td><td colspan=3D"1">#2 </td><td colspan=3D"1">Updating Other&#8203;=
+=2Etxt [7]
+</td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td><td co=
+lspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><a href=
+=3D"https://github=2Ecom/gitomail/repo/commit/00011ffffffffffffffffffffffff=
+fffffffffff" style=3D"text-decoration: none">00011ffff </a></span></font></=
+td><td colspan=3D"1">#1 </td><td colspan=3D"1">Updating Other&#8203;=2Etxt =
+[6]
+</td></tr><tr><td colspan=3D"5"><div style=3D"text-decoration: underline">
 Branch points
-<ul><li><font size=3D"3"><span style=3D"font-family: monospace"><a href=3D"=
-https://github=2Ecom/gitomail/repo/commit/00010ffffffffffffffffffffffffffff=
-fffffff" style=3D"text-decoration: none">00010ffff</a></span></font>: Updat=
-ing README&#8203;=2Emd [9]</li>
-</ul><div style=3D"color: #b0b0b0; font-size: 10px">Sent by <a href=3D"http=
-://github=2Ecom/kernelim/gitomail" style=3D"text-decoration: none"><span st=
-yle=3D"color: #a0a0a0">Gitomail</span></a> </div>
+</div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
+<td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
+a href=3D"https://github=2Ecom/gitomail/repo/commit/00010ffffffffffffffffff=
+fffffffffffffffff" style=3D"text-decoration: none">00010ffff </a></span></f=
+ont></td><td colspan=3D"1"> </td><td colspan=3D"1">Updating README&#8203;=
+=2Emd [9]
+</td></tr>
+</table></blockqoute><div height=3D"20">&nbsp;</div><div style=3D"color: #b=
+0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/git=
+omail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">Gitom=
+ail</span></a> </div>
 --<random-replaced-for-test>--

@@ -1,11 +1,10 @@
 ## ToDo
 
-* Improve formatting of summary E-Mail.
-    * Mark commits that introduce diffs that are not dups.
 * Maintainers in diffstat.
 * Support sending a user welcome message.
     * Provide a template for it, pointers to GMail filtering and such.
     * To track who we have already sent a welcome message - need a different DB for that.
+* Improve formatting of the plain-text version of the E-Mail
 * Support ref names adding people to CC automatically according to
   their maintainer alias.
 * Add in-reply-to from the commit mails to the summary E-Mails.

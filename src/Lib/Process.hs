@@ -1,5 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Lib.Process (readProcess, readProcess', readProcess'') where
+
+module Lib.Process (
+    readProcess,
+    readProcess',
+    readProcess'',
+    ReadProcessFailed
+    ) where
 
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted as E
@@ -24,7 +30,7 @@ readProcess' fp params input = do
         liftIO $ SP.readProcessWithExitCode fp (map unpack params) input
     case exitcode of
         ExitSuccess -> return stdout
-        _ -> E.throw $ ReadProcessFailed $ (show (exitcode, stderr))
+        _ -> E.throw $ ReadProcessFailed $ (show (fp, params, exitcode, stderr))
 
 readProcess'' :: MonadIO m => FilePath -> [Text] -> Text -> m (ExitCode, Text, Text)
 readProcess'' fp params input = do

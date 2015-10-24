@@ -1,17 +1,18 @@
-{-# LANGUAGE KindSignatures            #-}
-{-# LANGUAGE RankNTypes                #-}
 {-# LANGUAGE DeriveDataTypeable        #-}
+{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE FlexibleInstances         #-}
+{-# LANGUAGE KindSignatures            #-}
 {-# LANGUAGE LambdaCase                #-}
+{-# LANGUAGE MultiWayIf                #-}
 {-# LANGUAGE NoImplicitPrelude         #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE RecordWildCards           #-}
-{-# LANGUAGE TypeSynonymInstances      #-}
 {-# LANGUAGE PartialTypeSignatures     #-}
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE MultiWayIf                #-}
+{-# LANGUAGE RankNTypes                #-}
+{-# LANGUAGE RecordWildCards           #-}
+{-# LANGUAGE ScopedTypeVariables       #-}
+{-# LANGUAGE TypeSynonymInstances      #-}
 
 module Gitomail.Automailer
     ( autoMailer
@@ -53,6 +54,8 @@ import qualified Gitomail.Opts               as O
 import           Gitomail.CommitToMail
 import           Gitomail.Gitomail
 import           Lib.Monad                   (whenM)
+import           Lib.Text                    ((+@))
+import           Lib.Process                 (ReadProcessFailed)
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as F
 import           Lib.Regex                   (matchWhole)
@@ -162,48 +165,64 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
             githashtoNumberI <- newIORef Map.empty
             (flist, mails) <- do
                 let commitLists = [
-                        ("Content"          , newCommits,       True)
-                      , ("Previously pushed", belowOrEqOldRef,  True)
-                      , ("Branch points"    , branchPoints,     False)
+                        ("Content"          , newCommits,       True, -1)
+                      , ("Previously pushed", belowOrEqOldRef,  True, -2)
+                      , ("Branch points"    , branchPoints,     False, -3)
                       ]
                 let insert sI x = modifyIORef' sI (Seq.|> x)
 
                 flistI <- newIORef Seq.empty
                 mailsI <- newIORef Seq.empty
-                -- insert flistI $ ("AD", [])
+                rowIdsI <- newIORef (0 :: Int)
 
-                forM_ commitLists $ \(name, list, includeCCTo) -> do
+                forM_ commitLists $ \(name, list, includeCCTo, tableId) -> do
                    emptySoFarI <- newIORef True
                    forM_ list $ \(maybeNr, commitHash) -> do
                        mailinfo <- makeOneMailCommit CommitMailSummary db commitHash maybeNr
                        case mailinfo of
                            Right (MailInfo{..}) -> do
+                               modifyIORef' rowIdsI (+ 1)
+                               rowId <- readIORef rowIdsI
+
+                               let row = F.TableRow rowId
+                               let col' i c = F.TableCol i c
+                               let col i = col' i 1
+
                                whenM (readIORef emptySoFarI) $ do
                                    writeIORef emptySoFarI False
-                                   insert flistI (T.concat ["\n", name, "\n"], [])
+                                   insert flistI (T.concat ["\n", name, "\n"],
+                                                 [F.Table, F.TableRow tableId,
+                                                  col' tableId 5, F.Underline])
 
                                mappedCommitHash <- mapCommitHash commitHash
                                githash <- githashRepr mappedCommitHash
                                insert mailsI $ if includeCCTo
                                                     then miMail
                                                     else miMail { mailCc = [], mailTo = [] }
-                               case maybeNr of
-                                   Just nr -> do
-                                       modifyIORef' githashtoNumberI (Map.insert commitHash nr)
-                                       insert flistI (T.pack $ "#" ++ show nr ++ " ",
-                                                      [F.List, F.ListItem, F.Monospace])
-                                   Nothing -> return ()
-
                                links <- getCommitURL mappedCommitHash >>= \case
                                    Nothing -> return []
                                    Just url -> return [F.Link url]
-                               insert flistI (githash, [F.List, F.ListItem, F.Monospace
-                                                       ] ++ links)
-                               insert flistI (": ", [F.List, F.ListItem])
-                               insert flistI (fromMaybe "" miCommmitSubject, [F.List, F.ListItem])
-                               insert flistI ("\n", [F.List])
+
+                               insert flistI ("", [F.Table, row, F.TableCellPad 10])
+
+                               insert flistI (miAuthorName +@ " ", [F.Table, row, col 0])
+                               insert flistI (githash +@ " ",      [F.Table, row, col 1, F.Monospace] ++ links)
+
+                               nr <- case maybeNr of
+                                   Just nr -> do
+                                       modifyIORef' githashtoNumberI (Map.insert commitHash nr)
+                                       return $ T.pack $ "#" ++ show nr ++ " "
+                                   Nothing ->
+                                       return " "
+
+                               let maybeBold i = if miInexactDiffHashNew then [F.Emphesis i] else []
+                               insert flistI (nr, [F.Table, row, col 2] ++ maybeBold 0)
+                               insert flistI ((fromMaybe "" miCommmitSubject) +@ "\n",
+                                              [F.Table, row, col 3] ++ maybeBold 1)
                            Left _ ->
                                return ()
+
+                insert flistI ("\n", [F.Table])
 
                 flist <- readIORef flistI
                 mails <- readIORef mailsI
@@ -213,17 +232,17 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
             (cc, to) <- getExtraCCTo
 
             emailAddress <- getFromEMail
-            let toAddreses = nub $ to ++ (concat $ map mailTo mails)
+            let toAddresses = nub $ to ++ (concat $ map mailTo mails)
                 ccAddresses = nub $ cc ++ (concat $ map mailCc mails)
-                (toAddreses', ccAddreses') =
-                    if toAddreses == [] then (ccAddresses, [])
-                                        else (toAddreses, ccAddresses)
+                (toAddresses', ccAddresses') =
+                    if toAddresses == [] then (ccAddresses, [])
+                                        else (toAddresses, ccAddresses)
 
             repoName <- getRepoName
             githashToNumber <- readIORef githashtoNumberI
             extraHeaders <- genExtraEMailHeaders emailAddress
 
-            case toAddreses of
+            case toAddresses of
                 [] -> return (githashToNumber, Left "No E-Mail destination for summary")
                 _ -> do
                     let subjectLine =
@@ -235,13 +254,13 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                         plain       = TL.fromChunks [ F.flistToText flist ]
                         mail        = Mail
                           { mailFrom    = emailAddress
-                          , mailTo      = toAddreses'
-                          , mailCc      = ccAddreses' \\ toAddreses'
+                          , mailTo      = toAddresses'
+                          , mailCc      = ccAddresses' \\ toAddresses'
                           , mailBcc     = []
                           , mailHeaders = extraHeaders ++ [("Subject", subjectLine)]
                           , mailParts   = [[plainPart plain, htmlPart html]]
                           }
-                    return (githashToNumber, Right $ MailInfo mail "" subjectLine Nothing)
+                    return (githashToNumber, Right $ MailInfo mail "" "" False subjectLine Nothing)
         False ->
             return $ (Map.empty, Left "No commits, not sending anything")
 
@@ -392,8 +411,13 @@ autoMailer = do
                 Nothing -> return $ (Nothing, [])
                 Just oldRef -> do
                     x <- fmap Just $ liftIO $ GIT.textToOid oldRef
-                    y <- fmap T.lines $ lift $ gitCmd ["show-branch", "--merge-base",
-                                                       oldRef, topCommit]
+                    y <- let normal =
+                                 fmap T.lines $ lift $ gitCmd ["show-branch", "--merge-base",
+                                                               oldRef, topCommit]
+                             excp (_ :: ReadProcessFailed) = do
+                                 -- No merge base
+                                 return []
+                          in  E.catch normal excp
                     mergeBases <- liftIO $ mapM GIT.textToOid y
                     return (x, mergeBases)
 

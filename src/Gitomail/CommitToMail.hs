@@ -149,10 +149,12 @@ type InexactDiffHash = BS.ByteString
 type SubjectLine = Text
 
 data MailInfo = MailInfo {
-        miMail            :: Mail
-      , miInexactDiffHash :: InexactDiffHash
-      , miMailSubject     :: SubjectLine
-      , miCommmitSubject  :: Maybe Text
+        miMail               :: Mail
+      , miAuthorName         :: Text
+      , miInexactDiffHash    :: InexactDiffHash
+      , miInexactDiffHashNew :: Bool
+      , miMailSubject        :: SubjectLine
+      , miCommmitSubject     :: Maybe Text
     }
 
 data CommitMailKind = CommitMailSummary | CommitMailFull
@@ -200,11 +202,11 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                           T.concat $ map (\x -> if | "@@ "    `T.isPrefixOf`  x -> "@@"
                                                    | "index " `T.isPrefixOf`  x -> "index"
                                                    | otherwise                  -> x) $ T.lines diff
-            diffInexactMatches <- do
+            (diffInexactMatches, miInexactDiffHashNew) <- do
                 b <- checkInexactDiffHashInDB db diffInexactHash
                 case b of
-                    True -> return $ Just "InexactDiffDup"
-                    False -> return $ Nothing
+                    True -> return $ (Just "InexactDiffDup", not b)
+                    False -> return $ (Nothing, not b)
 
             affectedPaths <- gitCmd ["show", gitRef, "--pretty=format:", "--name-only"]
             let affectedPathsSet = affectedPaths & T.encodeUtf8 & BS8.lines & Set.fromList
@@ -338,7 +340,8 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                           plain = TL.fromChunks [ T.decodeUtf8 commit ]
                           replyTo = Address (Just authorName) authorEMail
 
-                      return $ Right $ MailInfo mail diffInexactHash subjectLine (Just commitSubjectLine)
+                      return $ Right $ MailInfo mail authorName diffInexactHash
+                                        miInexactDiffHashNew subjectLine (Just commitSubjectLine)
 
 
 sendMails :: (MonadGitomail m) => [(IO (), Either String MailInfo)] -> m ()
