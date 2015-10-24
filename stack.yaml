@@ -14,8 +14,11 @@ packages:
   subdirs:
   - mime-mail
   extra-dep: true
+- location:
+    git: https://github.com/kernelim/leveldb-haskell
+    commit: 6e92a6cb26b6f75857e95705c15902b85758dd53
+  extra-dep: true
 - .
 resolver: lts-3.7
 extra-deps:
-- leveldb-haskell-0.6.3
 - regex-tdfa-text-1.0.0.3
