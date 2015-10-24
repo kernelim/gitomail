@@ -1,5 +1,7 @@
 ## Gitomail
 
+[![Build Status](https://travis-ci.org/kernelim/gitomail.svg?branch=master)](https://travis-ci.org/kernelim/gitomail)
+
 Gitomail's automatic E-Mail generation for git provides the following:
 
 * Pretty HTML colored diffs in E-Mails, per commit, *in combination* with the old time plaintext for old E-Mail readers.
