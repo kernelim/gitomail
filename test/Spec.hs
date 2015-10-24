@@ -9,6 +9,7 @@
 {-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE TemplateHaskell            #-}
 
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted  as E
@@ -17,6 +18,8 @@ import           Control.Monad.Catch         (MonadMask)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (StateT, evalStateT, get, MonadState,
                                               modify, gets)
+import           Control.Lens                (makeLenses)
+import           Control.Lens.Operators      ((<+=))
 import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Data.Typeable               (Typeable)
 import           Data.Maybe                  (catMaybes)
@@ -52,9 +55,13 @@ instance Show UnexpectedState where
 
 data Context = Context {
       _contextStrs    :: (IORef [Text])
+    , _testRunId       :: Int
     , contextOutputs  :: (Maybe FilePath)
     , contextDerandom :: (IORef (Map Text Text))
     }
+
+makeLenses ''Context
+
 class (MonadIO m, MonadState Context m, MonadBaseControl IO m, MonadMask m) => MonadSpec m where
 instance (MonadIO m, MonadBaseControl IO m, MonadMask m) => MonadSpec (StateT Context m) where
 
@@ -62,13 +69,13 @@ contextNew :: (MonadIO m) => m Context
 contextNew = do
     i <- newIORef []
     j <- newIORef Map.empty
-    return (Context i Nothing j)
+    return (Context i 0 Nothing j)
 
 msg :: (MonadSpec m) => Text -> m ()
 msg x = do ctx <- get
            f ctx x
   where
-    f (Context ctx _ _) text = do
+    f (Context ctx _ _ _) text = do
         lst <- readIORef ctx
         liftIO $ do
             setSGR [SetColor Foreground Vivid Cyan]
@@ -86,7 +93,7 @@ wrap :: (MonadSpec m) => Text -> m b -> m b
 wrap title x = do ctx<- get
                   f ctx title x
   where
-    f (Context ctx _ _) title' act = do
+    f (Context ctx _ _ _) title' act = do
         lst <- readIORef ctx
         writeIORef ctx (title':lst)
         let restore = writeIORef ctx lst
@@ -120,11 +127,13 @@ gitomailC :: (MonadSpec m) => Text -> [Text] -> m ()
 gitomailC save params = do
     let fp = ".git/gitomail.conf"
     derandoms <- gets contextDerandom >>= readIORef
+    curTestRunId <- testRunId <+= 1
 
     writeFile' fp $ T.decodeUtf8 $ Yaml.encode $ Yaml.object
-        [ "from_email"    Yaml..= Yaml.toJSON ("bot@gitomail.com" :: Text)
-        , "hash_map"    Yaml..= Yaml.toJSON (Just derandoms)
-        , "commit_url"  Yaml..= Yaml.toJSON ("https://github.com/gitomail/%r/commit/%H" :: Text)
+        [ "from_email"   Yaml..= Yaml.toJSON ("bot@gitomail.com" :: Text)
+        , "hash_map"     Yaml..= Yaml.toJSON (Just derandoms)
+        , "test_run_id"  Yaml..= Yaml.toJSON (curTestRunId)
+        , "commit_url"   Yaml..= Yaml.toJSON ("https://github.com/gitomail/%r/commit/%H" :: Text)
         ]
 
     t <- gets contextOutputs >>= \case

@@ -1,4 +1,9 @@
-module Lib.Text (showT, (+@), removeTrailingNewLine) where
+module Lib.Text (
+    showT
+    , (+@)
+    , removeTrailingNewLine
+    , leadingZeros
+    ) where
 
 ------------------------------------------------------------------------------------
 import           Data.Text (Text)
@@ -15,5 +20,8 @@ removeTrailingNewLine x =
 
 showT :: Show a => a -> Text
 showT = T.pack . show
+
+leadingZeros :: Int -> Text -> Text
+leadingZeros n t = T.concat [ T.pack(take (n - (T.length t)) $ repeat '0'), t ]
 
 infixr 2 +@

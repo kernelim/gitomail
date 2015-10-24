@@ -41,6 +41,7 @@ data ConfigA a = Config
   , _repoName           :: Maybe Text
   , _hashSize           :: a     Int
   , _hashMap            :: Maybe (Map Text Text)
+  , _testRunId          :: a     Int
   }
 type Config = ConfigA Id
 
@@ -76,6 +77,7 @@ combine a b = runIdentity $ Config
     <*> x _repoName
     <*> x _hashSize
     <*> x _hashMap
+    <*> x _testRunId
    where
        rightIfJust _ b'@(Just _) = b'
        rightIfJust a' Nothing = a'
@@ -99,6 +101,7 @@ final a = runIdentity $ Config
     <*> pass _repoName
     <*> defl _hashSize     9
     <*> pass _hashMap
+    <*> defl _testRunId    0
     where
         defl f v = pure $ maybe (Id v) Id (f a)
         pass f = pure $ f a
@@ -123,6 +126,7 @@ instance FromJSON (ConfigA Maybe) where
                   <*> field "repo_name"
                   <*> field "hash_size"
                   <*> field "hash_map"
+                  <*> field "test_run_id"
 
 parse :: MonadIO m => String -> m (ConfigA Maybe)
 parse str =

@@ -99,6 +99,7 @@ test-suite gitomail-test
                      , containers
                      , yaml
                      , text
+                     , lens
                      , regex-tdfa           >= 1.2.1
                      , regex-tdfa-text
                      , transformers         >= 0.4.2.0

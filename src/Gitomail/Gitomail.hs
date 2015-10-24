@@ -1,4 +1,5 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings         #-}
+{-# LANGUAGE TemplateHaskell           #-}
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE FlexibleInstances         #-}
 {-# LANGUAGE KindSignatures            #-}
@@ -36,7 +37,8 @@ module Gitomail.Gitomail
 
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted    as E
-import           Control.Lens.Operators      ((^.), (&))
+import           Control.Lens.Operators      ((^.), (&), (<+=))
+import           Control.Lens                (makeLenses)
 import           Control.Monad               (forM,)
 import           Control.Monad.Catch         (MonadMask)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
@@ -69,6 +71,7 @@ import qualified Gitomail.Version            as V
 import           Lib.EMail                   (parseEMail', InvalidEMail(..))
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as F
+import           Lib.Text                    ((+@), showT, leadingZeros)
 import           Lib.Memo                    (cacheIO, cacheIO')
 import           Lib.Process                 (readProcess, readProcess'')
 import           Lib.Regex                   (matchWhole)
@@ -76,17 +79,20 @@ import qualified Paths_gitomail              as Paths_gitomail
 ------------------------------------------------------------------------------------
 
 data Gitomail = Gitomail {
-    opts               :: O.Opts
-  , _loadFiles         :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe BS8.ByteString))
-  , _parseFiles        :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe Maintainers.Unit))
-  , _compilePatterns   :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe [(Int, Maintainers.Definition)]))
-  , _matchFiles        :: (FilePath, O.GitRef) -> IO (GIT.Tree Maintainers.AssignedFileStatus)
-  , _getExtraCCTo      :: IO ([Address], [Address])
-  , _getFromEMail      :: IO (Address)
-  , _getRepositoryPath :: IO FilePath
-  , _getConfig         :: IO CFG.Config
-  , _withDB            :: forall a. forall m. (MonadMask m, MonadIO m) => (DB -> m a) -> m a
+    opts                :: O.Opts
+  , _fakeMessageId      :: Int
+  , __loadFiles         :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe BS8.ByteString))
+  , __parseFiles        :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe Maintainers.Unit))
+  , __compilePatterns   :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe [(Int, Maintainers.Definition)]))
+  , __matchFiles        :: (FilePath, O.GitRef) -> IO (GIT.Tree Maintainers.AssignedFileStatus)
+  , __getExtraCCTo      :: IO ([Address], [Address])
+  , __getFromEMail      :: IO (Address)
+  , __getRepositoryPath :: IO FilePath
+  , __getConfig         :: IO CFG.Config
+  , __withDB            :: forall a. forall m. (MonadMask m, MonadIO m) => (DB -> m a) -> m a
   }
+
+makeLenses ''Gitomail
 
 data ParameterNeeded = ParameterNeeded String deriving (Typeable)
 instance E.Exception ParameterNeeded
@@ -107,22 +113,24 @@ getGitomail :: O.Opts -> IO (Gitomail)
 getGitomail opts = do
     -- Various cached loaders
 
-    _loadFiles <- cacheIO $ \(filepath, gitref) ->
+    let _fakeMessageId = 0
+
+    __loadFiles <- cacheIO $ \(filepath, gitref) ->
         Maintainers.loadFiles filepath gitref
 
-    _parseFiles <- cacheIO $ \v -> do
-        filesLoaded <- _loadFiles v
+    __parseFiles <- cacheIO $ \v -> do
+        filesLoaded <- __loadFiles v
         Maintainers.parseFiles filesLoaded
 
-    _compilePatterns <- cacheIO $ \v -> do
-        filesParsed <- _parseFiles v
+    __compilePatterns <- cacheIO $ \v -> do
+        filesParsed <- __parseFiles v
         Maintainers.compilePatterns filesParsed
 
-    _matchFiles <- cacheIO $ \v -> do
-        patternsCompiled <- _compilePatterns v
+    __matchFiles <- cacheIO $ \v -> do
+        patternsCompiled <- __compilePatterns v
         Maintainers.matchFiles (Maintainers.assignDefinitionFiles patternsCompiled)
 
-    _getRepositoryPath <- cacheIO' $ do
+    __getRepositoryPath <- cacheIO' $ do
         -- On which repository are we working on? We need assistance from
         -- 'git' to find the '.git', and we use it either on O.repositoryPath
         -- or the current directory.
@@ -137,7 +145,7 @@ getGitomail opts = do
             ExitSuccess -> return $ path </> (T.unpack $ T.strip stdout)
             _ -> E.throw $ GitRepoNotFound $ (show (exitcode, stderr))
 
-    _getConfig <-  cacheIO' $ do
+    __getConfig <-  cacheIO' $ do
         let safeGetEnv v =
                 E.catch (fmap Just $ getEnv v) (\(_ :: E.SomeException) -> return Nothing)
             existence e = fmap (\case True -> [e] ; False -> []) $ doesFileExist e
@@ -146,7 +154,7 @@ getGitomail opts = do
                     Nothing -> return []
                     Just homePath -> existence $ homePath </> ".gitomailconf.yaml"
             repoConfig' = do
-                repoPath <- _getRepositoryPath
+                repoPath <- __getRepositoryPath
                 existence $ repoPath </> "gitomailconf.yaml"
             checkOpt a = if opts ^. O.noImplicitConfigs then return [] else a
 
@@ -157,15 +165,15 @@ getGitomail opts = do
             []    -> (E.throw $ ParameterNeeded $ BS8.unpack "config paths")
             paths -> fmap CFG.final $ fmap (foldl1 CFG.combine) $ forM paths $ CFG.parse
 
-    _getExtraCCTo <- cacheIO' $ do
+    __getExtraCCTo <- cacheIO' $ do
         [cc, to] <- forM [(O.extraCC, "CC"), (O.extraTo, "To")] $ \(getter, name) -> do
             forM (map parseEMail' (opts ^. getter)) $ \case
                      Left r -> E.throw $ InvalidEMail $ name ++ ": " ++  r
                      Right r -> return r
         return (cc, to)
 
-    _getFromEMail <- cacheIO' $ do
-        config <- _getConfig
+    __getFromEMail <- cacheIO' $ do
+        config <- __getConfig
         case config ^. CFG.fromEMail of
             Nothing  -> E.throw $ ParameterNeeded $ BS8.unpack "from_email"
             Just fromEMail ->
@@ -173,8 +181,8 @@ getGitomail opts = do
                     Left r -> E.throw $ InvalidEMail $ "from_email: " ++ r
                     Right r -> return r
 
-    let _withDB f = do
-            path <- liftIO $ _getRepositoryPath
+    let __withDB f = do
+            path <- liftIO $ __getRepositoryPath
             let gitomailDbPath = path </> "gitomail.db"
             let options = DB.defaultOptions { DB.createIfMissing = True , DB.errorIfExists = False }
             DB.withDB gitomailDbPath options f
@@ -185,24 +193,24 @@ class (MonadIO m, MonadState Gitomail m, MonadBaseControl IO m, MonadMask m) => 
 instance (MonadIO m, MonadBaseControl IO m, MonadMask m) => MonadGitomail (StateT Gitomail m) where
 
 getRepositoryPath :: (MonadGitomail m) => m FilePath
-getRepositoryPath = gets _getRepositoryPath >>= liftIO
+getRepositoryPath = gets __getRepositoryPath >>= liftIO
 
 getConfig         :: (MonadGitomail m) => m CFG.Config
-getConfig         = gets _getConfig >>= liftIO
+getConfig         = gets __getConfig >>= liftIO
 
 getFromEMail      :: (MonadGitomail m) => m Address
-getFromEMail      = gets _getFromEMail >>= liftIO
+getFromEMail      = gets __getFromEMail >>= liftIO
 
 getExtraCCTo      :: (MonadGitomail m) => m ([Address], [Address])
-getExtraCCTo      = gets _getExtraCCTo >>= liftIO
+getExtraCCTo      = gets __getExtraCCTo >>= liftIO
 
 matchFiles        :: (MonadGitomail m) =>
                     (FilePath, O.GitRef) -> m (GIT.Tree Maintainers.AssignedFileStatus)
-matchFiles x      = gets _matchFiles >>= \f -> liftIO $ f x
+matchFiles x      = gets __matchFiles >>= \f -> liftIO $ f x
 
 compilePatterns   :: (MonadGitomail m) =>
                      (FilePath, O.GitRef) -> m (GIT.Tree (Maybe [(Int, Maintainers.Definition)]))
-compilePatterns x = gets _compilePatterns >>= \f -> liftIO $ f x
+compilePatterns x = gets __compilePatterns >>= \f -> liftIO $ f x
 
 getRepoName :: (MonadGitomail m) => m Text
 getRepoName = do
@@ -241,7 +249,7 @@ getBlobInCommitURL = do
                      & T.replace "%f" filename)
 
 withDB :: (MonadGitomail m) => StateT DB m a -> m a
-withDB = (\x -> gets _withDB >>= \f -> f x) . evalStateT
+withDB = (\x -> gets __withDB >>= \f -> f x) . evalStateT
 
 gitCmd :: (MonadGitomail m) => [Text] -> m Text
 gitCmd params = do
@@ -307,8 +315,10 @@ genExtraEMailHeaders (Address _ email) = do
         Nothing -> do
             g <- liftIO $ Rand.getStdGen
             return $ T.pack $ show secs ++ "-" ++ show nsecs ++ "-" ++ (randomNumbers 10 g)
-        Just _ ->
-            return "0000000000-0000000-0000"
+        Just _ -> do
+            messageId <- fakeMessageId <+= 1
+            let testRunId = leadingZeros 7 $ showT $ config CFG.^.|| CFG.testRunId
+            return $ "0000000000-" +@ testRunId +@ "-" +@ (leadingZeros 4 $ showT messageId)
 
     return [
         ("Message-Id", T.concat ["<", numbers, "-gitomail-", email, ">"]),
