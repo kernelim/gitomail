@@ -217,7 +217,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
 
                                let maybeBold i = if miInexactDiffHashNew then [F.Emphesis i] else []
                                insert flistI (nr, [F.Table, row, col 2] ++ maybeBold 0)
-                               insert flistI ((fromMaybe "" miCommmitSubject) +@ "\n",
+                               insert flistI ((fromMaybe "" miCommitSubject) +@ "\n",
                                               [F.Table, row, col 3] ++ maybeBold 1)
                            Left _ ->
                                return ()

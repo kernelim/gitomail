@@ -154,7 +154,7 @@ data MailInfo = MailInfo {
       , miInexactDiffHash    :: InexactDiffHash
       , miInexactDiffHashNew :: Bool
       , miMailSubject        :: SubjectLine
-      , miCommmitSubject     :: Maybe Text
+      , miCommitSubject      :: Maybe Text
     }
 
 data CommitMailKind = CommitMailSummary | CommitMailFull
