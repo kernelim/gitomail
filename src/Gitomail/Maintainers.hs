@@ -8,6 +8,7 @@ module Gitomail.Maintainers
   , Error(..)
   , Definition(..)
   , Unit(..)
+  , DefInFile
   , assignDefinitionFiles
   , compilePatterns
   , fileName
@@ -82,7 +83,9 @@ data Definition
   | Assign Assign AliasName Glob.Pattern
   deriving (Eq, Show)
 
-compilePatterns :: Monad m => GIT.Tree (Maybe Unit) -> m (GIT.Tree (Maybe [(Int, Definition)]))
+type DefInFile = (Int, Definition)
+
+compilePatterns :: Monad m => GIT.Tree (Maybe Unit) -> m (GIT.Tree (Maybe [DefInFile]))
 compilePatterns tree = GIT.mapTreeMaybeM f tree
     where
         f path (Unit defs) = return $ reverse $ map (\(ln, x) -> (ln, d x)) defs
@@ -139,7 +142,7 @@ instance E.Exception InvalidAlias
 instance Show InvalidAlias where
   show (InvalidAlias msgstr) = "InvalidAlias: " ++ msgstr
 
-getAvailableDefs :: Monad m => GIT.Tree (Maybe [(Int, Definition)]) -> m (Set (Path, Int))
+getAvailableDefs :: Monad m => GIT.Tree (Maybe [DefInFile]) -> m (Set (Path, Int))
 getAvailableDefs tree =
   do x <- root
      foldSubJoinT21toT12M x Set.empty $ add
@@ -154,7 +157,7 @@ getEffectiveDefs :: Monad m => GIT.Tree AssignedFileStatus -> m (Set (Path, Int)
 getEffectiveDefs tree = GIT.foldTree Set.empty f tree
   where f _ s content = return $ Set.union (fileStatusToDefSet content) s
 
-matchFiles :: Monad m => GIT.Tree [(BS8.ByteString, [(Int, Definition)])] -> m (GIT.Tree AssignedFileStatus)
+matchFiles :: Monad m => GIT.Tree [(BS8.ByteString, [DefInFile])] -> m (GIT.Tree AssignedFileStatus)
 matchFiles tree = GIT.mapTreeM f tree
   where f pathcomps content = root
           where

@@ -1,17 +1,18 @@
-{-# LANGUAGE KindSignatures            #-}
-{-# LANGUAGE RankNTypes                #-}
 {-# LANGUAGE DeriveDataTypeable        #-}
+{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE FlexibleInstances         #-}
+{-# LANGUAGE KindSignatures            #-}
 {-# LANGUAGE LambdaCase                #-}
+{-# LANGUAGE MultiWayIf                #-}
 {-# LANGUAGE NoImplicitPrelude         #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE RecordWildCards           #-}
-{-# LANGUAGE TypeSynonymInstances      #-}
 {-# LANGUAGE PartialTypeSignatures     #-}
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE MultiWayIf                #-}
+{-# LANGUAGE RankNTypes                #-}
+{-# LANGUAGE RecordWildCards           #-}
+{-# LANGUAGE ScopedTypeVariables       #-}
+{-# LANGUAGE TypeSynonymInstances      #-}
 
 module Gitomail.CommitToMail (
     InvalidCommandOutput(..),
@@ -70,7 +71,7 @@ import           Gitomail.Gitomail
 import           Gitomail.WhoMaintains
 import qualified Gitomail.Maintainers        as Maintainers
 import qualified Gitomail.Opts               as O
-import           Lib.EMail
+import           Lib.EMail                   (parseEMail, InvalidEMail, emailRegEx)
 import           Lib.Text                    (removeTrailingNewLine)
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as F
@@ -217,17 +218,17 @@ makeOneMailCommit cmk db gitRef maybeNr = do
 
             containedInBranchesList <- gitBranchesContainingCommit $ gitRef
 
-            let ccOrToReulsts = map d ((commitMessageBody =~ ccRegEx :: [[Text]]))
+            let ccOrToResults = map d ((commitMessageBody =~ ccRegEx :: [[Text]]))
                    where ccRegEx = T.concat ["\n((C[cC])|To|Signed-off-by): ", emailRegEx] :: Text
                 d [_ ,typ ,_ , _, _, name, email, ""] = Right (typ, Just name, email)
                 d [_ ,typ ,_ , _, _, "", "", email] = Right (typ, Nothing, email)
                 d r@_ = Left r
 
-            extraAddresses <- fmap catMaybes $ forM ccOrToReulsts $ \v' ->
+            extraAddresses <- forM ccOrToResults $ \v' ->
                 case v' of
                     Left v -> do putStrLn $ "warning: ignored matched regex:" ++ (show v)
                                  return Nothing
-                    Right (_, name, email) -> return $ Just (name, email)
+                    Right (_, name, email) -> return $ Just $ Address name email
 
             maintainerInfo <- iterateFilesWithMaintainers matched $ \path i ->
                 return $
@@ -251,15 +252,8 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                        [] -> "<?>"
 
             let Maintainers.AssignedFileStatus {..} = maintainerInfo
-                splitAddress (_, email) = let [x, y, _] = BS8.splitWith (\c -> c == '<' || c == '>') email
-                                          in ((Just $ T.decodeUtf8 $ dropLeadingSpaces x), (T.decodeUtf8 y))
-                   where dropLeadingSpaces str = BS8.reverse $ BS8.dropWhile (== ' ') $ BS8.reverse str
-
-                address (x, y) = Address x y
-                ccListAddress = map address ccList
-                   where ccList = Set.toList $ Set.fromList $ -- FIXME: unique over the address only and not the name
-                                  map splitAddress fsReviewers ++ map splitAddress fsObservers ++ extraAddresses
-
+                getEMail (_, email) = E.catch (parseEMail (T.decodeUtf8 email) >>= (return . Just))
+                                        (\(_ :: InvalidEMail) -> return Nothing)
                 (_, p2) = StrSearch.breakAfter "\nSubject: " (T.encodeUtf8 patch)
                 (_, commit) = StrSearch.breakOn "\n\n" p2
 
@@ -270,13 +264,18 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                     where flags = catMaybes [diffInexactMatches]
 
             (toListE, ccList) <- do
-                  (cc, to) <- getExtraCCTo
+                  (extraCc, extraTo) <- getExtraCCTo
+                  maintainerM <- case fsMaintainer of
+                      Nothing -> return Nothing
+                      Just e -> getEMail e
+                  others <- mapM getEMail (fsReviewers ++ fsObservers)
+
                   return $
-                      let mkTo (Just m) = to ++ [m]
-                          mkTo Nothing = to
-                          maintainerM = fmap (address . splitAddress) fsMaintainer
-                          ccList = cc ++ ccListAddress
-                          toList = mkTo maintainerM
+                      let otherAddresses =
+                              -- FIXME: unique over the address only and not the name
+                              Set.toList $ Set.fromList $ others ++ (extraAddresses)
+                          ccList = catMaybes $ map Just extraCc ++ otherAddresses
+                          toList = extraTo ++ (catMaybes [maintainerM])
                        in case (cmk, toList, ccList) of
                           (CommitMailFull    , [],   [])   ->
                               (Left $ "skipped - no destination for commit '" ++ T.unpack subjectLine ++ " '", [])

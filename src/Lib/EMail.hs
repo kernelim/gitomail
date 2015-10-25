@@ -1,5 +1,7 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE StandaloneDeriving   #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Lib.EMail (emailRegEx, parseEMail, parseEMail', InvalidEMail(..)) where
 
@@ -39,3 +41,5 @@ parseEMail e = do
     case parseEMail' e of
         Right r -> return r
         Left r  -> E.throw $ InvalidEMail $ T.unpack e ++ ", " ++ show r
+
+deriving instance Ord Address

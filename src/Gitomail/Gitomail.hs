@@ -83,7 +83,7 @@ data Gitomail = Gitomail {
   , _fakeMessageId      :: Int
   , __loadFiles         :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe BS8.ByteString))
   , __parseFiles        :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe Maintainers.Unit))
-  , __compilePatterns   :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe [(Int, Maintainers.Definition)]))
+  , __compilePatterns   :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe [Maintainers.DefInFile]))
   , __matchFiles        :: (FilePath, O.GitRef) -> IO (GIT.Tree Maintainers.AssignedFileStatus)
   , __getExtraCCTo      :: IO ([Address], [Address])
   , __getFromEMail      :: IO (Address)

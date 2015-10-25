@@ -511,3 +511,4 @@ showAutoMailerRefs = do
         putStrLn "--"
         forM_ lst $ \(ref, hash) -> do
             putStrLn $ concat $ [T.unpack hash, " ", T.unpack ref]
+
