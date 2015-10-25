@@ -41,9 +41,9 @@ import qualified Data.ByteString.Lazy        as BL
 import           Data.ByteString.Search      as StrSearch
 import           Data.Either                 (rights)
 import           Data.List                   (intersperse, (\\))
-import           Data.Maybe                  (fromMaybe, catMaybes)
-import qualified Data.Set                    as Set
 import qualified Data.Map                    as Map
+import           Data.Maybe                  (catMaybes, fromMaybe)
+import qualified Data.Set                    as Set
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
 import qualified Data.Text.Encoding          as T
@@ -53,32 +53,33 @@ import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
 import           Network.HaskellNet.Auth     (AuthType (PLAIN))
 import           Network.HaskellNet.SMTP     (authenticate, sendMimeMail2)
-import           Network.HaskellNet.SMTP.SSL (Settings (sslPort),
+import           Network.HaskellNet.SMTP.SSL (SMTPConnection,
+                                              Settings (sslPort),
                                               defaultSettingsSMTPSSL,
                                               defaultSettingsSMTPSTARTTLS,
                                               doSMTPSSLWithSettings,
-                                              doSMTPSTARTTLSWithSettings,
-                                              SMTPConnection)
+                                              doSMTPSTARTTLSWithSettings)
 import           Network.Mail.Mime           (Address (..), Mail (..), htmlPart,
                                               plainPart, renderAddress,
                                               renderMail')
+import           System.FilePath             ((</>))
 import           Text.Regex.TDFA             ((=~))
 import           Text.Regex.TDFA.Text        ()
-import           System.FilePath             ((</>))
 ----
 import           Gitomail.Config             ((^.||))
 import qualified Gitomail.Config             as CFG
 import           Gitomail.Gitomail
-import           Gitomail.WhoMaintains
 import qualified Gitomail.Maintainers        as Maintainers
 import qualified Gitomail.Opts               as O
-import           Lib.EMail                   (parseEMail, InvalidEMail, emailRegEx)
-import           Lib.Text                    (removeTrailingNewLine)
+import           Gitomail.WhoMaintains
+import           Lib.EMail                   (InvalidEMail, emailRegEx,
+                                              parseEMail)
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as F
-import           Lib.Regex                   (matchWhole)
 import           Lib.LiftedPrelude
 import           Lib.Process                 (readProcess')
+import           Lib.Regex                   (matchWhole)
+import           Lib.Text                    (removeTrailingNewLine, (+@))
 ------------------------------------------------------------------------------------
 
 data InvalidDiff = InvalidDiff String deriving (Typeable)
@@ -160,8 +161,8 @@ data CommitInfo = CommitInfo {
     }
 
 data MailInfo = MailInfo {
-        miMail               :: Mail
-      , miSubject            :: SubjectLine
+        miMail    :: Mail
+      , miSubject :: SubjectLine
     }
 
 data CommitMailKind = CommitMailSummary | CommitMailFull
@@ -221,7 +222,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
             affectedPaths <- gitCmd ["show", commitHash, "--pretty=format:", "--name-only"]
             let affectedPathsSet = affectedPaths & T.encodeUtf8 & BS8.lines & Set.fromList
 
-            containedInBranchesList <- gitBranchesContainingCommit $ commitHash
+            containedInBranchesList <- gitBranchesContainingCommit commitHash
 
             let ccOrToResults = map d ((commitMessageBody =~ ccRegEx :: [[Text]]))
                    where ccRegEx = T.concat ["\n((C[cC])|To|Signed-off-by): ", emailRegEx] :: Text
@@ -244,6 +245,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
             refsMatcher <- getRefsMatcher
             repoName <- getRepoName
             shortHash <- mapCommitHash commitHash >>= githashRepr
+
             let subjectLine =
                     config ^.|| CFG.commitSubjectLine
                     & T.replace "%r" repoName
@@ -252,8 +254,8 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                     & T.replace "%b" leadingBranch
                     & T.replace "%s" commitSubjectLine
                 leadingBranch =
-                    case filter refsMatcher containedInBranchesList of
-                       (x:_) -> x
+                    case filter refsMatcher $ map ("heads/" +@) containedInBranchesList of
+                       (x:_) -> T.drop (T.length "heads/") x
                        [] -> "<?>"
 
             let Maintainers.AssignedFileStatus {..} = maintainerInfo
