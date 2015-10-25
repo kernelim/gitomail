@@ -14,6 +14,7 @@ module Gitomail.Maintainers
   , fileName
   , getAvailableDefs
   , getEffectiveDefs
+  , getRootDefs
   , loadFiles
   , matchFiles
   , parse
@@ -103,6 +104,9 @@ compilePatterns tree = GIT.mapTreeMaybeM f tree
 
 fileName :: Path
 fileName = "Maintainers"
+
+getRootDefs :: GIT.Tree t -> Maybe t
+getRootDefs t = fmap GIT.treeVal $ Map.lookup fileName $ GIT.treeMap t
 
 assignDefinitionFiles :: GIT.Tree (Maybe a) -> GIT.Tree [(BS8.ByteString, a)]
 assignDefinitionFiles tree = r [] [] tree

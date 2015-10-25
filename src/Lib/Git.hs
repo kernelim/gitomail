@@ -22,6 +22,7 @@ module Lib.Git
   , printTree
   , catBlob
   , treeVal
+  , treeMap
   , refRepr
   , analyseRefs
   , Git.RefName
@@ -79,6 +80,10 @@ data Tree a
 treeVal :: Tree t -> t
 treeVal (File i) = i
 treeVal (Node i _) = i
+
+treeMap :: Tree t -> TreeMap t
+treeMap (File _) = Map.empty
+treeMap (Node _ x) = x
 
 loadAnyRevStr :: (MonadIO m, Git.MonadGit r m, MonadMask m, MonadBaseControl IO m) =>
                   T.Text -> EitherT String m (Git.Object r m)

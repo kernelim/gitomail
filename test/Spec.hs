@@ -204,6 +204,7 @@ tests tempDir = do
         readme = "README.md"
         file2 = "Maintainers"
         other = "Other.txt"
+        someOther = "SomeOther.txt"
         automailer = ["auto-mailer"]
         repoDir = tempDir </> "repo"
         repo2Dir = tempDir </> "repo2"
@@ -215,6 +216,7 @@ tests tempDir = do
             gitDerandomizeHashHEAD
         readmeAppend = fileAppend readme
         otherAppend = fileAppend other
+        someOtherAppend = fileAppend someOther
         backToMaster = git' ["checkout", "master"]
         checkoutCreate branch = git' ["checkout", "-b", branch]
         checkout branch = git' ["checkout", branch]
@@ -286,6 +288,20 @@ tests tempDir = do
     forM_ [10..11] otherAppend
     gitomailC "6-auto" automailer
 
+    msg "Alias Ref Match feature"
+    -----------------------------
+
+    checkoutCreate "other/feature"
+
+    appendFile' "Maintainers" $
+         "alias other  Other User <other@gitomail.com>\n"
+
+    git' [add, "Maintainers"]
+    forM_ [12..13] readmeAppend
+    checkout "master"
+
+    gitomailC "9-auto" automailer
+
     msg "Ref going backward after init"
     ----------------------------------
 
@@ -303,6 +319,7 @@ tests tempDir = do
     git' ["reset", "--hard", "HEAD~3"]
 
     gitomailC "8-auto" automailer
+    checkout "master"
 
 run :: (MonadSpec m) => m ()
 run = do

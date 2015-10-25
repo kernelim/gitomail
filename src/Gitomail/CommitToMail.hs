@@ -43,6 +43,7 @@ import           Data.Either                 (rights)
 import           Data.List                   (intersperse, (\\))
 import           Data.Maybe                  (fromMaybe, catMaybes)
 import qualified Data.Set                    as Set
+import qualified Data.Map                    as Map
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
 import qualified Data.Text.Encoding          as T
@@ -165,15 +166,18 @@ data MailInfo = MailInfo {
 data CommitMailKind = CommitMailSummary | CommitMailFull
     deriving Eq
 
-makeOneMailCommit :: (MonadGitomail m) =>
-                  CommitMailKind -> DB -> O.GitRef -> Maybe Int -> m (Either String (MailInfo, CommitInfo))
-makeOneMailCommit cmk db gitRef maybeNr = do
-    commitHash <- fmap removeTrailingNewLine $ gitCmd ["show", gitRef, "--pretty=%H", "-s"]
-
+makeOneMailCommit :: (MonadGitomail m)
+                     => CommitMailKind
+                     -> DB
+                     -> O.GitRef
+                     -> GIT.GitCommitHash
+                     -> Maybe Int
+                     -> m (Either String (MailInfo, CommitInfo))
+makeOneMailCommit cmk db ref commitHash maybeNr = do
     (authorName, commitSubjectLine, authorEMail, commitMessageBody, parentHashesStr) <- do
         let keys = intersperse commitHash
                      ["%aN", "%s", "%ae", "%b", "%P"]
-        commitData <- fmap removeTrailingNewLine $ gitCmd ["show", gitRef, T.concat $ "--pretty=":keys, "-s"]
+        commitData <- fmap removeTrailingNewLine $ gitCmd ["show", commitHash, T.concat $ "--pretty=":keys, "-s"]
         case T.splitOn commitHash commitData of
             [a,b,c,d,e] -> return (a,b,c,d,e)
             _ -> E.throw $ InvalidCommandOutput "TODO"
@@ -182,8 +186,8 @@ makeOneMailCommit cmk db gitRef maybeNr = do
             if parentHashesStr == "" then [] else T.splitOn " " parentHashesStr
         formatPatchArgsEither =
             case parentHashes of
-                   []       -> Right (Nothing, ["--root", gitRef])
-                   [parent] -> Right (Just parent, [T.concat [ gitRef, "~1..", gitRef]])
+                   []       -> Right (Nothing, ["--root", commitHash])
+                   [parent] -> Right (Just parent, [T.concat [ commitHash, "~1..", commitHash]])
                    _        -> Left "Skipping Merge commits"
 
     case formatPatchArgsEither of
@@ -191,7 +195,7 @@ makeOneMailCommit cmk db gitRef maybeNr = do
         Right (maybeParentHash, formatPatchArgs) -> do
             config <- getConfig
             repoPath <- getRepositoryPath
-            matched <- matchFiles (repoPath, gitRef)
+            matched <- matchFiles (repoPath, commitHash)
             patch <- gitCmd $ ["format-patch", "-M", "--stdout", "--no-signature"
                                ] ++ formatPatchArgs
 
@@ -213,10 +217,10 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                     True -> return $ (Just "InexactDiffDup", not b)
                     False -> return $ (Nothing, not b)
 
-            affectedPaths <- gitCmd ["show", gitRef, "--pretty=format:", "--name-only"]
+            affectedPaths <- gitCmd ["show", commitHash, "--pretty=format:", "--name-only"]
             let affectedPathsSet = affectedPaths & T.encodeUtf8 & BS8.lines & Set.fromList
 
-            containedInBranchesList <- gitBranchesContainingCommit $ gitRef
+            containedInBranchesList <- gitBranchesContainingCommit $ commitHash
 
             let ccOrToResults = map d ((commitMessageBody =~ ccRegEx :: [[Text]]))
                    where ccRegEx = T.concat ["\n((C[cC])|To|Signed-off-by): ", emailRegEx] :: Text
@@ -268,14 +272,22 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                   maintainerM <- case fsMaintainer of
                       Nothing -> return Nothing
                       Just e -> getEMail e
-                  others <- mapM getEMail (fsReviewers ++ fsObservers)
 
+                  others <- mapM getEMail (fsReviewers ++ fsObservers)
+                  aliasTo <- case config ^.|| CFG.aliasRefMatch of
+                      Nothing -> return []
+                      Just aliasRefRegex -> do
+                          aliasMap <- getTopAliases commitHash
+                          fmap catMaybes $ forM (Map.toList aliasMap) $ \(name, email) -> do
+                              if (ref :: Text) =~ (aliasRefRegex & T.replace "%a" name)
+                                 then return $ Just email
+                                 else return Nothing
                   return $
                       let otherAddresses =
                               -- FIXME: unique over the address only and not the name
                               Set.toList $ Set.fromList $ others ++ (extraAddresses)
                           ccList = catMaybes $ map Just extraCc ++ otherAddresses
-                          toList = extraTo ++ (catMaybes [maintainerM])
+                          toList = extraTo ++ aliasTo ++ (catMaybes [maintainerM])
                        in case (cmk, toList, ccList) of
                           (CommitMailFull    , [],   [])   ->
                               (Left $ "skipped - no destination for commit '" ++ T.unpack subjectLine ++ " '", [])
@@ -388,5 +400,7 @@ sendOne = do
     let gitRef = opts ^. O.gitRef & fromMaybe "HEAD"
     mailinfo <- withDB $ do
         db <- get
-        lift $ makeOneMailCommit CommitMailFull db gitRef Nothing
+        lift $ do
+            commitHash <- fmap removeTrailingNewLine $ gitCmd ["show", gitRef, "--pretty=%H", "-s"]
+            makeOneMailCommit CommitMailFull db gitRef commitHash Nothing
     sendMails [(return (), fmap fst mailinfo)]

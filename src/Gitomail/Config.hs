@@ -33,6 +33,7 @@ data ConfigA a = Config
   , _excludeRefs        :: Maybe [Text]
   , _includeRefs        :: Maybe [Text]
   , _rootRefs           :: a     [Text]
+  , _aliasRefMatch      :: a     (Maybe Text)
   , _commitSubjectLine  :: a     Text
   , _summarySubjectLine :: a     Text
   , _commitURL          :: Maybe Text
@@ -69,6 +70,7 @@ combine a b = runIdentity $ Config
     <*> x _excludeRefs
     <*> x _includeRefs
     <*> x _rootRefs
+    <*> x _aliasRefMatch
     <*> x _commitURL
     <*> x _blobInCommitURL
     <*> x _fromEMail
@@ -93,6 +95,7 @@ final a = runIdentity $ Config
     <*> pass _excludeRefs
     <*> pass _includeRefs
     <*> defl _rootRefs            ["tags/.*", "heads/master"]
+    <*> defl _aliasRefMatch       (Just "heads/%a/.*")
     <*> defl _commitSubjectLine   "[%r %b %h%n] %s"
     <*> defl _summarySubjectLine  "[%r] %s"
     <*> pass _commitURL
@@ -118,6 +121,7 @@ instance FromJSON (ConfigA Maybe) where
                   <*> field "exclude_refs"
                   <*> field "include_refs"
                   <*> field "root_refs"
+                  <*> field "alias_ref_match"
                   <*> field "commit_subject_line"
                   <*> field "summary_subject_line"
                   <*> field "commit_url"

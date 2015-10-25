@@ -1,0 +1,87 @@
+From:  =?utf-8?Q?Main_User?=<bot@gitomail.com>
+To:  =?utf-8?Q?Other_User?=<other@gitomail.com>,  =?utf-8?Q?Main_User?=<main@gitomail.com>
+Message-Id: <0000000000-0000007-0005-gitomail-bot@gitomail.com>
+X-Mailer: gitomail 0.0.0
+Reply-to:  =?utf-8?Q?Main_User?=<main@gitomail.com>
+Subject: [repo other/feature 00015ffff, #1] Updating README.md [12]
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
+
+--<random-replaced-for-test>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+
+
+---
+ Maintainers | 1 +
+ README=2Emd   | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/Maintainers b/Maintainers
+index cfd0d01c5137=2E=2E1574d7785ab4 100644
+--- a/Maintainers
++++ b/Maintainers
+@@ -1,2 +1,3 @@
+ alias user  Main User <main@gitomail=2Ecom>
+ maintainer user
++alias other  Other User <other@gitomail=2Ecom>
+diff --git a/README=2Emd b/README=2Emd
+index e6019f41c77f=2E=2E435bb79035ef 100644
+--- a/README=2Emd
++++ b/README=2Emd
+@@ -4,3 +4,4 @@ Added content 4
+ Added content 5
+ Added content 8
+ Added content 9
++Added content 12
+
+--<random-replaced-for-test>
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+https://github=2Ecom/gitomail/repo/commit/00015ffffffffffffffffffffffffffff=
+fffffff<br>Branches: other/feature<br><font size=3D"3"><div><pre style=3D"l=
+ine-height: 125%"><div style=3D"background: #F8F8F5; font-family: monospace=
+"> Maintainers | 1 +
+ README&#8203;=2Emd   | 1 +
+ 2 files changed, 2 insertions(+)
+
+</div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
+ font-family: monospace">diff --git a/Maintainers b/Maintainers
+</div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=
+pace">index cfd0d01c5137&#8203;=2E&#8203;=2E1574d7785ab4 100644
+</div><div style=3D"background: #FFE0E0; font-family: monospace">--- a/Main=
+tainers
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/Main=
+tainers
+</div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
+nospace">@@ -1,2 +1,3 @@
+</div><div style=3D"background: #F8F8F5; font-family: monospace"> alias use=
+r  Main User &lt;main@gitomail&#8203;=2Ecom&gt;
+ maintainer user
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+alias oth=
+er  Other User &lt;other@gitomail&#8203;=2Ecom&gt;
+</div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
+ font-family: monospace">diff --git a/README&#8203;=2Emd b/README&#8203;=2E=
+md
+</div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=
+pace">index e6019f41c77f&#8203;=2E&#8203;=2E435bb79035ef 100644
+</div><div style=3D"background: #FFE0E0; font-family: monospace">--- a/READ=
+ME&#8203;=2Emd
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/READ=
+ME&#8203;=2Emd
+</div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
+nospace">@@ -4,3 +4,4 @@ Added content 4
+</div><div style=3D"background: #F8F8F5; font-family: monospace"> Added con=
+tent 5
+ Added content 8
+ Added content 9
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+Added con=
+tent 12
+</div><div style=3D"background: #F8F8F5; font-family: monospace">
+</div></pre></div></font><div height=3D"20">&nbsp;</div><div style=3D"color=
+: #b0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim=
+/gitomail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">G=
+itomail</span></a> </div>
+--<random-replaced-for-test>--

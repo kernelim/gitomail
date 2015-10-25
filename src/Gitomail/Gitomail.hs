@@ -280,7 +280,10 @@ getTopAliases gitRef = do
                 Left _        -> return Nothing
                 Right address -> return $ Just (T.decodeUtf8 name, address)
         f _ = return Nothing
-    m <- mapM f $ fromMaybe [] (fmap (map snd) $ GIT.treeVal patternsCompiled)
+        defs = case Maintainers.getRootDefs patternsCompiled of
+                   Just (Just ls) -> ls
+                   _ -> []
+    m <- mapM f (map snd defs)
     return $ Map.fromList $ catMaybes m
 
 githashRepr :: (MonadGitomail m) => GIT.GitCommitHash -> m Text

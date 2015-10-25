@@ -178,7 +178,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                 forM_ commitLists $ \(name, list, includeCCTo, tableId) -> do
                    emptySoFarI <- newIORef True
                    forM_ list $ \(maybeNr, commitHash) -> do
-                       mailinfo <- makeOneMailCommit CommitMailSummary db commitHash maybeNr
+                       mailinfo <- makeOneMailCommit CommitMailSummary db ref commitHash maybeNr
                        case mailinfo of
                            Right (MailInfo{..}, CommitInfo{..}) -> do
                                modifyIORef' rowIdsI (+ 1)
@@ -384,7 +384,7 @@ autoMailer = do
                         shownCommitHash <- lift $ mapCommitHash cCommitHash
                         if | cIsNew -> do putStrLn $ "  Formatting " ++ (T.unpack shownCommitHash)
                                           info <- lift $ makeOneMailCommit CommitMailFull
-                                                db cCommitHash (Map.lookup cCommitHash numbersMap)
+                                                db ref cCommitHash (Map.lookup cCommitHash numbersMap)
                                           let mailinfoAndAction = (action, fmap fst info)
                                               action = do
                                                   markSeen syncOp cCommitHash

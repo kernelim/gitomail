@@ -5,8 +5,6 @@
     * Provide a template for it, pointers to GMail filtering and such.
     * To track who we have already sent a welcome message - need a different DB for that.
 * Improve formatting of the plain-text version of the E-Mail
-* Support ref names adding people to CC automatically according to
-  their maintainer alias.
 * Handle Level DB corruption.
 * Add in-reply-to from the commit mails to the summary E-Mails.
 * Implement manual E-Mail sending similar to the old git-send-email.
