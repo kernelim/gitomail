@@ -26,6 +26,7 @@ module Gitomail.Gitomail
   , getRepoName
   , getRepositoryPath
   , getVersion
+  , getTopAliases
   , genExtraEMailHeaders
   , gitCmd
   , githashRepr
@@ -47,7 +48,8 @@ import           Control.Monad.Trans.Control (MonadBaseControl)
 import qualified Data.ByteString.Char8       as BS8
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
-import           Data.Maybe                  (fromMaybe)
+import qualified Data.Text.Encoding          as T
+import           Data.Maybe                  (fromMaybe, catMaybes)
 import qualified Data.Map                    as Map
 import           Data.Typeable               (Typeable)
 import           Data.Version                (showVersion)
@@ -268,6 +270,18 @@ getRefsMatcher = do
     let includeRefs = regexMatcher CFG.includeRefs id
     let onlyRefs x = and [excludeRefs x, includeRefs x]
     return onlyRefs
+
+getTopAliases :: (MonadGitomail m) => O.GitRef -> m (Map.Map Text Address)
+getTopAliases gitRef = do
+    repoPath <- getRepositoryPath
+    patternsCompiled <- compilePatterns (repoPath, gitRef)
+    let f (Maintainers.Alias name email) = do
+            case parseEMail' $ T.decodeUtf8 email of
+                Left _        -> return Nothing
+                Right address -> return $ Just (T.decodeUtf8 name, address)
+        f _ = return Nothing
+    m <- mapM f $ fromMaybe [] (fmap (map snd) $ GIT.treeVal patternsCompiled)
+    return $ Map.fromList $ catMaybes m
 
 githashRepr :: (MonadGitomail m) => GIT.GitCommitHash -> m Text
 githashRepr githash = do
