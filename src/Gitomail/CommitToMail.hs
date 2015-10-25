@@ -17,6 +17,7 @@ module Gitomail.CommitToMail (
     InvalidCommandOutput(..),
     CommitMailKind(..),
     MailInfo(..),
+    CommitInfo(..),
     makeOneMailCommit,
     sendMailSession,
     sendMails,
@@ -148,20 +149,23 @@ checkInexactDiffHashInDB db inexactDiffHash = do
 type InexactDiffHash = BS.ByteString
 type SubjectLine = Text
 
+data CommitInfo = CommitInfo {
+        ciAuthorName         :: Text
+      , ciInexactDiffHash    :: InexactDiffHash
+      , ciInexactDiffHashNew :: Bool
+      , ciCommitSubject      :: Text
+    }
+
 data MailInfo = MailInfo {
         miMail               :: Mail
-      , miAuthorName         :: Text
-      , miInexactDiffHash    :: InexactDiffHash
-      , miInexactDiffHashNew :: Bool
-      , miMailSubject        :: SubjectLine
-      , miCommitSubject      :: Maybe Text
+      , miSubject            :: SubjectLine
     }
 
 data CommitMailKind = CommitMailSummary | CommitMailFull
     deriving Eq
 
 makeOneMailCommit :: (MonadGitomail m) =>
-                  CommitMailKind -> DB -> O.GitRef -> Maybe Int -> m (Either String MailInfo)
+                  CommitMailKind -> DB -> O.GitRef -> Maybe Int -> m (Either String (MailInfo, CommitInfo))
 makeOneMailCommit cmk db gitRef maybeNr = do
     commitHash <- fmap removeTrailingNewLine $ gitCmd ["show", gitRef, "--pretty=%H", "-s"]
 
@@ -339,9 +343,10 @@ makeOneMailCommit cmk db gitRef maybeNr = do
                           html = TL.fromChunks [ htmlOnlyHeader, F.flistToInlineStyleHtml blobInCommitURLFunc flists ]
                           plain = TL.fromChunks [ T.decodeUtf8 commit ]
                           replyTo = Address (Just authorName) authorEMail
+                          commitInfo =
+                              CommitInfo authorName diffInexactHash miInexactDiffHashNew commitSubjectLine
 
-                      return $ Right $ MailInfo mail authorName diffInexactHash
-                                        miInexactDiffHashNew subjectLine (Just commitSubjectLine)
+                      return $ Right $ (MailInfo mail subjectLine, commitInfo)
 
 
 sendMails :: (MonadGitomail m) => [(IO (), Either String MailInfo)] -> m ()
@@ -365,7 +370,7 @@ sendMails mails = do
                                  Nothing -> do bs <- renderMail' miMail
                                                BL.putStr bs
                                  Just conn -> do
-                                     putStrLn $ "  Sending '" ++ (T.unpack miMailSubject) ++ "'"
+                                     putStrLn $ "  Sending '" ++ (T.unpack miSubject) ++ "'"
                                      sendMimeMail2 miMail conn
                         Just outputPath -> do
                             bs <- renderMail' miMail
@@ -373,7 +378,7 @@ sendMails mails = do
                             modifyIORef' indexI (+1)
                             let outputFile = outputPath </> show index -- TODO better filename
                             putStrLn $ "  Writing " ++ outputFile
-                                           ++ " - '" ++ (T.unpack miMailSubject) ++ "'"
+                                           ++ " - '" ++ (T.unpack miSubject) ++ "'"
                             BS.writeFile outputFile $ BS.concat (BL.toChunks bs)
                 e _ _ (Left msg) = do
                     putStrLn $ "  Skipping,  " ++ msg
@@ -385,4 +390,4 @@ sendOne = do
     mailinfo <- withDB $ do
         db <- get
         lift $ makeOneMailCommit CommitMailFull db gitRef Nothing
-    sendMails [(return (), mailinfo)]
+    sendMails [(return (), fmap fst mailinfo)]

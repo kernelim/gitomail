@@ -180,7 +180,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                    forM_ list $ \(maybeNr, commitHash) -> do
                        mailinfo <- makeOneMailCommit CommitMailSummary db commitHash maybeNr
                        case mailinfo of
-                           Right (MailInfo{..}) -> do
+                           Right (MailInfo{..}, CommitInfo{..}) -> do
                                modifyIORef' rowIdsI (+ 1)
                                rowId <- readIORef rowIdsI
 
@@ -205,7 +205,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
 
                                insert flistI ("", [F.Table, row, F.TableCellPad 10])
 
-                               insert flistI (miAuthorName +@ " ", [F.Table, row, col 0])
+                               insert flistI (ciAuthorName +@ " ", [F.Table, row, col 0])
                                insert flistI (githash +@ " ",      [F.Table, row, col 1, F.Monospace] ++ links)
 
                                nr <- case maybeNr of
@@ -215,9 +215,9 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                                    Nothing ->
                                        return " "
 
-                               let maybeBold i = if miInexactDiffHashNew then [F.Emphesis i] else []
+                               let maybeBold i = if ciInexactDiffHashNew then [F.Emphesis i] else []
                                insert flistI (nr, [F.Table, row, col 2] ++ maybeBold 0)
-                               insert flistI ((fromMaybe "" miCommitSubject) +@ "\n",
+                               insert flistI (ciCommitSubject +@ "\n",
                                               [F.Table, row, col 3] ++ maybeBold 1)
                            Left _ ->
                                return ()
@@ -260,7 +260,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                           , mailHeaders = extraHeaders ++ [("Subject", subjectLine)]
                           , mailParts   = [[plainPart plain, htmlPart html]]
                           }
-                    return (githashToNumber, Right $ MailInfo mail "" "" False subjectLine Nothing)
+                    return (githashToNumber, Right $ MailInfo mail subjectLine)
         False ->
             return $ (Map.empty, Left "No commits, not sending anything")
 
@@ -383,16 +383,16 @@ autoMailer = do
                     forM_ commitsinfo $ \CommitIterationInfo {..} -> do
                         shownCommitHash <- lift $ mapCommitHash cCommitHash
                         if | cIsNew -> do putStrLn $ "  Formatting " ++ (T.unpack shownCommitHash)
-                                          mailinfo <- lift $ makeOneMailCommit CommitMailFull
+                                          info <- lift $ makeOneMailCommit CommitMailFull
                                                 db cCommitHash (Map.lookup cCommitHash numbersMap)
-                                          let mailinfoAndAction = (action, mailinfo)
+                                          let mailinfoAndAction = (action, fmap fst info)
                                               action = do
                                                   markSeen syncOp cCommitHash
                                                   modifyIORef' updatedRefsI $ Map.insert ref cCommitHash
                                                   updateRefsMap
-                                                  case mailinfo of
-                                                      Right (MailInfo {..}) ->
-                                                          putInexactDiffHashInDB db miInexactDiffHash
+                                                  case info of
+                                                      Right (MailInfo {..}, CommitInfo{..}) ->
+                                                          putInexactDiffHashInDB db ciInexactDiffHash
                                                       Left _ -> return ()
                                           modifyIORef' mailsI ((:) mailinfoAndAction)
                            | otherwise -> putStrLn $ "  Skipping old commit " ++ (T.unpack shownCommitHash)
