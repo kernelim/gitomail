@@ -76,6 +76,7 @@ import           Lib.EMail                   (parseEMail, InvalidEMail, emailReg
 import           Lib.Text                    (removeTrailingNewLine)
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as F
+import           Lib.Regex                   (matchWhole)
 import           Lib.LiftedPrelude
 import           Lib.Process                 (readProcess')
 ------------------------------------------------------------------------------------
@@ -279,7 +280,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                       Just aliasRefRegex -> do
                           aliasMap <- getTopAliases commitHash
                           fmap catMaybes $ forM (Map.toList aliasMap) $ \(name, email) -> do
-                              if (ref :: Text) =~ (aliasRefRegex & T.replace "%a" name)
+                              if matchWhole (aliasRefRegex & T.replace "%a" name) ref
                                  then return $ Just email
                                  else return Nothing
                   return $
