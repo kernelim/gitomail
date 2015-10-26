@@ -1,5 +1,5 @@
 name:                gitomail
-version:             0.7.5
+version:             0.7.6
 synopsis:            Gitomail - Automatic E-Mail generation for Git
 homepage:            http://github.com/kernelim/gitomail
 license:             Apache-2.0
