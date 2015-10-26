@@ -59,6 +59,7 @@ import           Lib.Process                 (ReadProcessFailed)
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as F
 import           Lib.Regex                   (matchWhole)
+import           Lib.Monad                   (lSeqForM)
 import           Lib.LiftedPrelude
 ------------------------------------------------------------------------------------
 
@@ -271,7 +272,7 @@ getAutoMailerRefs = do
     let onlyRefs x = refsMatcher x
 
     refsLines <- fmap T.lines $ gitCmd ["show-ref", "--heads", "--tags", "--dereference"]
-    byScores <- fmap catMaybes $ forM refsLines $ \line -> do
+    byScores <- fmap catMaybes $ lSeqForM refsLines $ \line -> do
         let invalid f =
                E.throw $ InvalidCommandOutput ("git show-ref returned: " ++ show f)
         let pass hash refname = do

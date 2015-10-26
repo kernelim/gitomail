@@ -1,21 +1,31 @@
-module Lib.Monad (
-    mapWithKeyM,
-    foldSubJoinT21toT12M,
-    mapMM_,
-    whenM,
-    whenM') where
+{-# LANGUAGE NoMonomorphismRestriction #-}
+
+module Lib.Monad
+    ( mapWithKeyM
+    , foldSubJoinT21toT12M
+    , mapMM_
+    , whenM
+    , whenM'
+    , seqMapM
+    , seqForM
+    , lSeqMapM
+    , lSeqForM
+    ) where
 
 ------------------------------------------------------------------------------------
-import           Control.Monad                  (foldM, forM, when, void)
+import           Control.Monad                  (foldM, when, void)
 import           Data.Map                       (Map)
 import qualified Data.Map                       as Map
+import           Data.Sequence                  (Seq)
+import qualified Data.Sequence                  as Seq
+import           Data.Foldable                 (toList)
 ------------------------------------------------------------------------------------
 
 mapWithKeyM :: (Ord k, Functor m, Monad m) => (k -> a -> m b) -> Map k a -> m (Map k b)
 mapWithKeyM f m = fmap Map.fromList $
-  forM (Map.toList m) $ \(k, a) -> do
-    i <- f k a
-    return (k, i)
+   lSeqForM (Map.toList m) $ \(k, a) -> do
+       i <- f k a
+       return (k, i)
 
 foldSubJoinT21toT12M :: Monad m => [(t1, [(t2, t)])] -> a -> (a -> ((t1, t2), t) -> m a) -> m a
 foldSubJoinT21toT12M lst s f' = foldM l2 s lst
@@ -36,3 +46,26 @@ whenM' :: Monad m => m Bool -> m a -> m ()
 whenM' a b = do
     v <- a
     when v (void b)
+
+--
+-- Left monadic fold of a Foldable into a Sequence.
+--
+-- This is safer in a sense that it won't cause stack overflow, compared
+-- to the standard mapM. E.g. seqMapM return [1..10000000 :: Int] >> return ()
+--
+seqMapM :: (Monad m, Foldable l) =>
+           (a -> m b) -> l a -> m (Seq b)
+seqMapM f = foldM item Seq.empty
+    where item acc x = f x >>= return . (acc Seq.|>)
+
+lSeqMapM :: (Monad m, Foldable l) =>
+            (a -> m b) -> l a -> m [b]
+lSeqMapM m l = fmap toList $ seqMapM m l
+
+seqForM :: (Monad m, Foldable l) =>
+           l a -> (a -> m b) -> m  (Seq b)
+seqForM = flip seqMapM
+
+lSeqForM :: (Monad m, Foldable l) =>
+            l a -> (a -> m b) -> m [b]
+lSeqForM l m = fmap toList $ seqForM l m
