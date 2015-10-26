@@ -11,8 +11,6 @@
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TemplateHaskell            #-}
 
-module Spec where
-
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted  as E
 import           Control.Monad               (void, forM_, forM, when)
