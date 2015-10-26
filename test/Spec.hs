@@ -11,6 +11,8 @@
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TemplateHaskell            #-}
 
+module Spec where
+
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted  as E
 import           Control.Monad               (void, forM_, forM, when)
@@ -204,7 +206,6 @@ tests tempDir = do
         readme = "README.md"
         file2 = "Maintainers"
         other = "Other.txt"
-        someOther = "SomeOther.txt"
         automailer = ["auto-mailer"]
         repoDir = tempDir </> "repo"
         repo2Dir = tempDir </> "repo2"
@@ -216,9 +217,9 @@ tests tempDir = do
             gitDerandomizeHashHEAD
         readmeAppend = fileAppend readme
         otherAppend = fileAppend other
-        someOtherAppend = fileAppend someOther
         backToMaster = git' ["checkout", "master"]
         checkoutCreate branch = git' ["checkout", "-b", branch]
+        removeBranch branch = git' ["branch", "-D", branch]
         checkout branch = git' ["checkout", branch]
         rebase branch = git' ["rebase", branch]
         initRepo r = do
@@ -240,22 +241,31 @@ tests tempDir = do
     git' [add, readme, file2]
     git' [commit, "-m", "Adding README.md"]
     gitDerandomizeHashHEAD
+    --  master: -
 
     msg "Verifying a simple one commit progression of master"
     ---------------------------------------------------------
 
     gitomailC "1-auto" automailer
+    --  master: *
 
     readmeAppend 1
+    --  master: *-
 
     gitomailC "2-auto" automailer
+    --  master: **
 
     msg "Verifying for a topic branch without master progression"
     ---------------------------------------------------------
 
     checkoutCreate "topic"
     forM_ [2..3] readmeAppend
+    --  master: a*
+    --  topic[master]: --
+
     gitomailC "3-auto" automailer
+    --  master: a*
+    --  topic[master]: **
 
     backToMaster
 
@@ -263,13 +273,33 @@ tests tempDir = do
     ---------------------------------------------------------
 
     forM_ [4..5] readmeAppend
+    --  <old>: a*
+    --  master[<old>]: --
+    --  topic[<old>]: **
+
     checkoutCreate "topic2"
     writeFile' other "Content"
     forM_ [6..7] otherAppend
+
+    --  <old>: a*
+    --  master[<old>]: --
+    --  topic[<old>]: **
+    --  topic2[master]: --
+
     backToMaster
     forM_ [8..9] readmeAppend
 
+    --  <old>: a*
+    --  <old2>[<old>]: --
+    --  master[<old2>]: --
+    --  topic[<old>]: **
+    --  topic2[<old2>]: --
+
     gitomailC "4-auto" automailer
+
+    --  -> <old2>[<old>]: **
+    --  -> master[<old2>]: **
+    --  -> topic2[<old2>]: **
 
     msg "Verifying after a topic branch rebase"
     ---------------------------------------------------------
@@ -280,13 +310,50 @@ tests tempDir = do
     gitDerandomizeHash "HEAD~1"
     gitDerandomizeHash "HEAD"
 
+    --  -> topic2[<master>]: --
+
     gitomailC "5-auto" automailer
+
+    --  -> topic2[<master>]: **
 
     msg "Verifying numbering after added commits to topic branch"
     ---------------------------------------------------------
 
     forM_ [10..11] otherAppend
+    --  -> topic2[<master>]: **--
     gitomailC "6-auto" automailer
+    --  -> topic2[<master>]: ****
+
+    msg "Verifying numbering in a branch based on an another branch of equal status"
+    ---------------------------------------------------------
+
+    checkoutCreate "topic1-2"
+    forM_ [14..15] otherAppend
+
+    --  -> topic1-2[<topic2>]: --
+    gitomailC "10-auto" automailer
+    --  -> topic1-2[<topic2>]: **
+
+    msg "Verifying numbering in a branch based on a removed branch"
+    ---------------------------------------------------------
+
+    checkoutCreate "topic1-1"
+    forM_ [16..17] otherAppend
+    removeBranch "topic1-2"
+
+    --  -> topic1-1[<topic2>]: **--
+    gitomailC "11-auto" automailer
+    --  -> topic1-1[<topic2>]: ****
+
+    msg "Verifying numbering in a branch based on a removed branch [2]"
+    ---------------------------------------------------------
+
+    forM_ [17..18] otherAppend
+    removeBranch "topic2"
+
+    --  -> topic1-1[<master>]: ******--
+    gitomailC "12-auto" automailer
+    --  -> topic1-1[<master>]: ********
 
     msg "Alias Ref Match feature"
     -----------------------------
@@ -353,7 +420,7 @@ run = do
                         msg ""
                         msg $ T.concat ["Actual outputs copied to ", actualCopy, "."]
                         msgLines $ T.concat ["If they are okay, then commit them to test/expected:\n",
-                                             "    rm -rf test/expected && mv test/actual test/expected"]
+                                             "    rm -rf test/expected && mv test/actual test/expected && git add test/expected"]
                         _ <- readProcess "rm" ["-rf", actualCopy]
                         _ <- readProcess "cp" ["-a", actual, actualCopy]
                         liftIO $ exitWith rc

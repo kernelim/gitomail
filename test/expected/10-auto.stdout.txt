@@ -1,0 +1,8 @@
+Checking ref heads/topic1-2
+  Skipping old commit 00014fffffffffffffffffffffffffffffffffff
+  Formatting 00015fffffffffffffffffffffffffffffffffff
+  Formatting 00016fffffffffffffffffffffffffffffffffff
+Sending E-Mails!
+  Writing $TEMP/1 - '[repo] topic1-2 branch is new with 2 commits, from topic2 branch @ 00014ffff'
+  Writing $TEMP/2 - '[repo topic1-2 00015ffff, #1] Updating Other.txt [14]'
+  Writing $TEMP/3 - '[repo topic1-2 00016ffff, #2] Updating Other.txt [15]'

@@ -1,5 +1,5 @@
 Checking ref heads/master
 Checking ref heads/older
-  Skipping old commit 00018fffffffffffffffffffffffffffffffffff
-  Skipping old commit 00019fffffffffffffffffffffffffffffffffff
+  Skipping old commit 00024fffffffffffffffffffffffffffffffffff
+  Skipping old commit 00025fffffffffffffffffffffffffffffffffff
 No E-Mails to send.

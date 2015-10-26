@@ -27,7 +27,7 @@ module Gitomail.Automailer
 import qualified Control.Exception.Lifted    as E
 import           Control.Lens.Operators      ((^.), (&))
 import           Control.Monad               (forM, forM_, when, filterM)
-import           Control.Monad.IO.Class      (liftIO)
+import           Control.Monad.IO.Class      (liftIO, MonadIO)
 import qualified Data.ByteString.Char8       as BS8
 import           Data.List                   (sortOn, groupBy, nub, intersperse,
                                               (\\))
@@ -81,7 +81,6 @@ data RefModState = RefModFastForward | RefModNoFastForward
 
 data CommitIterationInfo = CommitIterationInfo
       { cCommitHash          :: !GIT.GitCommitHash
-      , cIsNew               :: !Bool
       , cNotReachedOldRef    :: !Bool
       , cIsBranchPoint       :: !Bool
       } deriving Show
@@ -108,18 +107,16 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                 commitsSeen <- readIORef commitsSeenI
                 when (not $ cCommitHash `Set.member` commitsSeen) $ do
                    writeIORef commitsSeenI $ Set.insert cCommitHash commitsSeen
-                   -- print (cCommitHash, cIsBranchPoint, cNotReachedOldRef, cIsNew)
                    let getNr = do
                            n <- readIORef numberingI
                            writeIORef numberingI (n + 1)
                            return n
-                   case (cIsBranchPoint, cNotReachedOldRef, cIsNew) of
-                       (True, _, _)  -> modifyIORef' branchPointsI ((Nothing, cCommitHash) :)
-                       (_, False, _) -> do nr <- getNr
-                                           modifyIORef' belowOrEqOldRefI ((Just nr, cCommitHash) :)
-                       (_, _, True)  -> do nr <- getNr
-                                           modifyIORef' newCommitsI ((Just nr, cCommitHash) :)
-                       _ -> return ()
+                   case (cIsBranchPoint, cNotReachedOldRef) of
+                       (True, _)   -> modifyIORef' branchPointsI ((Nothing, cCommitHash) :)
+                       (_, False)  -> do nr <- getNr
+                                         modifyIORef' belowOrEqOldRefI ((Just nr, cCommitHash) :)
+                       _           -> do nr <- getNr
+                                         modifyIORef' newCommitsI ((Just nr, cCommitHash) :)
 
             newCommits <- readIORef newCommitsI
             belowOrEqOldRef <- readIORef belowOrEqOldRefI
@@ -292,6 +289,21 @@ getAutoMailerRefs = do
 commitSeenKey :: BS8.ByteString -> BS8.ByteString
 commitSeenKey commit = BS8.concat [ "commit-seen-",  commit]
 
+commitHashIsNew :: (MonadIO m) => DB -> Text -> m Bool
+commitHashIsNew db commitT = do
+    v <- DB.get db DB.defaultReadOptions
+         $ commitSeenKey $ T.encodeUtf8 commitT
+    return $ maybe True (const False) v
+
+markInIORefSet :: (Ord a, MonadIO m) =>
+                  IORef (Set.Set a) -> a -> m Bool
+markInIORefSet ioref item = do
+    set <- readIORef ioref
+    if not $ item `Set.member` set
+       then do writeIORef ioref (item `Set.insert` set)
+               return True
+       else return False
+
 forgetHash :: (MonadGitomail m) => m ()
 forgetHash = do
     opts <- gets opts
@@ -336,7 +348,6 @@ autoMailer = do
             putStrLn "Initial save of ref map. Will start tracking refs from now (this may take awhile)"
 
         let oldRefsMap = maybe refsMap (read . BS8.unpack) mOldRefs
-        alreadySeenI <- newIORef Set.empty
 
         newCommits <-
             fmap catMaybes $
@@ -349,9 +360,9 @@ autoMailer = do
                     return Nothing
                 Just branchPoints -> do
                     fmap (fmap (\x -> ((ref, topCommit), x))) $ do
-                        iterateRefCommits repoPath db topCommit
+                        iterateRefCommits repoPath topCommit
                             (if initTracking then Nothing else Map.lookup ref oldRefsMap)
-                            branchPoints alreadySeenI
+                            branchPoints
 
         mailsI <- newIORef []
 
@@ -361,6 +372,7 @@ autoMailer = do
                 putDB (DB.defaultWriteOptions {DB.sync = True })
                     refsMapDBKey (BS8.pack $ show x)
 
+        alreadySentI <- newIORef Set.empty
         forM_ newCommits $ \((ref, topCommit), (refMod, nonRootBranchPoints,
                                                 isNewRef, commitsinfo)) -> do
             let syncOp = False
@@ -382,8 +394,12 @@ autoMailer = do
                     modifyIORef' mailsI ((:) (return (), summaryMailInfo))
 
                     forM_ commitsinfo $ \CommitIterationInfo {..} -> do
+                        isNew <- commitHashIsNew db cCommitHash
+                        notSent <- markInIORefSet alreadySentI cCommitHash
+
                         shownCommitHash <- lift $ mapCommitHash cCommitHash
-                        if | cIsNew -> do putStrLn $ "  Formatting " ++ (T.unpack shownCommitHash)
+                        if | isNew && notSent
+                                    -> do putStrLn $ "  Formatting " ++ (T.unpack shownCommitHash)
                                           info <- lift $ makeOneMailCommit CommitMailFull
                                                 db ref cCommitHash (Map.lookup cCommitHash numbersMap)
                                           let mailinfoAndAction = (action, fmap fst info)
@@ -407,7 +423,7 @@ autoMailer = do
             updateRefsMap
 
     where
-        iterateRefCommits repoPath db topCommit mOldRef branchPoints alreadySeenI = do
+        iterateRefCommits repoPath topCommit mOldRef branchPoints = do
             (mOldRefOid, mergeBases) <- case mOldRef of
                 Nothing -> return $ (Nothing, [])
                 Just oldRef -> do
@@ -424,6 +440,8 @@ autoMailer = do
 
             refModI <- newIORef RefModNoFastForward
             newCommitsListI <- newIORef []
+            alreadySeenI <- newIORef Set.empty
+
             let nonRootBranchPoints =
                     catMaybes $
                          map (\case (x, Just y) -> Just (x, y) ;
@@ -443,15 +461,7 @@ autoMailer = do
                 u = GIT.iterateHistoryUntil True $ \notReachedOldRef commit parents -> do
                         if isNotBranchPoint commit
                             then do let commitT = GIT.oidToText commit
-                                    (isNew, alreadySeen) <- do
-                                        v <- DB.get db DB.defaultReadOptions
-                                            $ commitSeenKey $ T.encodeUtf8 commitT
-                                        alreadySeenSet <- readIORef alreadySeenI
-                                        let isNew = not alreadySeen && maybe True (const False) v
-                                            alreadySeen = commit `Set.member` alreadySeenSet
-                                        when (not alreadySeen) $
-                                            writeIORef alreadySeenI (commit `Set.insert` alreadySeenSet)
-                                        return (isNew, alreadySeen)
+                                    alreadySeen <- fmap not $ markInIORefSet alreadySeenI commitT
 
                                     case mOldRefOid of
                                         Nothing -> return ()
@@ -461,9 +471,9 @@ autoMailer = do
 
                                     let notReachedOldRef' =
                                             notReachedOldRef && Just commit /= mOldRefOid
-                                        thisCommitsInfo = CommitIterationInfo commitT isNew notReachedOldRef' False
+                                        thisCommitsInfo = CommitIterationInfo commitT notReachedOldRef' False
 
-                                    when (length parents == 1) $ do
+                                    when (length parents <= 1) $ do
                                         modifyIORef' newCommitsListI ((:) thisCommitsInfo)
 
                                     nextParents <- flip filterM parents $ \parent ->
@@ -474,7 +484,7 @@ autoMailer = do
                                                         notReachedOldRef' && Just parent /= mOldRefOid
                                                 let parentCommitsInfo =
                                                       CommitIterationInfo
-                                                        (GIT.oidToText parent) False notReachedOldRef'' True
+                                                        (GIT.oidToText parent) notReachedOldRef'' True
                                                 modifyIORef' newCommitsListI ((:) parentCommitsInfo)
                                                 return False
 

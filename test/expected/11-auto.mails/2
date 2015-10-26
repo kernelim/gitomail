@@ -1,9 +1,9 @@
 From:  =?utf-8?Q?Main_User?=<bot@gitomail.com>
-To:  =?utf-8?Q?Other_User?=<other@gitomail.com>,  =?utf-8?Q?Main_User?=<main@gitomail.com>
-Message-Id: <0000000000-0000010-0006-gitomail-bot@gitomail.com>
+To:  =?utf-8?Q?Main_User?=<main@gitomail.com>
+Message-Id: <0000000000-0000008-0007-gitomail-bot@gitomail.com>
 X-Mailer: gitomail 0.0.0
 Reply-to:  =?utf-8?Q?Main_User?=<main@gitomail.com>
-Subject: [repo other/feature 00022ffff, #2] Updating README.md [13]
+Subject: [repo topic1-1 00017ffff, #3] Updating Other.txt [16]
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
 
@@ -14,46 +14,46 @@ Content-Transfer-Encoding: quoted-printable
 
 
 ---
- README=2Emd | 1 +
+ Other=2Etxt | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/README=2Emd b/README=2Emd
-index 435bb79035ef=2E=2E1449f15444e4 100644
---- a/README=2Emd
-+++ b/README=2Emd
-@@ -5,3 +5,4 @@ Added content 5
- Added content 8
- Added content 9
- Added content 12
-+Added content 13
+diff --git a/Other=2Etxt b/Other=2Etxt
+index 908ce3713a0a=2E=2E6c3c4460519f 100644
+--- a/Other=2Etxt
++++ b/Other=2Etxt
+@@ -4,3 +4,4 @@ Added content 10
+ Added content 11
+ Added content 14
+ Added content 15
++Added content 16
 
 --<random-replaced-for-test>
 Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-https://github=2Ecom/gitomail/repo/commit/00022ffffffffffffffffffffffffffff=
-fffffff<br>Branches: other/feature<br><font size=3D"3"><div><pre style=3D"l=
-ine-height: 125%"><div style=3D"background: #F8F8F5; font-family: monospace=
-"> README&#8203;=2Emd | 1 +
+https://github=2Ecom/gitomail/repo/commit/00017ffffffffffffffffffffffffffff=
+fffffff<br>Branches: topic1-1<br><font size=3D"3"><div><pre style=3D"line-h=
+eight: 125%"><div style=3D"background: #F8F8F5; font-family: monospace"> Ot=
+her&#8203;=2Etxt | 1 +
  1 file changed, 1 insertion(+)
 
 </div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
- font-family: monospace">diff --git a/README&#8203;=2Emd b/README&#8203;=2E=
-md
+ font-family: monospace">diff --git a/Other&#8203;=2Etxt b/Other&#8203;=2Et=
+xt
 </div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=
-pace">index 435bb79035ef&#8203;=2E&#8203;=2E1449f15444e4 100644
-</div><div style=3D"background: #FFE0E0; font-family: monospace">--- a/READ=
-ME&#8203;=2Emd
-</div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/READ=
-ME&#8203;=2Emd
+pace">index 908ce3713a0a&#8203;=2E&#8203;=2E6c3c4460519f 100644
+</div><div style=3D"background: #FFE0E0; font-family: monospace">--- a/Othe=
+r&#8203;=2Etxt
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/Othe=
+r&#8203;=2Etxt
 </div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
-nospace">@@ -5,3 +5,4 @@ Added content 5
+nospace">@@ -4,3 +4,4 @@ Added content 10
 </div><div style=3D"background: #F8F8F5; font-family: monospace"> Added con=
-tent 8
- Added content 9
- Added content 12
+tent 11
+ Added content 14
+ Added content 15
 </div><div style=3D"background: #E0FFE0; font-family: monospace">+Added con=
-tent 13
+tent 16
 </div><div style=3D"background: #F8F8F5; font-family: monospace">
 </div></pre></div></font><div height=3D"20">&nbsp;</div><div style=3D"color=
 : #b0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim=
