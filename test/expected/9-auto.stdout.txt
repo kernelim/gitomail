@@ -1,8 +1,8 @@
-Checking ref heads/other/feature
+Checking ref heads/user/for/other/feature
   Skipping old commit 00020fffffffffffffffffffffffffffffffffff
   Formatting 00021fffffffffffffffffffffffffffffffffff
   Formatting 00022fffffffffffffffffffffffffffffffffff
 Sending E-Mails!
-  Writing $TEMP/1 - '[repo] other/feature branch is new with 2 commits, from topic1-1 branch @ 00020ffff'
-  Writing $TEMP/2 - '[repo other/feature 00021ffff, #1] Updating README.md [12]'
-  Writing $TEMP/3 - '[repo other/feature 00022ffff, #2] Updating README.md [13]'
+  Writing $TEMP/1 - '[repo] user/for/other/feature branch is new with 2 commits, from topic1-1 branch @ 00020ffff'
+  Writing $TEMP/2 - '[repo user/for/other/feature 00021ffff, #1] Updating README.md [12]'
+  Writing $TEMP/3 - '[repo user/for/other/feature 00022ffff, #2] Updating README.md [13]'

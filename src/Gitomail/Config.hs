@@ -95,7 +95,7 @@ final a = runIdentity $ Config
     <*> pass _excludeRefs
     <*> pass _includeRefs
     <*> defl _rootRefs            ["tags/.*", "heads/master"]
-    <*> defl _aliasRefMatch       (Just "heads/%a/.*")
+    <*> defl _aliasRefMatch       (Just "heads/[^/]+/for/%a(/.+)?")
     <*> defl _commitSubjectLine   "[%r %b %h%n] %s"
     <*> defl _summarySubjectLine  "[%r] %s"
     <*> pass _commitURL

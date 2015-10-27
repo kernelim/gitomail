@@ -3,7 +3,7 @@ To:  =?utf-8?Q?Other_User?=<other@gitomail.com>,  =?utf-8?Q?Main_User?=<main@git
 Message-Id: <0000000000-0000010-0006-gitomail-bot@gitomail.com>
 X-Mailer: gitomail 0.0.0
 Reply-to:  =?utf-8?Q?Main_User?=<main@gitomail.com>
-Subject: [repo other/feature 00022ffff, #2] Updating README.md [13]
+Subject: [repo user/for/other/feature 00022ffff, #2] Updating README.md [13]
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
 
@@ -32,9 +32,9 @@ Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00022ffffffffffffffffffffffffffff=
-fffffff<br>Branches: other/feature<br><font size=3D"3"><div><pre style=3D"l=
-ine-height: 125%"><div style=3D"background: #F8F8F5; font-family: monospace=
-"> README&#8203;=2Emd | 1 +
+fffffff<br>Branches: user/for/other/feature<br><font size=3D"3"><div><pre s=
+tyle=3D"line-height: 125%"><div style=3D"background: #F8F8F5; font-family: =
+monospace"> README&#8203;=2Emd | 1 +
  1 file changed, 1 insertion(+)
 
 </div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=

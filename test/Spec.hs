@@ -356,7 +356,7 @@ tests tempDir = do
     msg "Alias Ref Match feature"
     -----------------------------
 
-    checkoutCreate "other/feature"
+    checkoutCreate "user/for/other/feature"
 
     appendFile' "Maintainers" $
          "alias other  Other User <other@gitomail.com>\n"
