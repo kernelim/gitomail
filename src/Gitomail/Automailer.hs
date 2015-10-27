@@ -36,6 +36,7 @@ import qualified Data.Map                    as Map
 import           Data.Maybe                  (fromMaybe, catMaybes)
 import qualified Data.Set                    as Set
 import           Data.Text                   (Text)
+import           Data.Sequence               ((><))
 import qualified Data.Sequence               as Seq
 import           Data.Foldable               (toList)
 import qualified Data.Text                   as T
@@ -164,8 +165,8 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
             githashtoNumberI <- newIORef Map.empty
             (flist, mails) <- do
                 let commitLists = [
-                        ("Content"          , newCommits,       True, -1)
-                      , ("Previously pushed", belowOrEqOldRef,  True, -2)
+                        ("Content"          , newCommits,       True,  -1)
+                      , ("Previously pushed", belowOrEqOldRef,  True,  -2)
                       , ("Branch points"    , branchPoints,     False, -3)
                       ]
                 let insert sI x = modifyIORef' sI (Seq.|> x)
@@ -186,26 +187,28 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                                let row = F.TableRow rowId
                                let col' i c = F.TableCol i c
                                let col i = col' i 1
+                               flistRowI <- newIORef Seq.empty
 
                                whenM (readIORef emptySoFarI) $ do
                                    writeIORef emptySoFarI False
-                                   insert flistI (T.concat ["\n", name, "\n"],
-                                                 [F.Table, F.TableRow tableId,
-                                                  col' tableId 5, F.Underline])
+                                   insert flistI $ F.TForm (F.TableRow tableId)
+                                                 $ F.mkFormS (col' tableId 5)
+                                                 $ F.mkFormS F.Underline
+                                                 $ F.mkPlain (T.concat ["\n", name, "\n"])
 
                                mappedCommitHash <- mapCommitHash commitHash
                                githash <- githashRepr mappedCommitHash
                                insert mailsI $ if includeCCTo
                                                     then miMail
                                                     else miMail { mailCc = [], mailTo = [] }
-                               links <- getCommitURL mappedCommitHash >>= \case
-                                   Nothing -> return []
-                                   Just url -> return [F.Link url]
+                               linkToWeb <- getCommitURL mappedCommitHash >>= \case
+                                   Nothing  -> return id
+                                   Just url -> return $ \x -> F.mkFormS (F.Link url) x
 
-                               insert flistI ("", [F.Table, row, F.TableCellPad 10])
+                               insert flistRowI $ F.TForm (F.TableCellPad 10) (F.mkPlain "")
 
-                               insert flistI (ciAuthorName +@ " ", [F.Table, row, col 0])
-                               insert flistI (githash +@ " ",      [F.Table, row, col 1, F.Monospace] ++ links)
+                               insert flistRowI $ F.TForm (col 0) $ F.mkPlain $ ciAuthorName +@ " "
+                               insert flistRowI $ F.TForm (col 1) $ F.mkFormS F.Monospace $ linkToWeb $ F.mkPlain $ githash +@ " "
 
                                nr <- case maybeNr of
                                    Just nr -> do
@@ -214,19 +217,22 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                                    Nothing ->
                                        return " "
 
-                               let maybeBold i = if ciInexactDiffHashNew then [F.Emphesis i] else []
-                               insert flistI (nr, [F.Table, row, col 2] ++ maybeBold 0)
-                               insert flistI (ciCommitSubject +@ "\n",
-                                              [F.Table, row, col 3] ++ maybeBold 1)
+                               let maybeBold f =
+                                       if ciInexactDiffHashNew then F.mkFormS F.Emphesis f else f
+                               insert flistRowI $ F.TForm (col 2) $ maybeBold $ F.mkPlain nr
+                               insert flistRowI $ F.TForm (col 3) $ maybeBold $ F.mkPlain $ ciCommitSubject +@ "\n"
+
+                               flistRow <- readIORef flistRowI
+                               insert flistI $ F.TForm row flistRow
                            Left _ ->
                                return ()
 
-                insert flistI ("\n", [F.Table])
+                insert flistI (F.TPlain "\n")
 
                 flist <- readIORef flistI
                 mails <- readIORef mailsI
                 emailFooter <- getFooter
-                return (toList flist ++ emailFooter, toList $ mails)
+                return (F.mkFormS F.Table flist >< emailFooter, toList $ mails)
 
             (cc, to) <- getExtraCCTo
 

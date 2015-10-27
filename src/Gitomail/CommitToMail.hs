@@ -33,6 +33,8 @@ import           Control.Lens.Operators      ((&), (^.))
 import           Control.Monad               (forM, forM_, when)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (get, gets, lift)
+import           Data.Sequence               ((><))
+import qualified Data.Sequence               as Seq
 import qualified Crypto.Hash.SHA1            as SHA1
 import qualified Data.ByteString             as BS
 import qualified Data.ByteString.Base16      as Base16
@@ -334,13 +336,13 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                               let parseResult = do
                                       patchHighlightedFlist <- F.ansiToFList patchHighlighted
                                       x <- F.combineFLists (patchHighlightedFlist) (F.highlightDiff diff)
-                                      return $ (F.highlightMonospace commitMessageBody) ++ x
+                                      return $ (F.highlightMonospace commitMessageBody) >< x
 
                               case parseResult of
                                   Right pp -> return pp
                                   Left s -> E.throw $ InvalidDiff s
                           CommitMailSummary -> do
-                              return []
+                              return Seq.empty
 
                       emailFooter <- getFooter
                       emailAddress <- getFromEMail
@@ -360,7 +362,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                                              ("Subject", subjectLine)]
                             , mailParts = [[plainPart plain, htmlPart html]]
                             }
-                          flists = parsedFLists ++ emailFooter
+                          flists = parsedFLists >< emailFooter
                           html = TL.fromChunks [ htmlOnlyHeader, F.flistToInlineStyleHtml blobInCommitURLFunc flists ]
                           plain = TL.fromChunks [ safeDecode commit ]
                           replyTo = Address (Just authorName) authorEMail

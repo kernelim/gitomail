@@ -298,12 +298,14 @@ getFooter :: (MonadGitomail m) => m F.FList
 getFooter = do
     config <- getConfig
 
-    let v = [(getVersion, [F.Footer])]
+    let v = [F.TPlain getVersion]
         v' = maybe v (const []) $ config ^. CFG.hashMap
 
-    return $ [ (T.concat ["Sent by "], [F.Footer])
-             , (T.concat ["Gitomail"], [F.Footer, F.Link "http://github.com/kernelim/gitomail", F.Dark])
-             , (T.concat [" "], [F.Footer])] ++ v'
+    return $ F.mkForm F.Footer $
+                  [F.TPlain "Sent by ",
+                   F.TForm (F.Link "http://github.com/kernelim/gitomail")
+                       $ F.mkFormS F.Dark $ F.mkPlain "Gitomail",
+                   F.TPlain " "] ++ v'
 
 mapCommitHash :: (MonadGitomail m) => GIT.GitCommitHash -> m (GIT.GitCommitHash)
 mapCommitHash h = do
