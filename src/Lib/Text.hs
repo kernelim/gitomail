@@ -1,9 +1,12 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Lib.Text (
     showT
     , safeDecode
     , (+@)
     , removeTrailingNewLine
     , leadingZeros
+    , lineSplit
     ) where
 
 ------------------------------------------------------------------------------------
@@ -32,3 +35,6 @@ safeDecode :: ByteString -> Text
 safeDecode = decodeUtf8With lenientDecode
 
 infixr 2 +@
+
+lineSplit :: Text -> [Text]
+lineSplit t = map (\x->T.concat[x,"\n"]) $ T.splitOn ("\n") t

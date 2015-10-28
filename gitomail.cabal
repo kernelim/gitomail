@@ -25,16 +25,18 @@ executable gitomail
                    , Gitomail.Automailer
                    , Gitomail.Version
                    , Gitomail.Opts
+                   , Lib.DiffHighlight
                    , Lib.EMail
-                   , Lib.InlineFormatting
                    , Lib.Git
+                   , Lib.InlineFormatting
                    , Lib.LiftedIO
                    , Lib.LiftedPrelude
                    , Lib.Maybe
                    , Lib.Memo
                    , Lib.Monad
-                   , Lib.Regex
                    , Lib.Process
+                   , Lib.Regex
+                   , Lib.Sequence
                    , Lib.Text
                    , Paths_gitomail
   build-depends:       Glob                 >= 0.7    &&  < 0.8

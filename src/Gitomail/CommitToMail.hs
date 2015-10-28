@@ -78,6 +78,7 @@ import           Lib.EMail                   (InvalidEMail, emailRegEx,
                                               parseEMail)
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as F
+import qualified Lib.DiffHighlight           as DH
 import           Lib.LiftedPrelude
 import           Lib.Regex                   (matchWhole)
 import           Lib.Text                    (removeTrailingNewLine, (+@),
@@ -329,7 +330,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
 
                       parsedFLists <- case cmk of
                           CommitMailFull -> do
-                              return $ (F.highlightMonospace commitMessageBody) >< (F.highlightDiff diff)
+                              return $ (F.highlightMonospace commitMessageBody) >< (DH.highlight diff)
                           CommitMailSummary -> do
                               return Seq.empty
 
