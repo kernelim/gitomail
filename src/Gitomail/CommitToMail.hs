@@ -79,7 +79,6 @@ import           Lib.EMail                   (InvalidEMail, emailRegEx,
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as F
 import           Lib.LiftedPrelude
-import           Lib.Process                 (readProcess')
 import           Lib.Regex                   (matchWhole)
 import           Lib.Text                    (removeTrailingNewLine, (+@),
                                               safeDecode)
@@ -330,17 +329,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
 
                       parsedFLists <- case cmk of
                           CommitMailFull -> do
-                              fp <- getDataFile "extra/diff-highlight"
-                              patchHighlighted <- readProcess' "perl" [T.pack fp] diff
-
-                              let parseResult = do
-                                      patchHighlightedFlist <- F.ansiToFList patchHighlighted
-                                      x <- F.combineFLists (patchHighlightedFlist) (F.highlightDiff diff)
-                                      return $ (F.highlightMonospace commitMessageBody) >< x
-
-                              case parseResult of
-                                  Right pp -> return pp
-                                  Left s -> E.throw $ InvalidDiff s
+                              return $ (F.highlightMonospace commitMessageBody) >< (F.highlightDiff diff)
                           CommitMailSummary -> do
                               return Seq.empty
 

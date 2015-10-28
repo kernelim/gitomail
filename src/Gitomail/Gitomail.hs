@@ -17,7 +17,6 @@ module Gitomail.Gitomail
   , getCommitURL
   , getBlobInCommitURL
   , getConfig
-  , getDataFile
   , getExtraCCTo
   , getFooter
   , getFromEMail
@@ -77,7 +76,6 @@ import           Lib.Text                    ((+@), showT, leadingZeros,
 import           Lib.Memo                    (cacheIO, cacheIO')
 import           Lib.Process                 (readProcess, readProcess'')
 import           Lib.Regex                   (matchWhole)
-import qualified Paths_gitomail              as Paths_gitomail
 ------------------------------------------------------------------------------------
 
 data Gitomail = Gitomail {
@@ -106,10 +104,6 @@ instance E.Exception GitRepoNotFound
 instance Show GitRepoNotFound where
     show (GitRepoNotFound msgstr) = "GitRepoNotFound: " ++ msgstr
 
-
-getDataFile :: MonadIO m => FilePath -> m FilePath
-getDataFile path = do
-    liftIO $ Paths_gitomail.getDataFileName path
 
 getGitomail :: O.Opts -> IO (Gitomail)
 getGitomail opts = do

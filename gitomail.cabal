@@ -9,7 +9,6 @@ maintainer:          dan@kernelim.com
 category:            Devtool
 build-type:          Custom
 cabal-version:       >=1.10
-Data-files:          extra/diff-highlight
 
 executable gitomail
   hs-source-dirs:    src/
@@ -75,6 +74,7 @@ executable gitomail
                      , tuple
                      , unix-time
                      , yaml                 >= 0.8.15.1
+                     , patience
   build-tools:         happy, alex
   default-language:    Haskell2010
 

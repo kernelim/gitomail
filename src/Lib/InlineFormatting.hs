@@ -4,9 +4,9 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module Lib.InlineFormatting
-       (ansiToFList, highlightDiff, combineFLists, FList, Fragment(..),
+       (highlightDiff, combineFLists, FList, Fragment(..),
         flistToInlineStyleHtml, flistToANSI, test, Format(..), mkForm,
-        mkFormS, mkPlain,
+        mkFormS, mkPlain, fshow,
         flistToText, highlightText, highlightMonospace) where
 
 ------------------------------------------------------------------------------------
@@ -17,12 +17,14 @@ import           Data.Sequence                 (Seq, (|>), (<|), (><),
                                                 ViewR(..), ViewL(..))
 import qualified Data.Sequence                 as Seq
 import           Data.Text                     (Text)
+import qualified Data.Char                     as C
 import qualified Data.Text                     as T
 import qualified Data.Text.IO                  as T
 import qualified Data.Text.Lazy                as TL
 import qualified Data.Text.Encoding            as T
 import           Text.Blaze.Html               (toHtml)
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
+import qualified Data.Algorithm.Patience       as DP
 ------------------------------------------------------------------------------------
 import           Lib.Text                      ((+@), showT, safeDecode)
 ------------------------------------------------------------------------------------
@@ -103,7 +105,7 @@ fragmentize = foldl w Seq.empty
                 _  :> (TPlain    _) -> s |> nf
                 rs :> (TForm f2 s2) ->
                     if f2 == f
-                       then rs |> (TForm f (s2 |> TPlain t))
+                       then rs |> (TForm f (w s2 (t, Nothing)))
                        else s |> nf
 
 simpleDelimitersToFList :: Format -> BS.ByteString -> BS.ByteString -> Text -> Either String FList
@@ -141,9 +143,6 @@ simpleDelimitersToFList format bStart bEnd t = do
 
     return $ fragmentize flists
 
-ansiToFList :: Text -> Either String FList
-ansiToFList = simpleDelimitersToFList Inverse "\x1b[7m" "\x1b[27m"
-
 lineSplit :: Text -> [Text]
 lineSplit t = map (\x->T.concat[x,"\n"]) $ T.splitOn ("\n") t
 
@@ -151,12 +150,12 @@ highlightMonospace :: Text -> FList
 highlightMonospace t = Seq.singleton (TForm MonospacePar $ Seq.singleton $ TPlain t)
 
 highlightDiff :: Text -> FList
-highlightDiff text = mkFormS MonospacePar $ fragmentize parse
+highlightDiff text = mkFormS MonospacePar root
     where
-        parse       = root $ lineSplit text
-        root (x:xs) = case' "diff "          (const DiffMain      ) diff x xs $
-                      else' root x xs
-        root []     = []
+        root         = intraLineDiff $ fragmentize $ parse $ lineSplit text
+        parse (x:xs) = case' "diff "          (const DiffMain      ) diff x xs $
+                       else' parse x xs
+        parse []     = []
 
         diff (x:xs) = case' "index "         (const DiffMainExtra ) diff x xs $
                       case' "new "           (const DiffMainExtra ) diff x xs $
@@ -185,6 +184,75 @@ highlightDiff text = mkFormS MonospacePar $ fragmentize parse
                else alt
 
         else' f x xs = (x, (Just DiffUnchanged)):(f xs)
+
+        intraLineDiff = root'
+            where
+                root' x = Seq.fromList $ iterLines $ toList x
+                iterLines []                                            = []
+                iterLines ((TForm DiffRemove rs):(TForm DiffAdd as):xs) =
+                      let (rs', as') = mkDiff rs as
+                       in (TForm DiffRemove rs'):(TForm DiffAdd as'):(iterLines xs)
+                iterLines (x:xs)                                        = x:(iterLines xs)
+                unmarkTrailingWhitespace = remarkInBetween . crux
+                    where
+                        crux (a@(_, Just Inverse):b@(_, Nothing):c@(_, Just Inverse):xs) =
+                            a:b:crux (c:xs)
+                        crux ((t', Just Inverse):xs) =
+                            case spanAround C.isSpace t' of
+                                ("", t, "") -> (t, Just Inverse) :crux xs
+                                (a , t, "") -> (a, Nothing)      :(t, Just Inverse):crux xs
+                                ("", t,  b) -> (t, Just Inverse) :(b, Nothing)     :crux xs
+                                (a , t,  b) -> (a, Nothing)      :(t, Just Inverse):(b, Nothing):crux xs
+                        crux (z:xs) = z:crux xs
+                        crux []            = []
+                        rspan f t = let (x, y) = T.span f $ T.reverse t
+                                     in (T.reverse x, T.reverse y)
+                        spanAround f t = let (s, a) = T.span f t
+                                             (e, b) = rspan f a
+                                          in (s, b, e)
+                        fc x = C.isSpace x
+                        remarkInBetween (a@(at, Just Inverse):xs) =
+                            if T.dropAround fc at /= ""
+                                then seekNextNonwhitespace [a] xs
+                                else a:remarkInBetween xs
+                        remarkInBetween (z:xs) = z:remarkInBetween xs
+                        remarkInBetween []     = []
+                        seekNextNonwhitespace lst (b@(at, Nothing):xs) =
+                            if T.dropAround fc at == ""
+                               then seekNextNonwhitespace (b:lst) xs
+                               else (reverse lst) ++ (remarkInBetween xs)
+                        seekNextNonwhitespace lst (b@(_, Just _):xs) =
+                            (T.concat $ map fst $ reverse lst, Just Inverse):(remarkInBetween $ b:xs)
+                        seekNextNonwhitespace lst []     = reverse lst
+
+                tokenize t = T.groupBy sep t
+                sep a b
+                    | C.isAlphaNum a && C.isAlphaNum b = True
+                    | otherwise                        = False
+                mkDiff rt dt =
+                    let rtLines                = lineSplit $ flistToText rt
+                        dtLines                = lineSplit $ flistToText dt
+                        zLines                 = zip rtLines dtLines
+                        zDiffed                = map fDiff zLines
+                        rtDiffed               = seqConcat $ Seq.fromList $ map fst zDiffed
+                        dtDiffed               = seqConcat $ Seq.fromList $ map snd zDiffed
+                        fDiff (a, b)           =
+                            let c              = DP.diff (tokenize $ T.drop 1 a)
+                                                         (tokenize $ T.drop 1 b)
+                             in (fragmentize $ unmarkTrailingWhitespace $ ("-", Nothing):old c,
+                                 fragmentize $ unmarkTrailingWhitespace $ ("+", Nothing):new c)
+                        old ((DP.Old t   ):xs) = (t, Just Inverse):(old xs)
+                        old ((DP.Both t _):xs) = (t, Nothing     ):(old xs)
+                        old ((DP.New _   ):xs) = old xs
+                        old []                 = []
+                        new ((DP.New t   ):xs) = (t, Just Inverse):(new xs)
+                        new ((DP.Both t _):xs) = (t, Nothing     ):(new xs)
+                        new ((DP.Old _   ):xs) = new xs
+                        new []                 = []
+                        diffed = if length rtLines /= length dtLines
+                                    then (rt, dt)
+                                    else (rtDiffed, dtDiffed)
+                     in diffed
 
 highlightText :: Text -> FList
 highlightText text = Seq.singleton (TPlain text)
@@ -268,7 +336,7 @@ flistToInlineStyleHtml fileURL = root
           html Start _ (Link t)       = linkStart t
           html End   _ (Link _)       = "</a>"
 
-          html Start m Inverse        = if | DiffRemove `elem` m -> "<span style=\"background: #F8CBCB;\">"
+          html Start m Inverse        = if | DiffRemove `elem` m -> "<span style=\"background: #F8C2C2;\">"
                                            | DiffAdd    `elem` m -> "<span style=\"background: #A6F3A6;\">"
                                            | otherwise           -> ""
           html End   m Inverse        = if | DiffRemove `elem` m -> "</span>"
