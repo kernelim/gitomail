@@ -30,7 +30,7 @@ module Gitomail.CommitToMail (
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted    as E
 import           Control.Lens.Operators      ((&), (^.))
-import           Control.Monad               (forM, forM_)
+import           Control.Monad               (forM, forM_, when)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (get, gets, lift)
 import qualified Crypto.Hash.SHA1            as SHA1
@@ -176,6 +176,10 @@ makeOneMailCommit :: (MonadGitomail m)
                      -> Maybe Int
                      -> m (Either String (MailInfo, CommitInfo))
 makeOneMailCommit cmk db ref commitHash maybeNr = do
+    opts <- gets opts
+    when (opts ^. O.verbose) $ do
+        putStrLn $ "makeOne: ref: " ++ show ref ++ " hash: " ++ show commitHash
+
     (authorName, commitSubjectLine, authorEMail, commitMessageBody, parentHashesStr) <- do
         let keys = intersperse commitHash
                      ["%aN", "%s", "%ae", "%b", "%P"]
