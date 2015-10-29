@@ -49,6 +49,7 @@ runCmd = do
             O.ShowIneffectiveDefinitions   -> showEffectiveDefs
             O.SendOne                      -> sendOne
             O.AutoMailer                   -> autoMailer
+            O.AutoMailerSetRef ref text    -> autoMailerSetRef ref text
 
             -- Debug
             O.CheckBranchPoints            -> checkBranchPoints

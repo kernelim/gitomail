@@ -16,6 +16,7 @@
 
 module Gitomail.Automailer
     ( autoMailer
+    , autoMailerSetRef
     , getAutoMailerRefs
     , showAutoMailerRefs
     , checkBranchPoints
@@ -322,6 +323,40 @@ forgetHash = do
 refsMapDBKey :: BS8.ByteString
 refsMapDBKey = "refs-map"
 
+readRefsMap :: (MonadIO m) => DB -> m (Maybe (Map.Map O.GitRef GIT.GitCommitHash))
+readRefsMap db = do
+    -- FIXME: sensitive to how hackage git does 'read' / 'show'. We should newtype.
+    mRefs <- DB.get db DB.defaultReadOptions refsMapDBKey
+    case mRefs of
+        Nothing -> return Nothing
+        Just oldRefs ->
+            return $ Just ((read . BS8.unpack) oldRefs)
+
+writeRefsMap :: (MonadIO m) => O.Opts -> DB -> (Map.Map O.GitRef GIT.GitCommitHash) -> m ()
+writeRefsMap opts db refMap = do
+    when (not (opts ^. O.dryRun)) $ do
+        DB.put db (DB.defaultWriteOptions {DB.sync = True })
+            refsMapDBKey (BS8.pack $ show refMap)
+
+autoMailerSetRef :: MonadGitomail m => O.GitRef -> GIT.GitCommitHash -> m ()
+autoMailerSetRef gitref hash = do
+    opts <- gets opts
+    withDB $ do
+        db <- get
+        mRefs <- readRefsMap db
+        case mRefs of
+            Nothing -> return ()
+            Just refs -> do
+                let prev = (Map.lookup gitref refs)
+                putStrLn $ "Current map: " ++ show refs
+                putStrLn $ "Prev value: " ++ show prev
+                case hash of
+                    "-" -> return ()
+                    _ -> do
+                        let modified = Map.insert gitref hash refs
+                        putStrLn $ "Now set to value: " ++ show hash
+                        writeRefsMap opts db modified
+
 autoMailer :: (MonadGitomail m) => m ()
 autoMailer = do
     refsByPriority <- getAutoMailerRefs
@@ -341,13 +376,12 @@ autoMailer = do
                 when (not (opts ^. O.dryRun)) $ do
                     DB.put db opt k v
 
-        -- FIXME: sensitive to how hackage git does 'read' / 'show'. We should newtype.
-        mOldRefs <- DB.get db DB.defaultReadOptions refsMapDBKey
+        mOldRefs <- readRefsMap db
         let initTracking = (mOldRefs == Nothing)
         when initTracking $ do
             putStrLn "Initial save of ref map. Will start tracking refs from now (this may take awhile)"
 
-        let oldRefsMap = maybe refsMap (read . BS8.unpack) mOldRefs
+        let oldRefsMap = fromMaybe refsMap  mOldRefs
 
         newCommits <-
             fmap catMaybes $
@@ -359,6 +393,9 @@ autoMailer = do
                     putStrLn $ "WARNING: " ++ (show ref) ++ " has no branch point, this is odd"
                     return Nothing
                 Just branchPoints -> do
+                    when (opts ^. O.verbose) $ do
+                        putStrLn $ "ref: " ++ (show ref) ++ ", top: " ++
+                                   (show topCommit) ++ " old: " ++ (show (Map.lookup ref oldRefsMap))
                     fmap (fmap (\x -> ((ref, topCommit), x))) $ do
                         iterateRefCommits repoPath topCommit
                             (if initTracking then Nothing else Map.lookup ref oldRefsMap)
@@ -369,8 +406,7 @@ autoMailer = do
         updatedRefsI <- newIORef oldRefsMap
         let updateRefsMap = do
                 x <- readIORef updatedRefsI
-                putDB (DB.defaultWriteOptions {DB.sync = True })
-                    refsMapDBKey (BS8.pack $ show x)
+                writeRefsMap opts db x
 
         alreadySentI <- newIORef Set.empty
         forM_ newCommits $ \((ref, topCommit), (refMod, nonRootBranchPoints,
@@ -387,6 +423,7 @@ autoMailer = do
                         markSeen asyncOp cCommitHash
                 else do
                     putStrLn $ "Checking ref " ++ (T.unpack ref)
+                                ++ ", " ++ (show $ length commitsinfo) ++ " commits"
 
                     (numbersMap, summaryMailInfo) <-
                         lift $ makeSummaryEMail db (ref, topCommit) refMod

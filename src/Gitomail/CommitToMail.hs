@@ -222,7 +222,9 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
             affectedPaths <- gitCmd ["show", commitHash, "--pretty=format:", "--name-only"]
             let affectedPathsSet = affectedPaths & T.encodeUtf8 & BS8.lines & Set.fromList
 
-            containedInBranchesList <- gitBranchesContainingCommit commitHash
+            containedInBranchesList <- case cmk of
+                CommitMailFull -> gitBranchesContainingCommit commitHash
+                CommitMailSummary -> return []
 
             let ccOrToResults = map d ((commitMessageBody =~ ccRegEx :: [[Text]]))
                    where ccRegEx = T.concat ["\n((C[cC])|To|Signed-off-by): ", emailRegEx] :: Text
