@@ -1,4 +1,4 @@
-Checking ref heads/topic2
+Checking ref heads/topic2, 5 commits
   Skipping old commit 00010fffffffffffffffffffffffffffffffffff
   Skipping old commit 00011fffffffffffffffffffffffffffffffffff
   Skipping old commit 00012fffffffffffffffffffffffffffffffffff

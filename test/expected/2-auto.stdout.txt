@@ -1,4 +1,4 @@
-Checking ref heads/master
+Checking ref heads/master, 2 commits
   Skipping old commit 00001fffffffffffffffffffffffffffffffffff
   Formatting 00002fffffffffffffffffffffffffffffffffff
 Sending E-Mails!

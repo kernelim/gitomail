@@ -1,10 +1,10 @@
-Checking ref heads/master
+Checking ref heads/master, 5 commits
   Skipping old commit 00002fffffffffffffffffffffffffffffffffff
   Formatting 00005fffffffffffffffffffffffffffffffffff
   Formatting 00006fffffffffffffffffffffffffffffffffff
   Formatting 00009fffffffffffffffffffffffffffffffffff
   Formatting 00010fffffffffffffffffffffffffffffffffff
-Checking ref heads/topic2
+Checking ref heads/topic2, 3 commits
   Skipping old commit 00006fffffffffffffffffffffffffffffffffff
   Formatting 00007fffffffffffffffffffffffffffffffffff
   Formatting 00008fffffffffffffffffffffffffffffffffff

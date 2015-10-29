@@ -1,4 +1,4 @@
-Checking ref heads/topic
+Checking ref heads/topic, 3 commits
   Skipping old commit 00002fffffffffffffffffffffffffffffffffff
   Formatting 00003fffffffffffffffffffffffffffffffffff
   Formatting 00004fffffffffffffffffffffffffffffffffff

@@ -1,5 +1,5 @@
-Checking ref heads/master
-Checking ref heads/older
+Checking ref heads/master, 0 commits
+Checking ref heads/older, 2 commits
   Skipping old commit 00024fffffffffffffffffffffffffffffffffff
   Skipping old commit 00025fffffffffffffffffffffffffffffffffff
 No E-Mails to send.

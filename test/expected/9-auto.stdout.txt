@@ -1,4 +1,4 @@
-Checking ref heads/user/for/other/feature
+Checking ref heads/user/for/other/feature, 3 commits
   Skipping old commit 00020fffffffffffffffffffffffffffffffffff
   Formatting 00021fffffffffffffffffffffffffffffffffff
   Formatting 00022fffffffffffffffffffffffffffffffffff
