@@ -1,5 +1,9 @@
 language: haskell-multi-ghc
 
+branches:
+  except:
+    - /^TEMP.*$/
+
 sudo: false
 
 env:
