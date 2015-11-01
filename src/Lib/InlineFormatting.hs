@@ -19,7 +19,7 @@ import qualified Data.Text.Encoding            as T
 import           Text.Blaze.Html               (toHtml)
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
 ------------------------------------------------------------------------------------
-import           Lib.Text                      ((+@), showT)
+import           Lib.Text                      ((+@), showT, safeDecode)
 ------------------------------------------------------------------------------------
 
 data Format
@@ -80,7 +80,7 @@ ansiToFList t = do
         z_set          = assign z_cap      $ [Inverse]
         in_between_set = assign in_between $ []
 
-        m ((s, e), rval) = (T.decodeUtf8 $ BS.take (e - s) $ BS.drop s te, rval)
+        m ((s, e), rval) = (safeDecode $ BS.take (e - s) $ BS.drop s te, rval)
         flists = if l == [] || r == []
                      then assign [t] []
                      else map m $ rjoin z_set in_between_set

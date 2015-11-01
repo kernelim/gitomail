@@ -48,7 +48,6 @@ import           Control.Monad.Trans.Control (MonadBaseControl)
 import qualified Data.ByteString.Char8       as BS8
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
-import qualified Data.Text.Encoding          as T
 import           Data.Maybe                  (fromMaybe, catMaybes)
 import qualified Data.Map                    as Map
 import           Data.Typeable               (Typeable)
@@ -73,7 +72,8 @@ import qualified Gitomail.Version            as V
 import           Lib.EMail                   (parseEMail', InvalidEMail(..))
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as F
-import           Lib.Text                    ((+@), showT, leadingZeros)
+import           Lib.Text                    ((+@), showT, leadingZeros,
+                                              safeDecode)
 import           Lib.Memo                    (cacheIO, cacheIO')
 import           Lib.Process                 (readProcess, readProcess'')
 import           Lib.Regex                   (matchWhole)
@@ -276,9 +276,9 @@ getTopAliases gitRef = do
     repoPath <- getRepositoryPath
     patternsCompiled <- compilePatterns (repoPath, gitRef)
     let f (Maintainers.Alias name email) = do
-            case parseEMail' $ T.decodeUtf8 email of
+            case parseEMail' $ safeDecode email of
                 Left _        -> return Nothing
-                Right address -> return $ Just (T.decodeUtf8 name, address)
+                Right address -> return $ Just (safeDecode name, address)
         f _ = return Nothing
         defs = case Maintainers.getRootDefs patternsCompiled of
                    Just (Just ls) -> ls

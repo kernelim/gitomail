@@ -45,6 +45,7 @@ executable gitomail
                      , array
                      , base                 >= 4.7    &&  < 5.0
                      , base16-bytestring    >= 0.1.1.6
+                     , bytestring
                      , blaze-html
                      , bytestring
                      , containers           >= 0.5.6.2
@@ -88,6 +89,7 @@ test-suite gitomail-test
                        Paths_gitomail
   build-depends:       ansi-terminal
                      , base
+                     , bytestring
                      , filepath
                      , lifted-base          >= 0.2.3.6
                      , monad-control

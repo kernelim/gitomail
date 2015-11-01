@@ -79,7 +79,8 @@ import qualified Lib.InlineFormatting        as F
 import           Lib.LiftedPrelude
 import           Lib.Process                 (readProcess')
 import           Lib.Regex                   (matchWhole)
-import           Lib.Text                    (removeTrailingNewLine, (+@))
+import           Lib.Text                    (removeTrailingNewLine, (+@),
+                                              safeDecode)
 ------------------------------------------------------------------------------------
 
 data InvalidDiff = InvalidDiff String deriving (Typeable)
@@ -265,7 +266,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                        [] -> "<?>"
 
             let Maintainers.AssignedFileStatus {..} = maintainerInfo
-                getEMail (_, email) = E.catch (parseEMail (T.decodeUtf8 email) >>= (return . Just))
+                getEMail (_, email) = E.catch (parseEMail (safeDecode email) >>= (return . Just))
                                         (\(_ :: InvalidEMail) -> return Nothing)
                 (_, p2) = StrSearch.breakAfter "\nSubject: " (T.encodeUtf8 patch)
                 (_, commit) = StrSearch.breakOn "\n\n" p2
@@ -273,7 +274,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                 flagsMaybe =
                     case flags of
                           [] -> Nothing
-                          (_:_) -> Just $ T.decodeUtf8 $ BS8.concat $ ["Flags: "] ++ (intersperse ", " flags)
+                          (_:_) -> Just $ safeDecode $ BS8.concat $ ["Flags: "] ++ (intersperse ", " flags)
                     where flags = catMaybes [diffInexactMatches]
 
             (toListE, ccList) <- do
@@ -289,7 +290,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                           aliasMap <- getTopAliases commitHash
                           fmap catMaybes $ forM (Map.toList aliasMap) $ \(name, email) -> do
                               if matchWhole (aliasRefRegex & T.replace "%a" name) ref
-                                 then return $ Just email
+                                 then return (Just email)
                                  else return Nothing
                   return $
                       let otherAddresses =
@@ -361,7 +362,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                             }
                           flists = parsedFLists ++ emailFooter
                           html = TL.fromChunks [ htmlOnlyHeader, F.flistToInlineStyleHtml blobInCommitURLFunc flists ]
-                          plain = TL.fromChunks [ T.decodeUtf8 commit ]
+                          plain = TL.fromChunks [ safeDecode commit ]
                           replyTo = Address (Just authorName) authorEMail
                           commitInfo =
                               CommitInfo authorName diffInexactHash miInexactDiffHashNew commitSubjectLine

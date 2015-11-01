@@ -16,9 +16,6 @@
 * Formatting of the ASCII E-Mail should be improved.
 * Verify that the ASCII version of the E-Mail can still be imported as a patch.
 * Verify that merge commits are skipped, for now.
-* Check that UTF-8 is handled correctly.
-  * FIXME: commits containing invalid unicode data are failing Data.Text.IO.readFile
-    needs a workaround.
 * Cleanups, refactoring.
 * Submodule support.
 
