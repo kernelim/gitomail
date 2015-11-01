@@ -37,7 +37,7 @@ runCmd = do
 
     where
         printVersion = do
-            putStrLn $ "Gitolite " ++ T.unpack getVersion
+            putStrLn $ "Gitomail " ++ T.unpack getVersion
 
         action Nothing = do
             putStrLn "No action given (run with --help)"
