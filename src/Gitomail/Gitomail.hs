@@ -70,7 +70,7 @@ import qualified Gitomail.Opts               as O
 import qualified Gitomail.Version            as V
 import           Lib.EMail                   (parseEMail', InvalidEMail(..))
 import qualified Lib.Git                     as GIT
-import qualified Lib.InlineFormatting        as F
+import qualified Lib.Formatting              as F
 import           Lib.Text                    ((+@), showT, leadingZeros,
                                               safeDecode)
 import           Lib.Memo                    (cacheIO, cacheIO')

@@ -25,7 +25,9 @@ import           Gitomail.Gitomail
 import           Gitomail.CommitToMail
 import           Gitomail.WhoMaintains
 import           Gitomail.Automailer
+import           Gitomail.Highlight
 import           Lib.LiftedPrelude
+import qualified Lib.Regex                   as Regex
 ------------------------------------------------------------------------------------
 
 runCmd :: (MonadGitomail m) => m ()
@@ -48,8 +50,10 @@ runCmd = do
             O.WhoMaintainsCmnd             -> whoMaintains
             O.ShowIneffectiveDefinitions   -> showEffectiveDefs
             O.SendOne                      -> sendOne
+            O.ShowOne                      -> showOne
             O.AutoMailer                   -> autoMailer
             O.AutoMailerSetRef ref text    -> autoMailerSetRef ref text
+            O.Highlight maybeFilename      -> highlight maybeFilename
 
             -- Debug
             O.CheckBranchPoints            -> checkBranchPoints
@@ -64,6 +68,8 @@ runCmd = do
             O.EvalConfigs -> do
                 config <- getConfig
                 print config
+            O.Misc -> do
+                liftIO $ Regex.test
 
 main :: IO ()
 main = void $ execParser O.opts >>= getGitomail >>= evalStateT runCmd

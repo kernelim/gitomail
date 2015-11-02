@@ -13,20 +13,24 @@ cabal-version:       >=1.10
 executable gitomail
   hs-source-dirs:    src/
   main-is:           Main.hs
-  ghc-options:       -Wall -O2
+  ghc-options:       -Wall -O2 -rtsopts
+  ghc-prof-options:  -Wall -O2 -rtsopts -auto-all -caf-all
   other-modules:     Gitomail.Maintainers.Parser
-                   , Gitomail.Maintainers.Lexer
-                   , Gitomail.Maintainers.Base
-                   , Gitomail.Maintainers
+                   , Gitomail.Automailer
+                   , Gitomail.CommitToMail
                    , Gitomail.Config
                    , Gitomail.Gitomail
-                   , Gitomail.WhoMaintains
-                   , Gitomail.CommitToMail
-                   , Gitomail.Automailer
-                   , Gitomail.Version
+                   , Gitomail.Highlight
+                   , Gitomail.Maintainers
+                   , Gitomail.Maintainers.Base
+                   , Gitomail.Maintainers.Lexer
                    , Gitomail.Opts
+                   , Gitomail.Version
+                   , Gitomail.WhoMaintains
+                   , Lib.AnsiFormatting
                    , Lib.DiffHighlight
                    , Lib.EMail
+                   , Lib.Formatting
                    , Lib.Git
                    , Lib.InlineFormatting
                    , Lib.LiftedIO
@@ -37,6 +41,7 @@ executable gitomail
                    , Lib.Process
                    , Lib.Regex
                    , Lib.Sequence
+                   , Lib.SourceHighlight
                    , Lib.Text
                    , Paths_gitomail
   build-depends:       Glob                 >= 0.7    &&  < 0.8
@@ -46,6 +51,7 @@ executable gitomail
                      , array
                      , base                 >= 4.7    &&  < 5.0
                      , base16-bytestring    >= 0.1.1.6
+                     , dlist
                      , bytestring
                      , blaze-html
                      , bytestring
@@ -90,6 +96,7 @@ test-suite gitomail-test
                        Lib.Text
                        Paths_gitomail
   build-depends:       ansi-terminal
+                     , array
                      , base
                      , bytestring
                      , filepath

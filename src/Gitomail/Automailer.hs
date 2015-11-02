@@ -30,14 +30,13 @@ import           Control.Lens.Operators      ((^.), (&))
 import           Control.Monad               (forM, forM_, when, filterM)
 import           Control.Monad.IO.Class      (liftIO, MonadIO)
 import qualified Data.ByteString.Char8       as BS8
+import qualified Data.DList                  as DList
 import           Data.List                   (sortOn, groupBy, nub, intersperse,
                                               (\\))
 import qualified Data.Map                    as Map
 import           Data.Maybe                  (fromMaybe, catMaybes)
 import qualified Data.Set                    as Set
 import           Data.Text                   (Text)
-import           Data.Sequence               ((><))
-import qualified Data.Sequence               as Seq
 import           Data.Foldable               (toList)
 import qualified Data.Text                   as T
 import qualified Data.Text.Encoding          as T
@@ -59,6 +58,7 @@ import           Lib.Monad                   (whenM)
 import           Lib.Text                    ((+@))
 import           Lib.Process                 (ReadProcessFailed)
 import qualified Lib.Git                     as GIT
+import qualified Lib.Formatting              as F
 import qualified Lib.InlineFormatting        as F
 import           Lib.Regex                   (matchWhole)
 import           Lib.Monad                   (lSeqForM)
@@ -169,10 +169,10 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                       , ("Previously pushed", belowOrEqOldRef,  True,  -2)
                       , ("Branch points"    , branchPoints,     False, -3)
                       ]
-                let insert sI x = modifyIORef' sI (Seq.|> x)
+                let insert sI x = modifyIORef' sI (`DList.snoc` x)
 
-                flistI <- newIORef Seq.empty
-                mailsI <- newIORef Seq.empty
+                flistI <- newIORef DList.empty
+                mailsI <- newIORef DList.empty
                 rowIdsI <- newIORef (0 :: Int)
 
                 forM_ commitLists $ \(name, list, includeCCTo, tableId) -> do
@@ -187,7 +187,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                                let row = F.TableRow rowId
                                let col' i c = F.TableCol i c
                                let col i = col' i 1
-                               flistRowI <- newIORef Seq.empty
+                               flistRowI <- newIORef DList.empty
 
                                whenM (readIORef emptySoFarI) $ do
                                    writeIORef emptySoFarI False
@@ -232,7 +232,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
                 flist <- readIORef flistI
                 mails <- readIORef mailsI
                 emailFooter <- getFooter
-                return (F.mkFormS F.Table flist >< emailFooter, toList $ mails)
+                return (F.mkFormS F.Table flist `DList.append` emailFooter, toList $ mails)
 
             (cc, to) <- getExtraCCTo
 

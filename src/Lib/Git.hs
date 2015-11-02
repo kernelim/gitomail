@@ -20,7 +20,7 @@ module Lib.Git
   , textToOid
   , foldTree
   , printTree
-  , catBlob
+  , readBlob
   , treeVal
   , treeMap
   , refRepr
@@ -123,6 +123,12 @@ iterateHistoryUntil v'' f path firstrev = do
         runEitherT $ do
             oid <- lift $ Git.parseOid firstrev
             (lift $ lookupObject oid) >>= (recurse v'')
+
+readBlob :: (MonadIO m, MonadBaseControl IO m, MonadMask m) =>
+            FilePath -> Text -> m BS8.ByteString
+readBlob path blobIndex = do
+    withRepository lgFactory path $ do
+        Git.parseObjOid blobIndex >>= catBlob
 
 type RefAnalysis a = (Map a (Set (OidPtr, Maybe a)),
                       Map a (Set (OidPtr, a)))

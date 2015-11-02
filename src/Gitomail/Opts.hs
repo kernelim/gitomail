@@ -42,6 +42,7 @@ data Command
     = WhoMaintainsCmnd
     | ShowIneffectiveDefinitions
     | SendOne
+    | ShowOne
     | AutoMailer
     | AutoMailerSetRef GitRef Text
     | ShowAutoMailerRefs
@@ -50,6 +51,8 @@ data Command
     | ParseMaintainerFile FilePath
     | ParseConfigFile FilePath
     | EvalConfigs
+    | Highlight (Maybe Text)
+    | Misc
     deriving (Show)
 
 textOption :: Mod OptionFields String -> Parser Text
@@ -94,9 +97,11 @@ optsParse = Opts
            (
               command "who-maintains" showWhoMaintains
            <> command "show-ineffectives" showIneffectiveDefinitions
+           <> command "show-one" showOneRef
            <> command "send-one" sendOneRef
            <> command "auto-mailer" autoMailer
            <> command "auto-mailer-set-ref" autoMailerSetRef
+           <> command "highlight" highlight
            <> command "debug" debugCommands
            ))
     where
@@ -109,6 +114,7 @@ optsParse = Opts
                <> command "show-auto-mailer-refs"  (info (pure ShowAutoMailerRefs) (progDesc ""))
                <> command "check-refs"             (info (pure CheckBranchPoints)  (progDesc ""))
                <> command "forget-hash"            (info (pure ForgetHash)         (progDesc ""))
+               <> command "misc"                   (info (pure Misc)               (progDesc ""))
             )) (progDesc "Various debugging commands")
 
         showWhoMaintains = info (pure WhoMaintainsCmnd)
@@ -118,13 +124,19 @@ optsParse = Opts
             (progDesc "Show ineffective statements in the tree")
 
         sendOneRef = info (pure SendOne)
-            (progDesc "Send the diff of a specific git ref")
+            (progDesc "Send a single commit E-Mail for a specified git revision")
+
+        showOneRef = info (pure ShowOne)
+            (progDesc "Console print of a single commit, in ANSI")
 
         autoMailer = info (pure AutoMailer)
             (progDesc "Automatically send mail for new commits (read the docs first!)")
 
         autoMailerSetRef = info (AutoMailerSetRef <$> (argument textParam (metavar "REF")) <*> (argument textParam (metavar "HASH")))
             (progDesc "Set the tracked ref to something else (for fine control of detected commit hashes between runs)")
+
+        highlight = info (Highlight <$> (optional . textOption) (short 'e' <> metavar "EXTENSION"))
+            (progDesc "Perform ANSI-color 24-bit color highlighting for stdin (filename only hints about source type)")
 
 opts :: ParserInfo Opts
 opts = info (optsParse <**> helper) idm

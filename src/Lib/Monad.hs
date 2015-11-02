@@ -10,6 +10,8 @@ module Lib.Monad
     , seqForM
     , lSeqMapM
     , lSeqForM
+    , dlistMapM
+    , dlistForM
     ) where
 
 ------------------------------------------------------------------------------------
@@ -18,6 +20,8 @@ import           Data.Map                       (Map)
 import qualified Data.Map                       as Map
 import           Data.Sequence                  (Seq)
 import qualified Data.Sequence                  as Seq
+import           Data.DList                     (DList)
+import qualified Data.DList                     as DList
 import           Data.Foldable                 (toList)
 ------------------------------------------------------------------------------------
 
@@ -58,6 +62,11 @@ seqMapM :: (Monad m, Foldable l) =>
 seqMapM f = foldM item Seq.empty
     where item acc x = f x >>= return . (acc Seq.|>)
 
+dlistMapM :: (Monad m, Foldable l) =>
+           (a -> m b) -> l a -> m (DList b)
+dlistMapM f = foldM item DList.empty
+    where item acc x = f x >>= return . (acc `DList.snoc`)
+
 lSeqMapM :: (Monad m, Foldable l) =>
             (a -> m b) -> l a -> m [b]
 lSeqMapM m l = fmap toList $ seqMapM m l
@@ -69,3 +78,7 @@ seqForM = flip seqMapM
 lSeqForM :: (Monad m, Foldable l) =>
             l a -> (a -> m b) -> m [b]
 lSeqForM l m = fmap toList $ seqForM l m
+
+dlistForM :: (Monad m, Foldable l) =>
+           l a -> (a -> m b) -> m  (DList b)
+dlistForM = flip dlistMapM

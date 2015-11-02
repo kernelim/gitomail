@@ -11,9 +11,6 @@ Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-
-
----
  Other=2Etxt | 1 +
  1 file changed, 1 insertion(+)
 
@@ -26,7 +23,7 @@ index 95e3299eb265=2E=2Ef3136dde362b 100644
  Added content 16
  Added content 17
 +Added content 17
-
+Sent by Gitomail=20
 --<random-replaced-for-test>
 Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
@@ -55,7 +52,6 @@ tent 15
  Added content 17
 </div><div style=3D"background: #E0FFE0; font-family: monospace">+Added con=
 tent 17
-</div><div style=3D"background: #F8F8F5; font-family: monospace">
 </div></pre></div></font><div height=3D"20">&nbsp;</div><div style=3D"color=
 : #b0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim=
 /gitomail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">G=
