@@ -165,34 +165,31 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
             githashtoNumberI <- newIORef Map.empty
             (flist, mails) <- do
                 let commitLists = [
-                        ("Content"          , newCommits,       True,  -1)
-                      , ("Previously pushed", belowOrEqOldRef,  True,  -2)
-                      , ("Branch points"    , branchPoints,     False, -3)
+                        ("Content"          , newCommits,       True)
+                      , ("Previously pushed", belowOrEqOldRef,  True)
+                      , ("Branch points"    , branchPoints,     False)
                       ]
                 let insert sI x = modifyIORef' sI (`DList.snoc` x)
 
                 flistI <- newIORef DList.empty
                 mailsI <- newIORef DList.empty
-                rowIdsI <- newIORef (0 :: Int)
 
-                forM_ commitLists $ \(name, list, includeCCTo, tableId) -> do
+                forM_ commitLists $ \(name, list, includeCCTo) -> do
                    emptySoFarI <- newIORef True
                    forM_ list $ \(maybeNr, commitHash) -> do
                        mailinfo <- makeOneMailCommit CommitMailSummary db ref commitHash maybeNr
                        case mailinfo of
                            Right (MailInfo{..}, CommitInfo{..}) -> do
-                               modifyIORef' rowIdsI (+ 1)
-                               rowId <- readIORef rowIdsI
+                               let row = F.TableRow
+                               let col' c = F.TableCol c
+                               let col = col' 1
 
-                               let row = F.TableRow rowId
-                               let col' i c = F.TableCol i c
-                               let col i = col' i 1
                                flistRowI <- newIORef DList.empty
 
                                whenM (readIORef emptySoFarI) $ do
                                    writeIORef emptySoFarI False
-                                   insert flistI $ F.TForm (F.TableRow tableId)
-                                                 $ F.mkFormS (col' tableId 5)
+                                   insert flistI $ F.TForm (F.TableRow)
+                                                 $ F.mkFormS (col' 5)
                                                  $ F.mkFormS F.Underline
                                                  $ F.mkPlain (T.concat ["\n", name, "\n"])
 
@@ -207,8 +204,8 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
 
                                insert flistRowI $ F.TForm (F.TableCellPad 10) (F.mkPlain "")
 
-                               insert flistRowI $ F.TForm (col 0) $ F.mkPlain $ ciAuthorName +@ " "
-                               insert flistRowI $ F.TForm (col 1) $ F.mkFormS F.Monospace $ linkToWeb $ F.mkPlain $ githash +@ " "
+                               insert flistRowI $ F.TForm col $ F.mkPlain $ ciAuthorName +@ " "
+                               insert flistRowI $ F.TForm col $ F.mkFormS F.Monospace $ linkToWeb $ F.mkPlain $ githash +@ " "
 
                                nr <- case maybeNr of
                                    Just nr -> do
@@ -219,8 +216,8 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
 
                                let maybeBold f =
                                        if ciInexactDiffHashNew then F.mkFormS F.Emphesis f else f
-                               insert flistRowI $ F.TForm (col 2) $ maybeBold $ F.mkPlain nr
-                               insert flistRowI $ F.TForm (col 3) $ maybeBold $ F.mkPlain $ ciCommitSubject +@ "\n"
+                               insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain nr
+                               insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain $ ciCommitSubject +@ "\n"
 
                                flistRow <- readIORef flistRowI
                                insert flistI $ F.TForm row flistRow

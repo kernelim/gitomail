@@ -47,12 +47,11 @@ data Format
     | List
     | ListItem
     | Table
-    | TableRow Int
-    | TableCol Int Int
+    | TableRow
+    | TableCol Int
     | TableCellPad Int
     | Link Text
     | Footer
-    | Color !Int !Int !Int
     | Style Element
     | Dark
       deriving (Show, Eq, Ord)
@@ -60,8 +59,8 @@ data Format
 type FList = DList Fragment
 
 data Fragment
-    = TPlain !Text
-    | TForm  !Format !FList
+    = TPlain {-# UNPACK #-} !Text
+    | TForm  !Format FList
       deriving (Show, Eq, Ord)
 
 toFList :: Fragment -> FList
