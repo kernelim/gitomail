@@ -461,14 +461,15 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                                   case config ^.|| CFG.sourceHighlight of
                                       False -> return $ DH.highlight diff
                                       True -> do  sourceInDiffHighlighted <- highlightSourceInDiff (DH.parseDiff diff)
-                                                  let diffHighlighted =
-                                                          DH.highlight $ F.flistToText sourceInDiffHighlighted
-                                                  case F.combineFLists diffHighlighted sourceInDiffHighlighted of
+                                                  let text = F.flistToText sourceInDiffHighlighted
+                                                      diffHighlighted = DH.highlight text
+                                                  case F.combineFLists text diffHighlighted sourceInDiffHighlighted of
                                                       Left str -> do
                                                           -- ToDo: this error should be emitted.
                                                           liftIO $ T.putStrLn $ T.pack str
                                                           return diffHighlighted
-                                                      Right x -> return x
+                                                      Right x -> do
+                                                          return x
 
                               return $ (F.highlightMonospace commitMessageBody)
                                           `DList.append` diffHighlighted

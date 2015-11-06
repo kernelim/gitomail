@@ -1,33 +1,34 @@
+{-# LANGUAGE BangPatterns      #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiWayIf        #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections     #-}
-{-# LANGUAGE FlexibleInstances #-}
 
 module Lib.Formatting
        (combineFLists, FList, Fragment(..),
         test, Format(..), mkForm, clearFormatting,
         mkFormS, mkPlain, fshow, fragmentize,
         flistToText, highlightText, highlightMonospace,
-        splitToLinesArray) where
+        splitToLinesArray, flistToIList, applyIList,
+        combineILists) where
 
 ------------------------------------------------------------------------------------
-import qualified Data.ByteString               as BS
-import           Data.ByteString.Search        (indices)
-import           Data.Foldable                 (toList)
-import           Data.List                     (groupBy)
-import           Data.Either                   (isLeft, partitionEithers)
-import           Data.Text                     (Text)
-import qualified Data.Text                     as T
-import qualified Data.Text.IO                  as T
-import qualified Data.Text.Encoding            as T
-import qualified Data.Array                    as A
-import           Data.DList                    (DList)
-import qualified Data.DList                    as DList
+import           Control.Monad            (when)
+import           Control.Monad.ST         (runST)
+import qualified Data.Array               as A
+import           Data.DList               (DList)
+import qualified Data.DList               as DList
+import           Data.Either              (isLeft, partitionEithers)
+import           Data.Foldable            (toList)
+import           Data.List                (groupBy)
+import           Data.STRef               (newSTRef, readSTRef, writeSTRef,
+                                           modifySTRef')
+import           Data.Text                (Text)
+import qualified Data.Text                as T
 ------------------------------------------------------------------------------------
-import           Lib.Text                      ((+@), lineSplit)
-import           Lib.DList                     (unfoldrEDL, ViewL(..),
-                                                viewl)
-import           Lib.SourceHighlight.Data      (Element)
+import           Lib.SourceHighlight.Data (Element)
+import           Lib.Text                 (lineSplit, subAText, textToAText,
+                                           (+@))
 ------------------------------------------------------------------------------------
 
 data Format
@@ -110,44 +111,8 @@ fragmentize = root
                 Just f  -> TForm f $ DList.singleton (TPlain xl)
             where xl = T.concat $ map fst l
 
-simpleDelimitersToFList :: Format -> BS.ByteString -> BS.ByteString -> Text -> Either String FList
-simpleDelimitersToFList format bStart bEnd t = do
-    let te = T.encodeUtf8 t
-        l = indices bStart te
-        r = indices bEnd te
-    z <- if length l /= length r
-         then Left "unclosed delimiters"
-         else Right $ zip l r
-    let
-        in_between =
-            [(0, head l)]
-               ++ zip (map (+BS.length bEnd) $ init r) (tail l)
-               ++ [(last r + BS.length bEnd, BS.length te)]
-
-        rjoin a b = join a b
-
-        join (a:as) (b:bs) = b:a:(join as bs)
-        join (a:as) []     = a:as
-        join [] (b:bs)     = b:bs
-        join [] []         = []
-
-        assign lst rval    = map (\x -> (x, rval)) lst
-
-        z_cap          = map (\(a, b) -> (a + BS.length bStart, b)) z
-
-        z_set          = assign z_cap      $ Just format
-        in_between_set = assign in_between $ Nothing
-
-        m ((s, e), rval) = (T.decodeUtf8 $ BS.take (e - s) $ BS.drop s te, rval)
-        flists = if l == [] || r == []
-                     then assign [t] Nothing
-                     else map m $ rjoin z_set in_between_set
-
-    return $ fragmentize flists
-
 highlightMonospace :: Text -> FList
 highlightMonospace t = DList.singleton (TForm MonospacePar $ DList.singleton $ TPlain t)
-
 
 highlightText :: Text -> FList
 highlightText text = DList.singleton (TPlain text)
@@ -168,37 +133,115 @@ highlightText text = DList.singleton (TPlain text)
 -- ["te", Y ["st",  X ["foo", "ba"]], X["r"], "x"]
 --
 
-combineFLists :: FList -> FList -> Either String FList
-combineFLists = root
-    where
-        root fa' fb' = fst $ unf fa' fb'
-        unf fa' fb'  = unfoldrEDL r (fa', fb')
-        rj x         = Right $ Just x
-        apf f s      = if DList.toList s == []  then DList.empty else DList.singleton $ TForm f s
-        add f xs s   = if DList.toList xs == [] then s           else (TForm f xs) `DList.cons` s
-        r (fa, fb)   =
-            case (viewl fa, viewl fb) of
-                (_       , EmptyL)                   -> Right Nothing
-                (EmptyL  , _     )                   -> Right Nothing
+type IList = DList FragmentI
 
-                (TPlain tx :<< xs, TPlain ty :<< ys)   ->
-                    case (T.stripPrefix tx ty, T.stripPrefix ty tx) of
-                        (Just "",  Just "") -> rj ((xs, ys), DList.singleton $ TPlain tx)
-                        (Just l,   Nothing) -> rj ((xs, TPlain l `DList.cons` ys), DList.singleton $ TPlain tx)
-                        (Nothing,  Just l)  -> rj ((TPlain l `DList.cons` xs, ys), DList.singleton $ TPlain ty)
-                        _                   -> Left $ "The texts are not equal" ++ show (tx, ty)
-                (TPlain _  :<< _,   TForm f lst :<< ys) ->
-                    case unf fa lst of
-                        (Left s,  _) -> Left s
-                        (Right s, (a, b)) -> rj ((a, add f b ys), apf f s)
-                (TForm f lst :<< xs, TPlain _  :<< _) ->
-                    case unf lst fb of
-                        (Left s,  _) -> Left s
-                        (Right s, (a, b)) -> rj ((add f a xs, b), apf f s)
-                (TForm xf xlst :<< xs, TForm yf ylst :<< ys) ->
-                    case unf xlst ylst of
-                        (Left s,  _) -> Left s
-                        (Right s, (a, b)) -> rj ((add xf a xs, add yf b ys), apf xf $ apf yf s)
+data FragmentI
+    = IPlain {-# UNPACK #-} !Int
+    | IForm                 !Format IList
+      deriving (Show, Eq, Ord)
+
+flistToIList :: FList -> IList
+flistToIList dl = DList.fromList $ map g $ DList.toList dl
+    where g (TPlain t)  = IPlain $ T.length t
+          g (TForm f l) = IForm f $ flistToIList l
+
+applyIList :: Text -> IList -> FList
+applyIList text ilist     = fst $ fr 0 id ilist
+    where atext           = textToAText text
+          m               = T.length text
+          range !o !len   = if o > m || o + len > m then "" else subAText atext o len
+                            -- ToDo: better EH
+          fr :: Int -> (FList -> a) -> IList -> (a, Int)
+          fr o f l        = case foldl h (DList.empty, o) l of
+                                (l', eo) -> (f l', eo)
+
+          h (l, o) u      = case g o u of
+                                (r, eo) -> (l `DList.snoc` r, eo)
+          g o (IPlain t)  = (TPlain $ range o t, o + t)
+          g o (IForm f l) = fr o (TForm f) l
+
+combineILists :: IList -> IList -> IList
+combineILists fa' fb' = runST root where
+    root = do
+        let takeP inR = f 0
+                where f !accum = do
+                          r <- readSTRef inR
+                          case r of
+                              ((IPlain n):xs) -> do writeSTRef inR xs -- Removes it
+                                                    f (n + accum)
+                              (f'@(IForm _ _):xs) ->
+                                  if accum == 0
+                                       then do writeSTRef inR xs -- Removes f, return it
+                                               return $ Just $ Right f'
+                                       else do return $ Just $ Left accum
+                              [] ->
+                                  if accum == 0
+                                       then return $ Nothing
+                                       else return $ Just $ Left accum
+
+        let merge inAR inBR = do
+                outR <- newSTRef $ DList.empty
+
+                let nextA f l = do
+                        altInAR <- newSTRef $ DList.toList l
+                        out <- merge altInAR inBR
+                        na <- readSTRef altInAR
+                        when (not $ null na) $ do
+                            modifySTRef' inAR ((IForm f (DList.fromList na)):)
+                        modifySTRef' outR (`DList.snoc` (IForm f out))
+                        loop
+
+                    nextB f l = do
+                        altInBR <- newSTRef $ DList.toList l
+                        out <- merge inAR altInBR
+                        nb <- readSTRef altInBR
+                        when (not $ null nb) $ do
+                            modifySTRef' inBR ((IForm f (DList.fromList nb)):)
+                        modifySTRef' outR (`DList.snoc` (IForm f out))
+                        loop
+
+                    loop = do
+                        pa <- takeP inAR
+                        pb <- takeP inBR
+                        case (pa, pb) of
+                            (Just (Left ta),  Just (Left tb)) -> do
+                                modifySTRef' outR (`DList.snoc` (IPlain (min ta tb)))
+                                if | ta > tb   -> modifySTRef' inAR ((IPlain $ ta - tb):)
+                                   | ta < tb   -> modifySTRef' inBR ((IPlain $ tb - ta):)
+                                   | otherwise -> return ()
+                                loop
+
+                            (Nothing,         Nothing)              -> return ()
+
+                            (Just (Left ta),  Nothing)              -> modifySTRef' inAR (IPlain ta:)
+                            (Nothing,         Just (Left tb))       -> modifySTRef' inBR (IPlain tb:)
+                            (Just (Right a),  Nothing)              -> modifySTRef' inAR (a:)
+                            (Nothing,         Just (Right b))       -> modifySTRef' inBR (b:)
+
+                            (Just (Right (IForm f l)), Just (Left tb)) -> do
+                                modifySTRef' inBR (IPlain tb:)
+                                nextA f l
+                            (Just (Left ta),           Just (Right (IForm f l))) -> do
+                                modifySTRef' inAR (IPlain ta:)
+                                nextB f l
+                            (Just (Right (IForm f l)), Just (Right fb@(IForm _ _))) -> do
+                                modifySTRef' inBR (fb:)
+                                nextA f l
+
+                            (Just (Right (IPlain _)), _)            -> return ()
+                            (_, Just (Right (IPlain _)))            -> return ()
+
+                loop
+
+                readSTRef outR
+
+        inAR <- newSTRef (DList.toList fa')
+        inBR <- newSTRef (DList.toList fb')
+        merge inAR inBR
+
+combineFLists :: Text -> FList -> FList -> Either String FList
+combineFLists t a b =
+    Right $ applyIList t $ combineILists (flistToIList a) (flistToIList b)
 
 splitToLinesArray :: FList -> A.Array Int FList
 splitToLinesArray = root
@@ -239,17 +282,31 @@ flistToText = root
 
 test :: IO ()
 test = do
-    let d1 format = simpleDelimitersToFList format "[" "]"
-    let Right v1 = d1 Mark    "test [foo boo] x [hello] world"
-    let Right v2 = d1 Monospace "te[st foo boo x] hello[ w]orld"
     print $ splitToLinesArray $
-         DList.fromList [TForm Mark    $ DList.fromList [
-                                TForm Monospace $ DList.fromList [
-                                        TPlain "bla", TPlain "hello\n" , TPlain "wo",
-                                        TPlain "rld\nbla", TPlain "X", TPlain "mult\n\n",
-                                        TPlain "bla" ] ] ]
-    -- T.putStrLn $ fshow v1
-    -- T.putStrLn $ fshow v2
-    T.putStrLn $ fshow $ combineFLists v1 v2
-    -- print $ highlightDiff "diff \nindex \n--- \n+++ \n@@ bla\n x\n-x\n+x\n @@ bla\ndiff \n"
-    return ()
+             DList.fromList [TForm Mark    $ DList.fromList [
+                                   TForm Monospace $ DList.fromList [
+                                           TPlain "bla", TPlain "hello\n" , TPlain "wo",
+                                           TPlain "rld\nbla", TPlain "X", TPlain "mult\n\n",
+                                           TPlain "bla" ] ] ]
+
+    let p c' = IPlain c'
+        l x = DList.fromList x
+        f s l' = IForm s (l l')
+
+        x1 = l [p 10]
+        x2 = l [p 10]
+        x3 = l [f Mark [p 10]]
+        x4 = l [f Monospace [p 10]]
+        x6 = l [p 4, f Monospace [p 4], p 2]
+        x7 = l [p 5, f Mark      [p 2], p 3]
+        x8 = l [p 2, f Mark      [p 5], p 3]
+
+    print $ combineILists x1 x2
+    print $ combineILists x1 x3
+    print $ combineILists x4 x1
+    print $ combineILists x3 x4
+    print $ combineILists x1 x6
+    print $ combineILists x6 x7
+    print $ combineILists x7 x6
+    print $ combineILists x6 x8
+    print $ combineILists x8 x6

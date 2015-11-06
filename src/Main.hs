@@ -27,6 +27,7 @@ import           Gitomail.WhoMaintains
 import           Gitomail.Automailer
 import           Gitomail.Highlight
 import           Lib.LiftedPrelude
+import qualified Lib.Formatting              as F
 ------------------------------------------------------------------------------------
 
 runCmd :: (MonadGitomail m) => m ()
@@ -68,6 +69,7 @@ runCmd = do
                 config <- getConfig
                 print config
             O.Misc -> do
+                liftIO $ F.test
                 return ()
 
 main :: IO ()
