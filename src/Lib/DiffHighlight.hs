@@ -107,40 +107,6 @@ onlyHighlight parsedDiff = mkFormS MonospacePar $ diffHighlight
                       let (rs', as') = mkDiff rs as
                        in (TForm DiffRemove rs'):(TForm DiffAdd as'):(iterLines xs)
                 iterLines (x:xs)                                        = x:(iterLines xs)
-                unmarkTrailingWhitespace = remarkInBetween . crux
-                    where
-                        crux (a@(_, Just Mark):b@(_, Nothing):c@(_, Just Mark):xs) =
-                            a:b:crux (c:xs)
-                        crux ((t', Just Mark):xs) =
-                            case spanAround C.isSpace t' of
-                                ("", t, "") -> (t, Just Mark) :crux xs
-                                (a , t, "") -> (a, Nothing)   :(t, Just Mark):crux xs
-                                ("", t,  b) -> (t, Just Mark) :(b, Nothing)     :crux xs
-                                (a , t,  b) -> (a, Nothing)   :(t, Just Mark):(b, Nothing):crux xs
-                        crux (z:xs) = z:crux xs
-                        crux []            = []
-                        rspan f t = let (x, y) = T.span f $ T.reverse t
-                                     in (T.reverse x, T.reverse y)
-                        spanAround f t = let (s, a) = T.span f t
-                                             (e, b) = rspan f a
-                                          in (s, b, e)
-                        fc x = C.isSpace x
-
-                        remarkInBetween (a@(at, Just Mark):xs) =
-                            if T.dropAround fc at /= ""
-                                then seekNextNonwhitespace [a] xs
-                                else a:remarkInBetween xs
-                        remarkInBetween (z:xs) = z:remarkInBetween xs
-                        remarkInBetween []     = []
-
-                        seekNextNonwhitespace lst (b@(at, Nothing):xs) =
-                            if T.dropAround fc at == ""
-                               then seekNextNonwhitespace (b:lst) xs
-                               else (reverse lst) ++ (remarkInBetween (b:xs))
-                        seekNextNonwhitespace lst (b@(_, Just _):xs) =
-                            (T.concat $ map fst $ reverse lst, Just Mark):(remarkInBetween $ b:xs)
-                        seekNextNonwhitespace lst []     = reverse lst
-
                 tokenize t = T.groupBy sep t
                 sep a b
                     | C.isAlphaNum a && C.isAlphaNum b = True
@@ -155,8 +121,8 @@ onlyHighlight parsedDiff = mkFormS MonospacePar $ diffHighlight
                         fDiff (a, b)           =
                             let c              = DP.diff (tokenize $ T.drop 1 a)
                                                          (tokenize $ T.drop 1 b)
-                             in (fragmentize $ unmarkTrailingWhitespace $ ("-", Nothing):old c,
-                                 fragmentize $ unmarkTrailingWhitespace $ ("+", Nothing):new c)
+                             in (fragmentize $ ("-", Nothing):old c,
+                                 fragmentize $ ("+", Nothing):new c)
                         old ((DP.Old t   ):xs) = (t, Just Mark):(old xs)
                         old ((DP.Both t _):xs) = (t, Nothing     ):(old xs)
                         old ((DP.New _   ):xs) = old xs
