@@ -299,7 +299,7 @@ getFooter = do
                   [F.TPlain "Sent by ",
                    F.TForm (F.Link "http://github.com/kernelim/gitomail")
                        $ F.mkFormS F.Dark $ F.mkPlain "Gitomail",
-                   F.TPlain " "] ++ v'
+                   F.TPlain " "] ++ v' ++ [F.TPlain "\n"]
 
 mapCommitHash :: (MonadGitomail m) => GIT.GitCommitHash -> m (GIT.GitCommitHash)
 mapCommitHash h = do
