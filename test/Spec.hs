@@ -56,6 +56,7 @@ instance Show UnexpectedState where
 data Context = Context {
       contextStrs     :: (IORef [Text])
     , _testRunId      :: Int
+    , sourceDir       :: FilePath
     , contextOutputs  :: (Maybe FilePath)
     , contextDerandom :: (IORef (Map Text Text))
     }
@@ -69,13 +70,13 @@ contextNew :: (MonadIO m) => m Context
 contextNew = do
     i <- newIORef []
     j <- newIORef Map.empty
-    return (Context i 0 Nothing j)
+    return (Context i 0 "" Nothing j)
 
 msg :: (MonadSpec m) => Text -> m ()
 msg x = do ctx <- get
            f ctx x
   where
-    f (Context ctx _ _ _) text = do
+    f (Context{contextStrs = ctx}) text = do
         lst <- readIORef ctx
         liftIO $ do
             setSGR [SetColor Foreground Vivid Cyan]
@@ -93,7 +94,7 @@ wrap :: (MonadSpec m) => Text -> m b -> m b
 wrap title x = do ctx<- get
                   f ctx title x
   where
-    f (Context ctx _ _ _) title' act = do
+    f (Context{contextStrs = ctx}) title' act = do
         lst <- readIORef ctx
         writeIORef ctx (title':lst)
         let restore = writeIORef ctx lst
@@ -197,29 +198,38 @@ gitDerandomizeHash hash = do
 gitDerandomizeHashHEAD :: (MonadSpec m) => m ()
 gitDerandomizeHashHEAD = gitDerandomizeHash "HEAD"
 
-tests :: (MonadSpec m) =>  FilePath -> m ()
+tests :: (MonadSpec m) => FilePath -> m ()
 tests tempDir = do
-    let add = "add"
-        commit = "commit"
-        readme = "README.md"
-        file2 = "Maintainers"
-        other = "Other.txt"
+    Context{..} <- get
+
+    let add        = "add"
+        readme     = "README.md"
+        file2      = "Maintainers"
+        other      = "Other.txt"
         automailer = ["auto-mailer"]
-        repoDir = tempDir </> "repo"
-        repo2Dir = tempDir </> "repo2"
+        repoDir    = tempDir </> "repo"
+        repo2Dir   = tempDir </> "repo2"
+
+        commit msg' = do
+            git' ["commit", "-m", msg']
+            gitDerandomizeHashHEAD
 
         fileAppend file i = do
             appendFile' (T.unpack file) $ "Added content " +@ showT (i :: Int) +@ "\n"
             git' [add, file]
-            git' [commit, "-m", "Updating " +@ file +@ " [" +@ showT i +@ "]" ]
-            gitDerandomizeHashHEAD
-        readmeAppend = fileAppend readme
-        otherAppend = fileAppend other
-        backToMaster = git' ["checkout", "master"]
+            commit $ "Updating " +@ file +@ " [" +@ showT i +@ "]"
+
+        takeFile fromFile toFile = do
+            readFile' (sourceDir </> "test" </> "source" </> fromFile) >>= writeFile' toFile
+            git' [add, T.pack toFile]
+
+        readmeAppend          = fileAppend readme
+        otherAppend           = fileAppend other
+        backToMaster          = git' ["checkout", "master"]
         checkoutCreate branch = git' ["checkout", "-b", branch]
-        removeBranch branch = git' ["branch", "-D", branch]
-        checkout branch = git' ["checkout", branch]
-        rebase branch = git' ["rebase", branch]
+        removeBranch branch   = git' ["branch", "-D", branch]
+        checkout branch       = git' ["checkout", branch]
+        rebase branch         = git' ["rebase", branch]
         initRepo r = do
             liftIO $ createDirectory r
             liftIO $ setCurrentDirectory r
@@ -237,7 +247,7 @@ tests tempDir = do
         -- FIXME when throwing InvalidAlias, need to tell why
 
     git' [add, readme, file2]
-    git' [commit, "-m", "Adding README.md"]
+    git' ["commit", "-m", "Adding README.md"]
     gitDerandomizeHashHEAD
     --  master: -
 
@@ -367,6 +377,26 @@ tests tempDir = do
 
     gitomailC "9-auto" automailer
 
+    msg "Source highlight in diff"
+    ----------------------------------
+
+    let exts = [".hs", ".c"]
+    forM_ exts $ \ext -> do
+        takeFile ("test1" ++ ext) ("test" ++ ext)
+
+    commit $ T.concat [ "Adding\n\nDescription\n"]
+
+    gitomailC "13-auto" automailer
+    gitomailC "13-show" ["-g", "HEAD", "show-one"]
+
+    forM_ exts $ \ext -> do
+        takeFile ("test2" ++ ext) ("test" ++ ext)
+
+    commit $ T.concat [ "Modifing test"]
+
+    gitomailC "14-auto" automailer
+    gitomailC "14-show" ["-g", "HEAD", "show-one"]
+
     msg "Ref going backward after init"
     ----------------------------------
 
@@ -395,9 +425,10 @@ run = do
         withSystemTempDirectory "gitomail-test" $ \tempDir -> do
             let outputDir = tempDir </> "output"
 
-            modify (\r -> r {contextOutputs = Just outputDir})
-
             cur <- liftIO $ getCurrentDirectory
+            modify (\r -> r {contextOutputs = Just outputDir,
+                             sourceDir = cur})
+
             liftIO $ createDirectory outputDir
             tests tempDir
             liftIO $ setCurrentDirectory cur

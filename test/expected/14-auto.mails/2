@@ -1,0 +1,104 @@
+From:  =?utf-8?Q?Main_User?=<bot@gitomail.com>
+To:  =?utf-8?Q?Main_User?=<main@gitomail.com>
+Message-Id: <0000000000-0000013-0004-gitomail-bot@gitomail.com>
+X-Mailer: gitomail 0.0.0
+Reply-to:  =?utf-8?Q?Main_User?=<main@gitomail.com>
+Subject: [repo master 00024ffff, #1] Modifing test
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
+
+--<random-replaced-for-test>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+
+
+---
+ test=2Ehs | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/test=2Ehs b/test=2Ehs
+index a1583118223f=2E=2E8d3b51c2c766 100644
+--- a/test=2Ehs
++++ b/test=2Ehs
+@@ -1,10 +1,10 @@
+ module Main where
+ 
+-factorial n =3D if n < 2 then 1 else n * factorial (n-1)
++factorial n =3D let m =3D 2 in if n < m then 1 else n * factorial (n-1)
+ 
+ -- Comment
+ 
+ main :: IO ()
+ main =3D do
++    getLine >>=3D putStrLn
+     putStrLn "Hello world"
+-
+
+-- 
+x=2Ex=2Ex
+
+Sent by Gitomail 
+
+--<random-replaced-for-test>
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+https://github=2Ecom/gitomail/repo/commit/00024ffffffffffffffffffffffffffff=
+fffffff<br>Branches: master<br><font size=3D"3"><div><pre style=3D"line-hei=
+ght: 125%">
+</pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 125%"><=
+div style=3D"background: #F8F8F5; font-family: monospace">
+---
+ test&#8203;=2Ehs | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+</div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
+ font-family: monospace">diff --git a/test&#8203;=2Ehs b/test&#8203;=2Ehs
+</div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=
+pace">index a1583118223f&#8203;=2E&#8203;=2E8d3b51c2c766 100644
+</div><div style=3D"background: #FFE0E0; font-family: monospace">--- a/test=
+&#8203;=2Ehs
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/test=
+&#8203;=2Ehs
+</div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
+nospace">@@ -1,10 +1,10 @@
+</div><div style=3D"background: #F8F8F5; font-family: monospace"> <span sty=
+le=3D"color: #7e1646">module</span> <span style=3D"color: #307878">Main</sp=
+an> <span style=3D"color: #7e1646">where</span>
+ 
+</div><div style=3D"background: #FFE0E0; font-family: monospace">-factorial=
+ n =3D <span style=3D"color: #7e1646">if</span> n &lt; <span style=3D"backg=
+round: #F8C2C2;"><span style=3D"color: #782400">2</span></span> <span style=
+=3D"color: #7e1646">then</span> <span style=3D"color: #782400">1</span> <sp=
+an style=3D"color: #7e1646">else</span> n * factorial (n-<span style=3D"col=
+or: #782400">1</span>)
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+factorial=
+ n =3D <span style=3D"background: #A6F3A6;"><span style=3D"color: #7e1646">=
+let</span> m =3D <span style=3D"color: #782400">2</span> <span style=3D"col=
+or: #7e1646">in</span> </span><span style=3D"color: #7e1646">if</span> n &l=
+t; <span style=3D"background: #A6F3A6;">m</span> <span style=3D"color: #7e1=
+646">then</span> <span style=3D"color: #782400">1</span> <span style=3D"col=
+or: #7e1646">else</span> n * factorial (n-<span style=3D"color: #782400">1<=
+/span>)
+</div><div style=3D"background: #F8F8F5; font-family: monospace"> 
+ <span style=3D"color: #717271">-- Comment
+</span> 
+ main :: <span style=3D"color: #307878">IO</span> ()
+ main =3D <span style=3D"color: #7e1646">do</span>
+</div><div style=3D"background: #E0FFE0; font-family: monospace">+    getLi=
+ne &gt;&gt;=3D putStrLn
+</div><div style=3D"background: #F8F8F5; font-family: monospace">     putSt=
+rLn <span style=3D"color: #3054c0">&quot;Hello world&quot;</span>
+</div><div style=3D"background: #FFE0E0; font-family: monospace">-
+</div></pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 1=
+25%">
+-- 
+x&#8203;=2Ex&#8203;=2Ex
+
+</pre></div></font><div height=3D"20">&nbsp;</div><div style=3D"color: #b0b=
+0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/gitom=
+ail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">Gitomai=
+l</span></a> 
+</div>
+--<random-replaced-for-test>--
