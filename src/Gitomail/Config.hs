@@ -40,6 +40,7 @@ data ConfigA a = Config
   , _blobInCommitURL    :: Maybe Text
   , _fromEMail          :: Maybe Text
   , _repoName           :: Maybe Text
+  , _sourceHighlight    :: a     Bool
   , _hashSize           :: a     Int
   , _hashMap            :: Maybe (Map Text Text)
   , _testRunId          :: a     Int
@@ -77,6 +78,7 @@ combine a b = runIdentity $ Config
     <*> x _commitSubjectLine
     <*> x _summarySubjectLine
     <*> x _repoName
+    <*> x _sourceHighlight
     <*> x _hashSize
     <*> x _hashMap
     <*> x _testRunId
@@ -102,6 +104,7 @@ final a = runIdentity $ Config
     <*> pass _blobInCommitURL
     <*> pass _fromEMail
     <*> pass _repoName
+    <*> defl _sourceHighlight  True
     <*> defl _hashSize     9
     <*> pass _hashMap
     <*> defl _testRunId    0
@@ -128,6 +131,7 @@ instance FromJSON (ConfigA Maybe) where
                   <*> field "blob_in_commit_url"
                   <*> field "from_email"
                   <*> field "repo_name"
+                  <*> field "source_highlight"
                   <*> field "hash_size"
                   <*> field "hash_map"
                   <*> field "test_run_id"

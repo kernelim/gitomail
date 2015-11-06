@@ -457,20 +457,21 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
 
                       parsedFLists <- case cmk of
                           CommitMailFull -> do
-                              let parsed = DH.parseDiff diff
-                              sourceInDiffHighlighted <- highlightSourceInDiff parsed
-                              diffHighlightPlus <- do
-                                  let diffHighlighted =
-                                          DH.highlight $ F.flistToText sourceInDiffHighlighted
-                                  case F.combineFLists diffHighlighted sourceInDiffHighlighted of
-                                      Left str -> do
-                                          -- ToDo: this error should be emitted.
-                                          liftIO $ T.putStrLn $ T.pack str
-                                          return diffHighlighted
-                                      Right x -> return x
+                              diffHighlighted <-
+                                  case config ^.|| CFG.sourceHighlight of
+                                      False -> return $ DH.highlight diff
+                                      True -> do  sourceInDiffHighlighted <- highlightSourceInDiff (DH.parseDiff diff)
+                                                  let diffHighlighted =
+                                                          DH.highlight $ F.flistToText sourceInDiffHighlighted
+                                                  case F.combineFLists diffHighlighted sourceInDiffHighlighted of
+                                                      Left str -> do
+                                                          -- ToDo: this error should be emitted.
+                                                          liftIO $ T.putStrLn $ T.pack str
+                                                          return diffHighlighted
+                                                      Right x -> return x
 
                               return $ (F.highlightMonospace commitMessageBody)
-                                          `DList.append` diffHighlightPlus
+                                          `DList.append` diffHighlighted
                                           `DList.append` (F.highlightMonospace footer)
 
                           CommitMailSummary -> do
