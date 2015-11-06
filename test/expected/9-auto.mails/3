@@ -40,7 +40,7 @@ https://github=2Ecom/gitomail/repo/commit/00022ffffffffffffffffffffffffffff=
 fffffff<br>Branches: user/for/other/feature<br><font size=3D"3"><div><pre s=
 tyle=3D"line-height: 125%">
 </pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 125%"><=
-div style=3D"background: #F8F8F5; font-family: monospace">
+div style=3D"background: #F5F5F3; font-family: monospace">
 ---
  README&#8203;=2Emd | 1 +
  1 file changed, 1 insertion(+)
@@ -56,7 +56,7 @@ ME&#8203;=2Emd
 ME&#8203;=2Emd
 </div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
 nospace">@@ -5,3 +5,4 @@ Added content 5
-</div><div style=3D"background: #F8F8F5; font-family: monospace"> Added con=
+</div><div style=3D"background: #F5F5F3; font-family: monospace"> Added con=
 tent 8
  Added content 9
  Added content 12

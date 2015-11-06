@@ -70,7 +70,7 @@ flistToInlineStyleHtml fileURL = root
           html End   _ DiffSlash      = "</div>"
           html Start _ DiffHunkHeader = "<div style=\"background: #E0E0E0; font-weight: bold; font-family: monospace\">"
           html End   _ DiffHunkHeader = "</div>"
-          html Start _ DiffUnchanged  = "<div style=\"background: #F8F8F5; font-family: monospace\">"
+          html Start _ DiffUnchanged  = "<div style=\"background: #F5F5F3; font-family: monospace\">"
           html End   _ DiffUnchanged  = "</div>"
           html Start _ Underline      = "<div style=\"text-decoration: underline\">"
           html End   _ Underline      = "</div>"

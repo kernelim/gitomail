@@ -48,7 +48,7 @@ https://github=2Ecom/gitomail/repo/commit/00024ffffffffffffffffffffffffffff=
 fffffff<br>Branches: master<br><font size=3D"3"><div><pre style=3D"line-hei=
 ght: 125%">
 </pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 125%"><=
-div style=3D"background: #F8F8F5; font-family: monospace">
+div style=3D"background: #F5F5F3; font-family: monospace">
 ---
  test&#8203;=2Ehs | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -63,7 +63,7 @@ pace">index a1583118223f&#8203;=2E&#8203;=2E8d3b51c2c766 100644
 &#8203;=2Ehs
 </div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
 nospace">@@ -1,10 +1,10 @@
-</div><div style=3D"background: #F8F8F5; font-family: monospace"> <span sty=
+</div><div style=3D"background: #F5F5F3; font-family: monospace"> <span sty=
 le=3D"color: #7e1646">module</span> <span style=3D"color: #307878">Main</sp=
 an> <span style=3D"color: #7e1646">where</span>
  
@@ -81,14 +81,14 @@ t; <span style=3D"background: #A6F3A6;">m</span> <span style=3D"color: #7e1=
 646">then</span> <span style=3D"color: #782400">1</span> <span style=3D"col=
 or: #7e1646">else</span> n * factorial (n-<span style=3D"color: #782400">1<=
 /span>)
-</div><div style=3D"background: #F8F8F5; font-family: monospace"> 
+</div><div style=3D"background: #F5F5F3; font-family: monospace"> 
  <span style=3D"color: #717271">-- Comment
 </span> 
  main :: <span style=3D"color: #307878">IO</span> ()
  main =3D <span style=3D"color: #7e1646">do</span>
 </div><div style=3D"background: #E0FFE0; font-family: monospace">+    getLi=
 ne &gt;&gt;=3D putStrLn
-</div><div style=3D"background: #F8F8F5; font-family: monospace">     putSt=
+</div><div style=3D"background: #F5F5F3; font-family: monospace">     putSt=
 rLn <span style=3D"color: #3054c0">&quot;Hello world&quot;</span>
 </div><div style=3D"background: #FFE0E0; font-family: monospace">-
 </div></pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 1=
