@@ -11,6 +11,9 @@ Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
+
+
+---
  Other=2Etxt | 1 +
  1 file changed, 1 insertion(+)
 
@@ -21,6 +24,9 @@ index e0e7f886eb20=2E=2E8b54c5bd8fb4 100644
 @@ -1 +1,2 @@
  ContentAdded content 6
 +Added content 7
+-- 
+x=2Ex=2Ex
+
 Sent by Gitomail=20
 --<random-replaced-for-test>
 Content-Type: text/html; charset=utf-8
@@ -28,9 +34,11 @@ Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00008ffffffffffffffffffffffffffff=
 fffffff<br>Branches: topic2<br><font size=3D"3"><div><pre style=3D"line-hei=
-ght: 125%"></pre></div></font><font size=3D"3"><div><pre style=3D"line-heig=
-ht: 125%"><div style=3D"background: #F8F8F5; font-family: monospace"> Other=
-&#8203;=2Etxt | 1 +
+ght: 125%">
+</pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 125%"><=
+div style=3D"background: #F8F8F5; font-family: monospace">
+---
+ Other&#8203;=2Etxt | 1 +
  1 file changed, 1 insertion(+)
 
 </div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
@@ -47,9 +55,13 @@ nospace">@@ -1 +1,2 @@
 </div><div style=3D"background: #F8F8F5; font-family: monospace"> ContentAd=
 ded content 6
 </div><div style=3D"background: #E0FFE0; font-family: monospace">+Added con=
-tent 7
-</div></pre></div></font><div height=3D"20">&nbsp;</div><div style=3D"color=
-: #b0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim=
-/gitomail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">G=
-itomail</span></a> </div>
+tent 7</div></pre></div></font><font size=3D"3"><div><pre style=3D"line-hei=
+ght: 125%">
+-- 
+x&#8203;=2Ex&#8203;=2Ex
+
+</pre></div></font><div height=3D"20">&nbsp;</div><div style=3D"color: #b0b=
+0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/gitom=
+ail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">Gitomai=
+l</span></a> </div>
 --<random-replaced-for-test>--

@@ -18,7 +18,8 @@ import           Text.Printf                   (printf)
 ------------------------------------------------------------------------------------
 import           Lib.Text                      ((+@), showT)
 import           Lib.DList                     (dlistConcat)
-import           Lib.SourceHighlight           (defaultTheme, Element(Ignore))
+import           Lib.SourceHighlight           (defaultTheme)
+import           Lib.SourceHighlight.Data      (Element(Ignore, Identifier))
 import           Lib.Formatting
 ------------------------------------------------------------------------------------
 
@@ -65,6 +66,8 @@ flistToInlineStyleHtml fileURL = root
           html End   _ DiffRemove     = "</div>"
           html Start _ DiffAdd        = "<div style=\"background: #E0FFE0; font-family: monospace\">"
           html End   _ DiffAdd        = "</div>"
+          html Start _ DiffSlash      = "<div style=\"font-family: monospace\">"
+          html End   _ DiffSlash      = "</div>"
           html Start _ DiffHunkHeader = "<div style=\"background: #E0E0E0; font-weight: bold; font-family: monospace\">"
           html End   _ DiffHunkHeader = "</div>"
           html Start _ DiffUnchanged  = "<div style=\"background: #F8F8F5; font-family: monospace\">"
@@ -77,6 +80,7 @@ flistToInlineStyleHtml fileURL = root
           html End   _ List           = "</ul>"
           html Start _ ListItem       = "<li>"
           html End   _ ListItem       = "</li>"
+          html _     _ (Style Identifier) = ""
           html _     _ (Style Ignore) = ""
           html Start _ (Style s)      = "<span style=\"color: #" +@ (defaultTheme code) s +@ "\">"
           html End   _ (Style _)      = "</span>"

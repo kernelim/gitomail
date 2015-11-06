@@ -11,18 +11,23 @@ Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
+
+
+---
  Other=2Etxt | 1 +
  1 file changed, 1 insertion(+)
  create mode 100644 Other=2Etxt
 
 diff --git a/Other=2Etxt b/Other=2Etxt
 new file mode 100644
-index 0000000000000000000000000000000000000000=2E=2Ee0e7f886eb20b29107b4d00=
-549f236468fd267f6
+index 000000000000=2E=2Ee0e7f886eb20
 --- /dev/null
 +++ b/Other=2Etxt
 @@ -0,0 +1 @@
 +ContentAdded content 6
+-- 
+x=2Ex=2Ex
+
 Sent by Gitomail=20
 --<random-replaced-for-test>
 Content-Type: text/html; charset=utf-8
@@ -30,9 +35,11 @@ Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00011ffffffffffffffffffffffffffff=
 fffffff<br>Branches: topic2<br>Flags: InexactDiffDup<br><font size=3D"3"><d=
-iv><pre style=3D"line-height: 125%"></pre></div></font><font size=3D"3"><di=
-v><pre style=3D"line-height: 125%"><div style=3D"background: #F8F8F5; font-=
-family: monospace"> Other&#8203;=2Etxt | 1 +
+iv><pre style=3D"line-height: 125%">
+</pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 125%"><=
+div style=3D"background: #F8F8F5; font-family: monospace">
+---
+ Other&#8203;=2Etxt | 1 +
  1 file changed, 1 insertion(+)
  create mode 100644 Other&#8203;=2Etxt
 
@@ -41,8 +48,7 @@ family: monospace"> Other&#8203;=2Etxt | 1 +
 xt
 </div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=
 pace">new file mode 100644
-index 0000000000000000000000000000000000000000&#8203;=2E&#8203;=2Ee0e7f886e=
-b20b29107b4d00549f236468fd267f6
+index 000000000000&#8203;=2E&#8203;=2Ee0e7f886eb20
 </div><div style=3D"background: #FFE0E0; font-family: monospace">--- /dev/n=
 ull
 </div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/Othe=
@@ -50,9 +56,13 @@ r&#8203;=2Etxt
 </div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
 nospace">@@ -0,0 +1 @@
 </div><div style=3D"background: #E0FFE0; font-family: monospace">+ContentAd=
-ded content 6
-</div></pre></div></font><div height=3D"20">&nbsp;</div><div style=3D"color=
-: #b0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim=
-/gitomail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">G=
-itomail</span></a> </div>
+ded content 6</div></pre></div></font><font size=3D"3"><div><pre style=3D"l=
+ine-height: 125%">
+-- 
+x&#8203;=2Ex&#8203;=2Ex
+
+</pre></div></font><div height=3D"20">&nbsp;</div><div style=3D"color: #b0b=
+0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/gitom=
+ail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">Gitomai=
+l</span></a> </div>
 --<random-replaced-for-test>--

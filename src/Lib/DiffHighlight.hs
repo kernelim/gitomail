@@ -57,6 +57,7 @@ parseDiff text = fileGroups
         hunk (x:xs) = case' "@@ "    (const DiffHunkHeader) hunk x xs $
                       case' "-"      (const DiffRemove    ) hunk x xs $
                       case' "+"      (const DiffAdd       ) hunk x xs $
+                      case' "\\"     (const DiffSlash     ) hunk x xs $
                       case' "diff "  (const DiffMain      ) diff x xs $
                       else' hunk x xs
         hunk []     = []

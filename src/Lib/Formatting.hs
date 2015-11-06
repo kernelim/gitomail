@@ -27,7 +27,7 @@ import qualified Data.DList                    as DList
 import           Lib.Text                      ((+@), lineSplit)
 import           Lib.DList                     (unfoldrEDL, ViewL(..),
                                                 viewl)
-import           Lib.SourceHighlight           (Element)
+import           Lib.SourceHighlight.Data      (Element)
 ------------------------------------------------------------------------------------
 
 data Format
@@ -36,6 +36,7 @@ data Format
     | DiffHunkHeader
     | DiffAdd
     | DiffRemove
+    | DiffSlash
     | DiffAddFile Text
     | DiffRemoveFile Text
     | DiffUnchanged

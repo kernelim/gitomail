@@ -27,7 +27,6 @@ import           Gitomail.WhoMaintains
 import           Gitomail.Automailer
 import           Gitomail.Highlight
 import           Lib.LiftedPrelude
-import qualified Lib.Regex                   as Regex
 ------------------------------------------------------------------------------------
 
 runCmd :: (MonadGitomail m) => m ()
@@ -69,7 +68,7 @@ runCmd = do
                 config <- getConfig
                 print config
             O.Misc -> do
-                liftIO $ Regex.test
+                return ()
 
 main :: IO ()
 main = void $ execParser O.opts >>= getGitomail >>= evalStateT runCmd

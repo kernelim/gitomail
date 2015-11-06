@@ -50,6 +50,7 @@ import           Data.Text                   (Text)
 import qualified Data.Text                   as T
 import qualified Data.Text.IO                as T
 import qualified Data.Text.Encoding          as T
+import           Data.Text.Internal.Search   as TI
 import qualified Data.Text.Lazy              as TL
 import qualified Data.Array                  as A
 import           Data.Typeable               (Typeable)
@@ -75,7 +76,7 @@ import qualified Gitomail.Config             as CFG
 import           Gitomail.Gitomail
 import qualified Gitomail.Maintainers        as Maintainers
 import qualified Gitomail.Opts               as O
-import           Gitomail.Highlight          (getHighlighter, captureToFList)
+import           Gitomail.Highlight          (getHighlighter)
 import           Gitomail.WhoMaintains
 import           Lib.EMail                   (InvalidEMail, emailRegEx,
                                               parseEMail)
@@ -205,7 +206,7 @@ highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
             toB <- readMaybeBlob toBlobHash
 
             let highlightWholeBlob filename blob =
-                    F.splitToLinesArray $ captureToFList $
+                    F.splitToLinesArray $
                            (getHighlighter filename) (T.decodeUtf8 blob)
                 fromHighlighted = highlightWholeBlob fromFilename fromB
                 toHighlighted = highlightWholeBlob toFilename toB
@@ -293,12 +294,12 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
     when (opts ^. O.verbose) $ do
         putStrLn $ "makeOne: ref: " ++ show ref ++ " hash: " ++ show commitHash
 
-    (authorName, commitSubjectLine, authorEMail, commitMessageBody, parentHashesStr) <- do
+    (authorName, commitSubjectLine, authorEMail, parentHashesStr) <- do
         let keys = intersperse commitHash
-                     ["%aN", "%s", "%ae", "%b", "%P"]
+                       ["%aN", "%s", "%ae", "%P"]
         commitData <- fmap removeTrailingNewLine $ gitCmd ["show", commitHash, T.concat $ "--pretty=":keys, "-s"]
         case T.splitOn commitHash commitData of
-            [a,b,c,d,e] -> return (a,b,c,d,e)
+            [a,b,c,d] -> return (a,b,c,d)
             _ -> E.throw $ InvalidCommandOutput "TODO"
 
     let parentHashes =
@@ -315,15 +316,34 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
             config <- getConfig
             repoPath <- getRepositoryPath
             matched <- matchFiles (repoPath, commitHash)
-            patch <- gitCmd $ ["format-patch", "-M", "--stdout", "--no-signature",
+            patch <- gitCmd $ ["format-patch", "-M", "--stdout",
                                "--full-index"] ++ formatPatchArgs
 
-            diff <- let part = f commitMessageBody
-                        f "" = "\n---\n"
-                        f _ = commitMessageBody
-                     in case T.breakOn part patch of
-                         (_, "")        -> E.throw $ InvalidCommandOutput "TODO"
-                         (_, cPlusDiff) -> return  $ T.drop (T.length part) cPlusDiff
+            (commitMessageBody, diff, footer') <-
+                 case (TI.indices "\n\n" patch,
+                       TI.indices "\ndiff " patch,
+                       TI.indices "\n---\n" patch,
+                       TI.indices "\n-- \n" patch) of
+                         ([], _, _ , _ ) -> E.throw $ InvalidCommandOutput "End of headers not found"
+                         (_,  _, [], _ ) -> E.throw $ InvalidCommandOutput "End of commit messages not found"
+                         (_,  _, _ , []) -> E.throw $ InvalidCommandOutput "End signature not found"
+                         (x', d', y', z')  -> do
+                             let x = head x'
+                                 d = foldl1 min d'
+                                 y = if not (null d') then last $ [b | b <- y', b < d] else head y'
+                                 z = last z'
+                             when (y < x) $ E.throw $ InvalidCommandOutput $ show (y, x)
+                             when (z < y) $ E.throw $ InvalidCommandOutput $ show (z, y)
+
+                             let (_, rest)                  = T.splitAt (x)          patch
+                                 (commitMessageBody, rest2) = T.splitAt (y - x)      rest
+                                 (diff, footer')            = T.splitAt (z - y)      rest2
+
+                             return (commitMessageBody, diff, footer')
+            let footer =
+                    case config ^. CFG.hashMap of
+                       Nothing -> footer'
+                       Just _  -> "\n-- \nx.x.x\n\n"
 
             let diffInexactHash = Base16.encode $ SHA1.hash $ T.encodeUtf8 $ diffInexact
                   where diffInexact =
@@ -449,7 +469,9 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                                           return diffHighlighted
                                       Right x -> return x
 
-                              return $ (F.highlightMonospace commitMessageBody) `DList.append` diffHighlightPlus
+                              return $ (F.highlightMonospace commitMessageBody)
+                                          `DList.append` diffHighlightPlus
+                                          `DList.append` (F.highlightMonospace footer)
 
                           CommitMailSummary -> do
                               return DList.empty

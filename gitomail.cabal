@@ -29,6 +29,7 @@ executable gitomail
                    , Gitomail.WhoMaintains
                    , Lib.AnsiFormatting
                    , Lib.DiffHighlight
+                   , Lib.DList
                    , Lib.EMail
                    , Lib.Formatting
                    , Lib.Git
@@ -39,9 +40,11 @@ executable gitomail
                    , Lib.Memo
                    , Lib.Monad
                    , Lib.Process
+                   , Lib.Lexer.Lexer
                    , Lib.Regex
                    , Lib.Sequence
                    , Lib.SourceHighlight
+                   , Lib.SourceHighlight.Data
                    , Lib.Text
                    , Paths_gitomail
   build-depends:       Glob                 >= 0.7    &&  < 0.8

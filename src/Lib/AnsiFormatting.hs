@@ -11,7 +11,8 @@ import           Data.Text                     (Text)
 import qualified Data.Text                     as T
 ----
 import           Lib.Formatting
-import           Lib.SourceHighlight           (Element(..), defaultTheme)
+import           Lib.SourceHighlight           (defaultTheme)
+import           Lib.SourceHighlight.Data      (Element(Ignore, Identifier))
 import           Text.Printf                   (printf)
 ------------------------------------------------------------------------------------
 
@@ -23,12 +24,12 @@ trueColor fb r g b = do
             T.pack (printf "%d;%d;%d" r g b),
             "m"]
 
-elementToAnsi :: Element -> Text
-elementToAnsi = root
+elementToAnsi :: Int -> Element -> Text
+elementToAnsi brightness = root
      where root = defaultTheme code
 
            brighter :: Int -> Int
-           brighter x = x + (255 - x) `div` 4
+           brighter x = x + (255 - x) `div` brightness
 
            code :: Int -> Int -> Int -> Text
            code r g b       = trueColor Front (brighter r) (brighter g) (brighter b)
@@ -70,7 +71,7 @@ ansiFormatting = root
           repr _ _ _ DiffAdd            = Just $ color $ trueColor Back 0x00 0x40 0x00
 
           repr _ m r Mark               = if | DiffRemove `elem` m ->
-                                                 Just $ color $ trueColor Back 0x5a 0x00 0x00
+                                                 Just $ color $ trueColor Back 0x68 0x00 0x00
                                              | DiffAdd    `elem` m ->
                                                  Just $ color $ trueColor Back 0x00 0x68 0x00
                                              | otherwise           -> r
@@ -82,7 +83,12 @@ ansiFormatting = root
           repr _ _ _ DiffUnchanged      = Nothing
 
           repr _ _ r (Style Ignore)     = r
-          repr a _ _ (Style e)          = Just $ T.concat ["\x1b[0m",
-                                                          prev a,
-                                                          elementToAnsi e, "\x1b[K"]
+          repr _ _ r (Style Identifier) = r
+          repr a m _ (Style e)          = if | Mark       `elem` m -> style 2
+                                             | DiffRemove `elem` m -> style 3
+                                             | DiffAdd    `elem` m -> style 3
+                                             | otherwise           -> style 4
+              where style l = Just $ T.concat ["\x1b[0m",
+                                               prev a,
+                                               elementToAnsi l e, "\x1b[K"]
           repr _ _ _ _                  = Nothing
