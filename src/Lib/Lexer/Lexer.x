@@ -91,9 +91,9 @@ state:-
   <clang>     "//"                    { tokPush   Comment   comm2   }
   <comm2>     [ ^ \n ]*\n             { tokPop    Comment           }
 
-  <clang>     "int"                   { tok       Keyword           }
-  <clang>     "char"                  { tok       Keyword           }
-  <clang>     "case"                  { tok       Keyword           }
+  <clang>     "_Pragma"               { tok       Keyword           }
+  <clang>     "__attribute__"         { tok       Keyword           }
+  <clang>     "asm"                   { tok       Keyword           }
   <clang>     "auto"                  { tok       Keyword           }
   <clang>     "break"                 { tok       Keyword           }
   <clang>     "case"                  { tok       Keyword           }
@@ -101,18 +101,26 @@ state:-
   <clang>     "const"                 { tok       Keyword           }
   <clang>     "continue"              { tok       Keyword           }
   <clang>     "default"               { tok       Keyword           }
+  <clang>     "define"                { tok       Keyword           }
   <clang>     "do"                    { tok       Keyword           }
   <clang>     "double"                { tok       Keyword           }
-  <clang>     "endif"                 { tok       Keyword           }
   <clang>     "else"                  { tok       Keyword           }
+  <clang>     "endif"                 { tok       Keyword           }
   <clang>     "enum"                  { tok       Keyword           }
   <clang>     "extern"                { tok       Keyword           }
   <clang>     "float"                 { tok       Keyword           }
   <clang>     "for"                   { tok       Keyword           }
   <clang>     "goto"                  { tok       Keyword           }
   <clang>     "if"                    { tok       Keyword           }
+  <clang>     "ifdef"                 { tok       Keyword           }
+  <clang>     "ifndef"                { tok       Keyword           }
+  <clang>     "include"               { tok       Keyword           }
+  <clang>     "include_once"          { tok       Keyword           }
+  <clang>     "inline"                { tok       Keyword           }
+  <clang>     "int"                   { tok       Keyword           }
   <clang>     "int"                   { tok       Keyword           }
   <clang>     "long"                  { tok       Keyword           }
+  <clang>     "pragma"                { tok       Keyword           }
   <clang>     "register"              { tok       Keyword           }
   <clang>     "return"                { tok       Keyword           }
   <clang>     "short"                 { tok       Keyword           }
@@ -122,16 +130,12 @@ state:-
   <clang>     "struct"                { tok       Keyword           }
   <clang>     "switch"                { tok       Keyword           }
   <clang>     "typedef"               { tok       Keyword           }
+  <clang>     "undef"                 { tok       Keyword           }
   <clang>     "union"                 { tok       Keyword           }
   <clang>     "unsigned"              { tok       Keyword           }
   <clang>     "void"                  { tok       Keyword           }
   <clang>     "volatile"              { tok       Keyword           }
   <clang>     "while"                 { tok       Keyword           }
-  <clang>     "define"                { tok       Keyword           }
-  <clang>     "undef"                 { tok       Keyword           }
-  <clang>     "ifdef"                 { tok       Keyword           }
-  <clang>     "include"               { tok       Keyword           }
-  <clang>     "include_once"          { tok       Keyword           }
 
   <clang>     [ 0-9               ]+  { tok       Number            }
   <clang>     @cId                    { tok       Identifier        }
