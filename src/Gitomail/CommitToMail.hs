@@ -310,23 +310,30 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                    [parent] -> Right (Just parent, [T.concat [ commitHash, "~1..", commitHash]])
                    _        -> Left "Skipping Merge commits"
 
-    case formatPatchArgsEither of
-        Left s -> return $ Left s
+    patchEither <- case formatPatchArgsEither of
+        Left s ->
+            return $ Left s
         Right (maybeParentHash, formatPatchArgs) -> do
+            patch <- gitCmd $ ["format-patch", "-M", "--stdout",
+                               "--full-index"] ++ formatPatchArgs
+            return $ Right (patch, maybeParentHash)
+
+    case patchEither of
+        Left s -> return $ Left s
+        Right ("", _) -> return $ Left $ "Empty commit: " ++ (show commitHash)
+        Right (patch, maybeParentHash) -> do
             config <- getConfig
             repoPath <- getRepositoryPath
             matched <- matchFiles (repoPath, commitHash)
-            patch <- gitCmd $ ["format-patch", "-M", "--stdout",
-                               "--full-index"] ++ formatPatchArgs
 
             (commitMessageBody, diff, footer') <-
                  case (TI.indices "\n\n" patch,
                        TI.indices "\ndiff " patch,
                        TI.indices "\n---\n" patch,
                        TI.indices "\n-- \n" patch) of
-                         ([], _, _ , _ ) -> E.throw $ InvalidCommandOutput "End of headers not found"
-                         (_,  _, [], _ ) -> E.throw $ InvalidCommandOutput "End of commit messages not found"
-                         (_,  _, _ , []) -> E.throw $ InvalidCommandOutput "End signature not found"
+                         ([], _, _ , _ ) -> E.throw $ InvalidCommandOutput ("End of headers not found: " ++ show commitHash)
+                         (_,  _, [], _ ) -> E.throw $ InvalidCommandOutput ("End of commit messages not found: " ++ show commitHash)
+                         (_,  _, _ , []) -> E.throw $ InvalidCommandOutput ("End signature not found: " ++ show commitHash)
                          (x', d', y', z')  -> do
                              let x = head x'
                                  d = foldl1 min d'

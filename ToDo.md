@@ -17,6 +17,7 @@
 * Verify that merge commits are skipped, for now.
 * Cleanups, refactoring.
 * Submodule support.
+* Rethink handling of empty commits (currently no mails are sent).
 
 ## Nice to have
 
