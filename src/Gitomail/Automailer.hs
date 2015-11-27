@@ -44,7 +44,7 @@ import qualified Data.Text.Lazy              as TL
 import           Data.Typeable               (Typeable)
 import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
-import           Control.Monad.State.Strict  (get, gets, lift)
+import           Control.Monad.State.Strict  (gets)
 import           Network.Mail.Mime           (Mail (..), htmlPart, plainPart)
 import           Text.Regex.TDFA             ((=~))
 import           Text.Regex.TDFA.Text        ()
@@ -313,8 +313,7 @@ forgetHash = do
     opts <- gets opts
     case opts ^. O.gitRef of
         Just hash -> do
-            withDB $ do
-                db <- get
+            withDB $ \db -> do
                 let k = commitSeenKey (T.encodeUtf8 hash)
                 v <- DB.get db DB.defaultReadOptions k
                 case v of
@@ -344,8 +343,7 @@ writeRefsMap opts db refMap = do
 autoMailerSetRef :: MonadGitomail m => O.GitRef -> GIT.GitCommitHash -> m ()
 autoMailerSetRef gitref hash = do
     opts <- gets opts
-    withDB $ do
-        db <- get
+    withDB $ \db -> do
         mRefs <- readRefsMap db
         case mRefs of
             Nothing -> return ()
@@ -372,9 +370,7 @@ autoMailer = do
             Right r -> return r
 
     opts <- gets opts
-    withDB $ do
-        db <- get
-
+    withDB $ \db -> do
         let putDB opt k v =
                 when (not (opts ^. O.dryRun)) $ do
                     DB.put db opt k v
@@ -429,7 +425,7 @@ autoMailer = do
                                 ++ ", " ++ (show $ length commitsinfo) ++ " commits"
 
                     (numbersMap, summaryMailInfo) <-
-                        lift $ makeSummaryEMail db (ref, topCommit) refMod
+                        makeSummaryEMail db (ref, topCommit) refMod
                             isNewRef commitsinfo nonRootBranchPoints
                     modifyIORef' mailsI ((:) (return (), summaryMailInfo))
 
@@ -437,10 +433,10 @@ autoMailer = do
                         isNew <- commitHashIsNew db cCommitHash
                         notSent <- markInIORefSet alreadySentI cCommitHash
 
-                        shownCommitHash <- lift $ mapCommitHash cCommitHash
+                        shownCommitHash <- mapCommitHash cCommitHash
                         if | isNew && notSent
                                     -> do putStrLn $ "  Formatting " ++ (T.unpack shownCommitHash)
-                                          info <- lift $ makeOneMailCommit CommitMailFull
+                                          info <- makeOneMailCommit CommitMailFull
                                                 db ref cCommitHash (Map.lookup cCommitHash numbersMap)
                                           let mailinfoAndAction = (action, fmap fst info)
                                               action = do
@@ -455,7 +451,7 @@ autoMailer = do
                            | otherwise -> putStrLn $ "  Skipping old commit " ++ (T.unpack shownCommitHash)
 
         mails <- fmap reverse $ readIORef mailsI
-        lift $ sendMails mails
+        sendMails mails
 
         finalRefs <- readIORef updatedRefsI
         when (finalRefs /= refsMap || initTracking) $ do
@@ -469,8 +465,8 @@ autoMailer = do
                 Just oldRef -> do
                     x <- fmap Just $ liftIO $ GIT.textToOid oldRef
                     y <- let normal =
-                                 fmap T.lines $ lift $ gitCmd ["show-branch", "--merge-base",
-                                                               oldRef, topCommit]
+                                 fmap T.lines $ gitCmd ["show-branch", "--merge-base",
+                                                        oldRef, topCommit]
                              excp (_ :: ReadProcessFailed) = do
                                  -- No merge base
                                  return []

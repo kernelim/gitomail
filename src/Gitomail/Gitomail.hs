@@ -42,7 +42,7 @@ import           Control.Lens                (makeLenses)
 import           Control.Monad               (forM,)
 import           Control.Monad.Catch         (MonadMask)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
-import           Control.Monad.State.Strict  (StateT, evalStateT, gets, MonadState)
+import           Control.Monad.State.Strict  (StateT, gets, MonadState)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 import qualified Data.ByteString.Char8       as BS8
 import           Data.Text                   (Text)
@@ -89,7 +89,6 @@ data Gitomail = Gitomail {
   , __getFromEMail      :: IO (Address)
   , __getRepositoryPath :: IO FilePath
   , __getConfig         :: IO CFG.Config
-  , __withDB            :: forall a. forall m. (MonadMask m, MonadIO m) => (DB -> m a) -> m a
   }
 
 makeLenses ''Gitomail
@@ -177,12 +176,6 @@ getGitomail opts = do
                     Left r -> E.throw $ InvalidEMail $ "from_email: " ++ r
                     Right r -> return r
 
-    let __withDB f = do
-            path <- liftIO $ __getRepositoryPath
-            let gitomailDbPath = path </> "gitomail.db"
-            let options = DB.defaultOptions { DB.createIfMissing = True , DB.errorIfExists = False }
-            DB.withDB gitomailDbPath options f
-
     return $ Gitomail{..}
 
 class (MonadIO m, MonadState Gitomail m, MonadBaseControl IO m, MonadMask m) => MonadGitomail m where
@@ -244,8 +237,12 @@ getBlobInCommitURL = do
                      & T.replace "%H" hash
                      & T.replace "%f" filename)
 
-withDB :: (MonadGitomail m) => StateT DB m a -> m a
-withDB = (\x -> gets __withDB >>= \f -> f x) . evalStateT
+withDB :: (MonadGitomail m) => (DB -> m a) -> m a
+withDB f = do
+    path <- getRepositoryPath
+    let gitomailDbPath = path </> "gitomail.db"
+    let options = DB.defaultOptions { DB.createIfMissing = True , DB.errorIfExists = False }
+    DB.withDB gitomailDbPath options f
 
 gitCmd :: (MonadGitomail m) => [Text] -> m Text
 gitCmd params = do

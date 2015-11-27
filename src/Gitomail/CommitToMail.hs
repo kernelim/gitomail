@@ -33,7 +33,7 @@ import qualified Control.Exception.Lifted    as E
 import           Control.Lens.Operators      ((&), (^.))
 import           Control.Monad               (forM, forM_, when)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
-import           Control.Monad.State.Strict  (get, gets, lift)
+import           Control.Monad.State.Strict  (gets)
 import qualified Data.DList                  as DList
 import qualified Crypto.Hash.SHA1            as SHA1
 import qualified Data.ByteString             as BS
@@ -551,11 +551,9 @@ justOne :: MonadGitomail m => m (Either String (MailInfo, CommitInfo))
 justOne = do
     opts <- gets opts
     let gitRef = opts ^. O.gitRef & fromMaybe "HEAD"
-    withDB $ do
-        db <- get
-        lift $ do
-            commitHash <- fmap removeTrailingNewLine $ gitCmd ["show", gitRef, "--pretty=%H", "-s"]
-            makeOneMailCommit CommitMailFull db gitRef commitHash Nothing
+    withDB $ \db -> do
+        commitHash <- fmap removeTrailingNewLine $ gitCmd ["show", gitRef, "--pretty=%H", "-s"]
+        makeOneMailCommit CommitMailFull db gitRef commitHash Nothing
 
 sendOne :: (MonadGitomail m) => m ()
 sendOne = do
