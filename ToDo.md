@@ -1,5 +1,7 @@
 ## ToDo
 
+* Fixme: Branch names in commit E-Mails are not picked according to priority. They
+  need to be picked accoring to priority.
 * Maintainers in diffstat.
 * Support sending a user welcome message.
     * Provide a template for it, pointers to GMail filtering and such.
