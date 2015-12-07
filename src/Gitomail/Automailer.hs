@@ -396,7 +396,7 @@ autoMailer = do
                         putStrLn $ "ref: " ++ (show ref) ++ ", top: " ++
                                    (show topCommit) ++ " old: " ++ (show (Map.lookup ref oldRefsMap))
                     fmap (fmap (\x -> ((ref, topCommit), x))) $ do
-                        iterateRefCommits repoPath topCommit
+                        iterateRefCommits repoPath db topCommit
                             (if initTracking then Nothing else Map.lookup ref oldRefsMap)
                             branchPoints
 
@@ -459,7 +459,7 @@ autoMailer = do
             updateRefsMap
 
     where
-        iterateRefCommits repoPath topCommit mOldRef branchPoints = do
+        iterateRefCommits repoPath db topCommit mOldRef branchPoints = do
             (mOldRefOid, mergeBases) <- case mOldRef of
                 Nothing -> return $ (Nothing, [])
                 Just oldRef -> do
@@ -491,13 +491,23 @@ autoMailer = do
 
                 -- Iterate the history from the new ref down to all branch point,
                 -- where branch point can be one of the branch points we have
-                -- calculated earlier, or if there aren't any, the lowest merge
-                -- base with the older version of the ref.
+                -- calculated earlier, or if there aren't any, the first commit
+                -- on which have already sent mails.
 
                 u = GIT.iterateHistoryUntil True $ \notReachedOldRef commit parents -> do
                         if isNotBranchPoint commit
                             then do let commitT = GIT.oidToText commit
                                     alreadySeen <- fmap not $ markInIORefSet alreadySeenI commitT
+                                    stopHere <- do
+                                        if nonRootBranchPoints == []
+                                          then do
+                                            -- There are only root branch points, so we should not
+                                            -- iterate over history that we have already seen.
+                                            v <- DB.get db DB.defaultReadOptions $ commitSeenKey $ T.encodeUtf8 commitT
+                                            let isNew = maybe True (const False) v
+                                            return $ not isNew
+                                          else
+                                            return False
 
                                     case mOldRefOid of
                                         Nothing -> return ()
@@ -524,7 +534,8 @@ autoMailer = do
                                                 modifyIORef' newCommitsListI ((:) parentCommitsInfo)
                                                 return False
 
-                                    return $ (notReachedOldRef', if not alreadySeen then nextParents else [])
+                                    return $ (notReachedOldRef',
+                                              if not alreadySeen && not stopHere then nextParents else [])
                             else return (notReachedOldRef, [])
 
             if Just topCommit /= mOldRef
