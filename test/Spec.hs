@@ -176,9 +176,17 @@ git p = do
 git' :: (MonadSpec m) => [Text] -> m ()
 git' = void . git
 
+gitP :: (MonadSpec m) => [Text] -> m ()
+gitP params =
+    do x <- git params
+       liftIO $ T.putStrLn x
+
+gitRevParse :: Text -> (MonadSpec m) => m Text
+gitRevParse rev = fmap removeTrailingNewLine $ readProcess "git" ["rev-parse", rev]
+
 gitDerandomizeHash :: Text -> (MonadSpec m) => m ()
 gitDerandomizeHash hash = do
-    currentRev <- fmap removeTrailingNewLine $ readProcess "git" ["rev-parse", hash]
+    currentRev <- gitRevParse hash
     contextDerandomI <- gets contextDerandom
 
     count <- fmap length $ readIORef contextDerandomI
@@ -396,6 +404,25 @@ tests tempDir = do
 
     gitomailC "14-auto" automailer
     gitomailC "14-show" ["-g", "HEAD", "show-one"]
+
+    msg "Merge commits handling"
+    ----------------------------------
+
+    -- A complicated scenario where just a one commit,
+    -- a trivial merge one, is added to a ref.
+
+    checkoutCreate "mergetopic-1"
+    forM_ [14..15] readmeAppend
+    beforeMergeHash <- gitRevParse "HEAD"
+    checkout "master"
+    gitP ["merge", "--no-ff", "mergetopic-1"]
+    removeBranch "mergetopic-1"
+    gitDerandomizeHashHEAD
+    mergeHash <- gitRevParse "HEAD"
+    gitP ["reset", "--hard", beforeMergeHash]
+    gitomailC "15-auto" automailer
+    gitP ["reset", "--hard", mergeHash]
+    gitomailC "16-auto" automailer
 
     msg "Ref going backward after init"
     ----------------------------------

@@ -1,0 +1,5 @@
+Checking ref heads/master, 2 commits
+  Skipping old commit 00024fffffffffffffffffffffffffffffffffff
+  Skipping old commit 00026fffffffffffffffffffffffffffffffffff
+Sending E-Mails!
+  Writing $TEMP/1 - '[repo] master branch added 1 commit: 00026ffff..00027ffff'
