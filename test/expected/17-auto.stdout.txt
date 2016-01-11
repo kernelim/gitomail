@@ -1,0 +1,11 @@
+Checking ref heads/mergetopic-2, 4 commits
+  Formatting 00027fffffffffffffffffffffffffffffffffff
+  Formatting 00028fffffffffffffffffffffffffffffffffff
+  Formatting 00029fffffffffffffffffffffffffffffffffff
+  Formatting 00030fffffffffffffffffffffffffffffffffff
+Sending E-Mails!
+  Writing $TEMP/1 - '[repo] mergetopic-2 branch is new with 3 commits, from master branch @ 00027ffff'
+  Skipping,  Skipping Merge commits
+  Writing $TEMP/2 - '[repo mergetopic-2 00028ffff, #1] Updating README.md [19]'
+  Writing $TEMP/3 - '[repo mergetopic-2 00029ffff, #2] Updating README.md [20]'
+  Writing $TEMP/4 - '[repo mergetopic-2 00030ffff, #3] Updating README.md [21]'

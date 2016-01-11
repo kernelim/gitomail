@@ -266,29 +266,35 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits nonRootBranchPoints
         False ->
             return $ (Map.empty, Left "No commits, not sending anything")
 
-getAutoMailerRefs :: (MonadGitomail m) => m [[(O.GitRef, GIT.GitCommitHash)]]
-getAutoMailerRefs = do
-    refsMatcher <- getRefsMatcher
-    refScore <- getRefScoreFunc
-    let onlyRefs x = refsMatcher x
+type GitRefList = [(O.GitRef, GIT.GitCommitHash)]
 
+getRefState :: (MonadGitomail m) => m GitRefList
+getRefState = do
     refsLines <- fmap T.lines $ gitCmd ["show-ref", "--heads", "--tags", "--dereference"]
-    byScores <- fmap catMaybes $ lSeqForM refsLines $ \line -> do
+    fmap catMaybes $ lSeqForM refsLines $ \line -> do
         let invalid f =
                E.throw $ InvalidCommandOutput ("git show-ref returned: " ++ show f)
-        let pass hash refname = do
-                return $
-                    if onlyRefs refname
-                          then Just (refScore refname, (refname, hash))
-                          else Nothing
         case line =~ ("^([a-f0-9]+) refs/(tags/[^^]+)([\\^]{})?$" :: Text) of
             [[_, _, _, ""]] -> return Nothing
-            [[_, hash, name, "^{}"]] -> pass hash name
+            [[_, hash, name, "^{}"]] -> return $ Just (name, hash)
             x1 -> case line =~ ("^([a-f0-9]+) refs/(heads/.*)$" :: Text) of
-                [[_, hash, name]] -> pass hash name
+                [[_, hash, name]] -> return $ Just (name, hash)
                 x2 -> invalid (line, x1, x2)
+
+sortRefsByPriority :: (MonadGitomail m) => GitRefList -> m [GitRefList]
+sortRefsByPriority reflist = do
+    refsMatcher <- getRefsMatcher
+    refScore <- getRefScoreFunc
+    byScores <- fmap catMaybes $ lSeqForM reflist $ \(refname, hash) -> do
+        return $
+            if refsMatcher refname
+                then Just (refScore refname, (refname, hash))
+                else Nothing
     let g = groupBy (\x y -> fst x == fst y) $ sortOn ((0 -) . fst) byScores
     return $ map (map snd) g
+
+getAutoMailerRefs :: (MonadGitomail m) => m [GitRefList]
+getAutoMailerRefs = getRefState >>= sortRefsByPriority
 
 commitSeenKey :: BS8.ByteString -> BS8.ByteString
 commitSeenKey commit = BS8.concat [ "commit-seen-",  commit]

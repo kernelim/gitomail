@@ -405,7 +405,7 @@ tests tempDir = do
     gitomailC "14-auto" automailer
     gitomailC "14-show" ["-g", "HEAD", "show-one"]
 
-    msg "Merge commits handling"
+    msg "Merge commits handling [1]"
     ----------------------------------
 
     -- A complicated scenario where just a one commit,
@@ -423,6 +423,40 @@ tests tempDir = do
     gitomailC "15-auto" automailer
     gitP ["reset", "--hard", mergeHash]
     gitomailC "16-auto" automailer
+
+    msg "Merge commits handling [2]"
+    ----------------------------------
+
+    -- Post about a rebased branch, then the
+    -- rebased branch is pushed as-is to
+    -- master.
+
+    checkoutCreate "mergetopic-2"
+    forM_ [19..21] readmeAppend
+    checkout "master"
+    gitomailC "17-auto" automailer
+
+    -- Rebasing staging it in another branch, with no-ff.
+    writeFile' other "Content"
+    forM_ [22..24] otherAppend
+    checkout "mergetopic-2"
+    rebase "master"
+    gitDerandomizeHash "HEAD~2"
+    gitDerandomizeHash "HEAD~1"
+    gitDerandomizeHash "HEAD"
+    checkout "master"
+    checkoutCreate "staging"
+    gitP ["merge", "--no-ff", "mergetopic-2"]
+    gitDerandomizeHashHEAD
+    gitomailC "18-auto" automailer
+
+    -- Taking the changes into master
+    removeBranch "mergetopic-2"
+    checkout "master"
+    gitP ["reset", "--hard", "staging"]
+    forM_ [25..26] readmeAppend
+    gitomailC "19-auto" automailer
+    removeBranch "staging"
 
     msg "Ref going backward after init"
     ----------------------------------
