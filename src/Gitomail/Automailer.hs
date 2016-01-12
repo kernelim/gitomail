@@ -386,8 +386,22 @@ autoMailer = do
         let initTracking = (mOldRefs == Nothing)
         when initTracking $ do
             putStrLn "Initial save of ref map. Will start tracking refs from now (this may take awhile)"
+
         let oldRefsMap = fromMaybe refsMap mOldRefs
         updatedRefsI <- newIORef oldRefsMap
+
+        let putDB opt k v =
+                when (not (opts ^. O.dryRun)) $ do
+                    DB.put db opt k v
+            syncOp = True
+            asyncOp = False
+            markSeen sync siCommitHash =
+                putDB (DB.defaultWriteOptions {DB.sync = sync })
+                   (commitSeenKey (T.encodeUtf8 siCommitHash))
+                   "true"
+            updateRefsMap = do
+                x <- readIORef updatedRefsI
+                writeRefsMap opts db x
 
         refStat <- fmap concat $ forM refsByPriority $ \refList -> do
             forM refList $ \(refname, commitHash) -> do
@@ -411,6 +425,7 @@ autoMailer = do
                              seen <- readIORef seenI
                              if not (commit `Map.member` world) && not (commit `Map.member` seen)
                                  then do writeIORef seenI $ Map.insert commit (refname, parents) seen
+                                         when initTracking $ markSeen asyncOp $ GIT.oidToText commit
                                          return ((), parents)
                                  else do when checkBranchPoints $
                                              modifyIORef' branchPointsI (Set.insert commit)
@@ -467,17 +482,6 @@ autoMailer = do
                 list <- readIORef resListI
                 return (set, list)
 
-        let putDB opt k v =
-                when (not (opts ^. O.dryRun)) $ do
-                    DB.put db opt k v
-            markSeen sync siCommitHash =
-                putDB (DB.defaultWriteOptions {DB.sync = sync })
-                   (commitSeenKey (T.encodeUtf8 siCommitHash))
-                   "true"
-            updateRefsMap = do
-                x <- readIORef updatedRefsI
-                writeRefsMap opts db x
-
         branchChanges <- do
           forM refCommits $ \(refInfo, commitsFromCur, maybeCommitsfromOld) -> do
             osFromCur <- commitSet commitsFromCur
@@ -510,78 +514,78 @@ autoMailer = do
         mailsI <- newIORef []
         markedForSendingI <- newIORef Set.empty
 
-        forM_ branchChanges $ \(refInfo, branchChange) -> do
-            let (refName, refInRepo, topCommitHash, branchPoints) = refInfo
-            world <- readIORef worldI
-            let f refmod commits = do
-                    (numbersMap, summaryMailInfo) <- makeSummaryEMail db (refName, topCommitHash) refmod refInRepo
-                        (commitsBranchPoints ++ commits)
-                    return (numbersMap, summaryMailInfo, commits)
-                ourCommmits oid =
-                    case Map.lookup oid world of
-                        Just (otherRefName, _) -> otherRefName == refName
-                        Nothing -> False
-                roots oid =
-                    case Map.lookup oid world of
-                        Just (_, []) -> Just oid
-                        _ -> Nothing
-                noRoots oids = catMaybes $ map roots oids
-                commitsBranchPoints =
-                       catMaybes $ map (\oid -> g oid (Map.lookup oid world)) (Set.toList branchPoints)
-                    where g oid (Just (ref, _)) = if ref /= refName
-                                                      then Just $ SummaryInfo (GIT.oidToText oid) (CSTBranchPoint ref)
-                                                      else Nothing
-                          g _    Nothing        = Nothing
+        when (not initTracking) $ do
+            forM_ branchChanges $ \(refInfo, branchChange) -> do
+                let (refName, refInRepo, topCommitHash, branchPoints) = refInfo
+                world <- readIORef worldI
+                let f refmod commits = do
+                        (numbersMap, summaryMailInfo) <- makeSummaryEMail db (refName, topCommitHash) refmod refInRepo
+                            (commitsBranchPoints ++ commits)
+                        return (numbersMap, summaryMailInfo, commits)
+                    ourCommmits oid =
+                        case Map.lookup oid world of
+                            Just (otherRefName, _) -> otherRefName == refName
+                            Nothing -> False
+                    roots oid =
+                        case Map.lookup oid world of
+                            Just (_, []) -> Just oid
+                            _ -> Nothing
+                    noRoots oids = catMaybes $ map roots oids
+                    commitsBranchPoints =
+                           catMaybes $ map (\oid -> g oid (Map.lookup oid world)) (Set.toList branchPoints)
+                        where g oid (Just (ref, _)) = if ref /= refName
+                                                          then Just $ SummaryInfo (GIT.oidToText oid) (CSTBranchPoint ref)
+                                                          else Nothing
+                              g _    Nothing        = Nothing
 
-            (numbersMap, summaryMailInfo, commits) <- case branchChange of
-                BranchAddedCommits added existing -> do
-                    logDebug $ putStrLn $ "ref: added - " ++ T.unpack refName ++ " "
-                        ++ (show $ length added) ++ " commits, " ++ (show $ length existing) ++ " existing"
-                    let ourExisting = reverse $ filter ourCommmits existing
-                        commitsBefore = case noRoots ourExisting of
-                                            [] -> map (\oid -> SummaryInfo (GIT.oidToText oid) CSTExisting) ourExisting
-                                            (_:_) -> []
-                        commitsAfter = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) $
-                                         filter ourCommmits added
-                    f RefFFModFast $ commitsBefore ++ commitsAfter
-                BranchRebased added removed -> do
-                    logDebug $ putStrLn $ "ref: rebase - " ++ T.unpack refName ++ " "
-                        ++ (show $ length added) ++ " commits, " ++ (show $ length removed) ++ " removed"
-                    let commitsAfter = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) $
-                                         filter ourCommmits added
-                    f RefFFModNoFast $ commitsAfter
-                BranchNew content -> do
-                    logDebug $ putStrLn $ "ref: new - " ++ T.unpack refName ++ " "
-                        ++ (show $ length content) ++ " commits, "
-                    let commits = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) content
-                    f RefFFModFast $ commits
+                (numbersMap, summaryMailInfo, commits) <- case branchChange of
+                    BranchAddedCommits added existing -> do
+                        logDebug $ putStrLn $ "ref: added - " ++ T.unpack refName ++ " "
+                            ++ (show $ length added) ++ " commits, " ++ (show $ length existing) ++ " existing"
+                        let ourExisting = reverse $ filter ourCommmits existing
+                            commitsBefore = case noRoots ourExisting of
+                                                [] -> map (\oid -> SummaryInfo (GIT.oidToText oid) CSTExisting) ourExisting
+                                                (_:_) -> []
+                            commitsAfter = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) $
+                                             filter ourCommmits added
+                        f RefFFModFast $ commitsBefore ++ commitsAfter
+                    BranchRebased added removed -> do
+                        logDebug $ putStrLn $ "ref: rebase - " ++ T.unpack refName ++ " "
+                            ++ (show $ length added) ++ " commits, " ++ (show $ length removed) ++ " removed"
+                        let commitsAfter = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) $
+                                             filter ourCommmits added
+                        f RefFFModNoFast $ commitsAfter
+                    BranchNew content -> do
+                        logDebug $ putStrLn $ "ref: new - " ++ T.unpack refName ++ " "
+                            ++ (show $ length content) ++ " commits, "
+                        let commits = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) content
+                        f RefFFModFast $ commits
 
-            modifyIORef' mailsI ((:) (return (), summaryMailInfo))
+                modifyIORef' mailsI ((:) (return (), summaryMailInfo))
 
-            forM_ commits $ \SummaryInfo {..} -> do
-                isNew <- commitHashIsNew db siCommitHash
-                notSent <- markInIORefSet markedForSendingI siCommitHash
-                shownCommitHash <- mapCommitHash siCommitHash
-                if | isNew && notSent
-                            -> do putStrLn $ "  Formatting " ++ (T.unpack shownCommitHash)
-                                  info <- makeOneMailCommit CommitMailFull
-                                        db refName siCommitHash (Map.lookup siCommitHash numbersMap)
-                                  let mailinfoAndAction = (action, fmap fst info)
-                                      syncOp = False
-                                      action = do
-                                          markSeen syncOp siCommitHash
-                                          modifyIORef' updatedRefsI $ Map.insert refName siCommitHash
-                                          updateRefsMap
-                                          case info of
-                                              Right (MailInfo {..}, CommitInfo{..}) ->
-                                                  putInexactDiffHashInDB db ciInexactDiffHash
-                                              Left _ -> return ()
-                                  modifyIORef' mailsI ((:) mailinfoAndAction)
-                   | otherwise -> putStrLn $ "  Skipping old commit " ++ (T.unpack shownCommitHash)
+                forM_ commits $ \SummaryInfo {..} -> do
+                    isNew <- commitHashIsNew db siCommitHash
+                    notSent <- markInIORefSet markedForSendingI siCommitHash
+                    shownCommitHash <- mapCommitHash siCommitHash
+                    if | isNew && notSent
+                                -> do putStrLn $ "  Formatting " ++ (T.unpack shownCommitHash)
+                                      info <- makeOneMailCommit CommitMailFull
+                                            db refName siCommitHash (Map.lookup siCommitHash numbersMap)
+                                      let mailinfoAndAction = (action, fmap fst info)
+                                          action = do
+                                              markSeen syncOp siCommitHash
+                                              modifyIORef' updatedRefsI $ Map.insert refName siCommitHash
+                                              updateRefsMap
+                                              case info of
+                                                  Right (MailInfo {..}, CommitInfo{..}) ->
+                                                      putInexactDiffHashInDB db ciInexactDiffHash
+                                                  Left _ -> return ()
+                                      modifyIORef' mailsI ((:) mailinfoAndAction)
+                       | otherwise -> putStrLn $ "  Skipping old commit " ++ (T.unpack shownCommitHash)
 
 
-        mails <- fmap reverse $ readIORef mailsI
-        sendMails mails
+            mails <- fmap reverse $ readIORef mailsI
+            sendMails mails
 
         writeIORef updatedRefsI refsMap
 
