@@ -1,4 +1,8 @@
+Relating commits to refs
+Ref heads/master: creating summaries
+Ref heads/master: creating E-Mails
   Formatting 00023fffffffffffffffffffffffffffffffffff
+Sending all E-Mails
 Sending E-Mails!
   Writing $TEMP/1 - '[repo] master branch added 1 commit: 00010ffff..00023ffff'
   Writing $TEMP/2 - '[repo master 00023ffff, #1] Adding'

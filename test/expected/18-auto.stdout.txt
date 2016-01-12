@@ -1,10 +1,18 @@
+Relating commits to refs
+Ref heads/master: creating summaries
+Ref heads/master: creating E-Mails
   Formatting 00031fffffffffffffffffffffffffffffffffff
   Formatting 00032fffffffffffffffffffffffffffffffffff
   Formatting 00033fffffffffffffffffffffffffffffffffff
+Ref heads/mergetopic-2: creating summaries
+Ref heads/mergetopic-2: creating E-Mails
   Formatting 00034fffffffffffffffffffffffffffffffffff
   Formatting 00035fffffffffffffffffffffffffffffffffff
   Formatting 00036fffffffffffffffffffffffffffffffffff
+Ref heads/staging: creating summaries
+Ref heads/staging: creating E-Mails
   Formatting 00037fffffffffffffffffffffffffffffffffff
+Sending all E-Mails
 Sending E-Mails!
   Writing $TEMP/1 - '[repo] master branch added 3 commits: 00027ffff..00033ffff'
   Writing $TEMP/2 - '[repo master 00031ffff, #1] Updating Other.txt [22]'

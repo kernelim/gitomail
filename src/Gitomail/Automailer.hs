@@ -37,6 +37,7 @@ import qualified Data.Set                    as Set
 import           Data.Text                   (Text)
 import           Data.Foldable               (toList)
 import qualified Data.Text                   as T
+import qualified Data.Text.IO                as T
 import qualified Data.Text.Encoding          as T
 import qualified Data.Text.Lazy              as TL
 import           Data.Typeable               (Typeable)
@@ -414,6 +415,8 @@ autoMailer = do
 
         worldI <- newIORef (Map.empty :: Map.Map GIT.GitOid (O.GitRef, [GIT.GitOid]))
 
+        putStrLn "Relating commits to refs"
+
         refCommits <- fmap catMaybes $ do
             forM refStat $ \(refname, topCommitHash, maybeRefInRepo) -> do
                 logDebug $ putStrLn $ "ref: " ++ T.unpack refname ++ " "
@@ -515,8 +518,11 @@ autoMailer = do
         markedForSendingI <- newIORef Set.empty
 
         when (not initTracking) $ do
+
             forM_ branchChanges $ \(refInfo, branchChange) -> do
                 let (refName, refInRepo, topCommitHash, branchPoints) = refInfo
+                liftIO $T.putStrLn $ "Ref " +@ refName +@ ": creating summaries"
+
                 world <- readIORef worldI
                 let f refmod commits = do
                         (numbersMap, summaryMailInfo) <- makeSummaryEMail db (refName, topCommitHash) refmod refInRepo
@@ -563,6 +569,8 @@ autoMailer = do
 
                 modifyIORef' mailsI ((:) (return (), summaryMailInfo))
 
+                liftIO $ T.putStrLn $ "Ref " +@ refName +@ ": creating E-Mails"
+
                 forM_ commits $ \SummaryInfo {..} -> do
                     isNew <- commitHashIsNew db siCommitHash
                     notSent <- markInIORefSet markedForSendingI siCommitHash
@@ -585,6 +593,8 @@ autoMailer = do
 
 
             mails <- fmap reverse $ readIORef mailsI
+            when (length mails /= 0) $ do
+                putStrLn $ "Sending all E-Mails"
             sendMails mails
 
         writeIORef updatedRefsI refsMap
