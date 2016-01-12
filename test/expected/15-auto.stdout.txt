@@ -1,5 +1,3 @@
-Checking ref heads/master, 3 commits
-  Skipping old commit 00024fffffffffffffffffffffffffffffffffff
   Formatting 00025fffffffffffffffffffffffffffffffffff
   Formatting 00026fffffffffffffffffffffffffffffffffff
 Sending E-Mails!

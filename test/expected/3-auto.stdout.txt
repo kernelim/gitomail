@@ -1,8 +1,6 @@
-Checking ref heads/topic, 3 commits
-  Skipping old commit 00002fffffffffffffffffffffffffffffffffff
   Formatting 00003fffffffffffffffffffffffffffffffffff
   Formatting 00004fffffffffffffffffffffffffffffffffff
 Sending E-Mails!
-  Writing $TEMP/1 - '[repo] topic branch is new with 2 commits, from master branch @ 00002ffff'
+  Writing $TEMP/1 - '[repo] topic branch is new with 2 commits'
   Writing $TEMP/2 - '[repo topic 00003ffff, #1] Updating README.md [2]'
   Writing $TEMP/3 - '[repo topic 00004ffff, #2] Updating README.md [3]'

@@ -1,9 +1,10 @@
-Checking ref heads/master, 4 commits
+  Skipping old commit 00034fffffffffffffffffffffffffffffffffff
+  Skipping old commit 00035fffffffffffffffffffffffffffffffffff
   Skipping old commit 00036fffffffffffffffffffffffffffffffffff
-  Skipping old commit 00033fffffffffffffffffffffffffffffffffff
+  Skipping old commit 00037fffffffffffffffffffffffffffffffffff
   Formatting 00038fffffffffffffffffffffffffffffffffff
   Formatting 00039fffffffffffffffffffffffffffffffffff
 Sending E-Mails!
-  Writing $TEMP/1 - '[repo] master branch added 3 commits: 00033ffff..00039ffff'
-  Writing $TEMP/2 - '[repo master 00038ffff, #2] Updating README.md [25]'
-  Writing $TEMP/3 - '[repo master 00039ffff, #3] Updating README.md [26]'
+  Writing $TEMP/1 - '[repo] master branch added 6 commits: 00033ffff..00039ffff'
+  Writing $TEMP/2 - '[repo master 00038ffff, #5] Updating README.md [25]'
+  Writing $TEMP/3 - '[repo master 00039ffff, #6] Updating README.md [26]'

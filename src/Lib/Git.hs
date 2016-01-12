@@ -24,7 +24,6 @@ module Lib.Git
   , treeVal
   , treeMap
   , refRepr
-  , analyseRefs
   , Git.RefName
   , GitCommitHash
   , GitOid
@@ -34,7 +33,6 @@ module Lib.Git
 
 ------------------------------------------------------------------------------------
 import           Control.Monad             (forM_, when)
-import           Control.Lens.Operators    ((&))
 import           Control.Monad.IO.Class    (liftIO)
 import           Control.Monad.Catch        (MonadMask)
 import           Control.Monad.Trans       (lift)
@@ -43,11 +41,8 @@ import           Control.Monad.Trans.Control (MonadBaseControl)
 import qualified Control.Exception.Lifted    as E
 import qualified Data.ByteString           as BS
 import qualified Data.ByteString.Char8     as BS8
-import Data.Maybe (fromMaybe)
 import           Data.Map                  (Map)
 import qualified Data.Map                  as Map
-import           Data.Set                  (Set)
-import qualified Data.Set                  as Set
 import qualified Data.Text                 as T
 import           Git                       (catBlob, commitTree,
                                             listTreeEntries, lookupObject,
@@ -59,9 +54,8 @@ import           Git.Libgit2               (lgFactory, OidPtr,
                                            shaToOid)
 import           Control.Monad.State       (MonadIO)
 import           Control.Monad             (foldM)
-import Data.Tagged (Tagged(..))
-import qualified Data.Sequence             as Seq
-import           Data.Text           (Text)
+import           Data.Tagged               (Tagged(..))
+import           Data.Text                 (Text)
 ----
 import           Lib.Monad                 (mapWithKeyM)
 import           Lib.LiftedPrelude
@@ -129,96 +123,6 @@ readBlob :: (MonadIO m, MonadBaseControl IO m, MonadMask m) =>
 readBlob path blobIndex = do
     withRepository lgFactory path $ do
         Git.parseObjOid blobIndex >>= catBlob
-
-type RefAnalysis a = (Map a (Set (OidPtr, Maybe a)),
-                      Map a (Set (OidPtr, a)))
-
-analyseRefs :: forall (m :: * -> *) (t :: * -> *) a .
-     (Ord a, Foldable t, MonadIO m,
-      MonadBaseControl IO m, MonadMask m) =>
-     FilePath
-     -> t (t (a, GitCommitHash))
-     -> m (Either String (RefAnalysis a))
-analyseRefs path startRefsList = do
-    withRepository lgFactory path $ do
-        let getParentsOids oid =
-                (lift $ lookupObject oid) >>= \case
-                    (Git.CommitObj commit) -> do
-                        let parents = Git.commitParents commit
-                        return $ map (\(Tagged parent) -> parent) parents
-                    _ -> left $ "Not a commit object while iterating hashes"
-
-        let upsertIORefMap mRef k def f = do
-                m <- readIORef mRef
-                let v = fromMaybe def (Map.lookup k m)
-                writeIORef mRef (Map.insert k (f v) m)
-
-        let insertIORefMap mRef k v = do
-                m <- readIORef mRef
-                writeIORef mRef (Map.insert k v m)
-
-        let lookupCommit mRef k = do
-                m <- readIORef mRef
-                return $ Map.lookup k m
-
-        branchPointsTopI <- newIORef Map.empty
-        branchPointsBottomI <- newIORef Map.empty
-        allCommitsI <- newIORef Map.empty
-
-        let loopUpper =
-                forM_ startRefsList $ \startRefs -> do
-                    newCommitsI <- do
-                        initCommitsI <- newIORef Map.empty
-                        forM_ startRefs $ \(refname, hash) -> do
-                            oid' <- lift $ Git.parseOid hash
-                            (lift $ lookupObject oid') >>= \case
-                                (Git.CommitObj commit) -> do
-                                    let Tagged oid = Git.commitOid commit
-                                    upsertIORefMap initCommitsI oid Set.empty $ Set.insert refname
-                                _ -> return ()
-                        commits <- readIORef initCommitsI
-                        let f (oid, refset) = map (\ref->(oid, ref)) $ Set.toList refset
-                        newIORef $ Seq.fromList $ concat $ map f $ Map.toList commits
-
-                    let loop = do
-                            refs <- readIORef newCommitsI
-                            when (refs & Seq.null & not) $ do
-                                -- TODO: We can consult a DB to see if refs are only
-                                -- reachable from roots, i.e. there will be no further
-                                -- updaets of branchPoints*.
-                                writeIORef newCommitsI Seq.empty
-                                forM_ refs $ \(oid, ref) -> do
-                                    let update parent branchingRef = do
-                                            when (ref /= branchingRef) $ do
-                                                upsertIORefMap branchPointsTopI ref Set.empty $
-                                                     Set.insert $ (parent, Just branchingRef)
-                                                upsertIORefMap branchPointsBottomI branchingRef Set.empty $
-                                                     Set.insert $ (oid, ref)
-                                    lookupCommit allCommitsI oid >>= \case
-                                        Nothing -> do
-                                            insertIORefMap allCommitsI oid ref
-                                            parents <- getParentsOids oid
-                                            case parents of
-                                                [] -> upsertIORefMap branchPointsTopI ref Set.empty $
-                                                          Set.insert $ (oid, Nothing)
-                                                _ ->  forM_ parents $ \parent ->
-                                                          lookupCommit allCommitsI parent >>= \case
-                                                              Nothing -> modifyIORef'
-                                                                         newCommitsI (Seq.|> (parent, ref))
-                                                              Just branchingRef ->
-                                                                   update parent branchingRef
-                                        Just branchingRef -> do
-                                            update oid branchingRef
-                                loop
-                    loop
-
-        runEitherT loopUpper >>= \case
-            Left s -> return $ Left s
-            Right () -> do
-                branchPointsTop <- readIORef branchPointsTopI
-                branchPointsBottom <- readIORef branchPointsBottomI
-                return $ Right (branchPointsTop, branchPointsBottom)
-
 
 lsFiles
   :: (MonadIO m, MonadMask m, MonadBaseControl IO m)

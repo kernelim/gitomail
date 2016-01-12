@@ -1,5 +1,2 @@
-Checking ref heads/master, 0 commits
-Checking ref heads/older, 2 commits
-  Skipping old commit 00041fffffffffffffffffffffffffffffffffff
-  Skipping old commit 00042fffffffffffffffffffffffffffffffffff
+  Formatting 00042fffffffffffffffffffffffffffffffffff
 No E-Mails to send.

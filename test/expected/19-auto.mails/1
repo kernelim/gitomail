@@ -1,8 +1,8 @@
 From: <bot@gitomail.com>
 To:  =?utf-8?Q?Main_User?=<main@gitomail.com>
-Message-Id: <0000000000-0000019-0005-gitomail-bot@gitomail.com>
+Message-Id: <0000000000-0000019-0006-gitomail-bot@gitomail.com>
 X-Mailer: gitomail 0.0.0
-Subject: [repo] master branch added 3 commits: 00033ffff..00039ffff
+Subject: [repo] master branch added 6 commits: 00033ffff..00039ffff
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
 
@@ -12,12 +12,11 @@ Content-Transfer-Encoding: quoted-printable
 
 
 Content
-Main User 00039ffff #3 Updating README=2Emd [26]
-Main User 00038ffff #2 Updating README=2Emd [25]
-Main User 00036ffff #1 Updating README=2Emd [21]
-
-Branch points
-Main User 00033ffff  Updating Other=2Etxt [24]
+Main User 00039ffff #6 Updating README=2Emd [26]
+Main User 00038ffff #5 Updating README=2Emd [25]
+Main User 00036ffff #3 Updating README=2Emd [21]
+Main User 00035ffff #2 Updating README=2Emd [20]
+Main User 00034ffff #1 Updating README=2Emd [19]
 
 Sent by Gitomail 
 
@@ -32,30 +31,34 @@ Content
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
 a href=3D"https://github=2Ecom/gitomail/repo/commit/00039ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00039ffff </a></span></f=
-ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#3 </div></td><=
+ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#6 </div></td><=
 td colspan=3D"1"><div style=3D"font-weight: bold">Updating README&#8203;=2E=
 md [26]
 </div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
 a href=3D"https://github=2Ecom/gitomail/repo/commit/00038ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00038ffff </a></span></f=
-ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#2 </div></td><=
+ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#5 </div></td><=
 td colspan=3D"1"><div style=3D"font-weight: bold">Updating README&#8203;=2E=
 md [25]
 </div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
 a href=3D"https://github=2Ecom/gitomail/repo/commit/00036ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00036ffff </a></span></f=
-ont></td><td colspan=3D"1">#1 </td><td colspan=3D"1">Updating README&#8203;=
+ont></td><td colspan=3D"1">#3 </td><td colspan=3D"1">Updating README&#8203;=
 =2Emd [21]
-</td></tr><tr><td colspan=3D"5"><div style=3D"text-decoration: underline">
-Branch points
-</div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
-<td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
-a href=3D"https://github=2Ecom/gitomail/repo/commit/00033ffffffffffffffffff=
-fffffffffffffffff" style=3D"text-decoration: none">00033ffff </a></span></f=
-ont></td><td colspan=3D"1"> </td><td colspan=3D"1">Updating Other&#8203;=2E=
-txt [24]
+</td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td><td co=
+lspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><a href=
+=3D"https://github=2Ecom/gitomail/repo/commit/00035ffffffffffffffffffffffff=
+fffffffffff" style=3D"text-decoration: none">00035ffff </a></span></font></=
+td><td colspan=3D"1">#2 </td><td colspan=3D"1">Updating README&#8203;=2Emd =
+[20]
+</td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td><td co=
+lspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><a href=
+=3D"https://github=2Ecom/gitomail/repo/commit/00034ffffffffffffffffffffffff=
+fffffffffff" style=3D"text-decoration: none">00034ffff </a></span></font></=
+td><td colspan=3D"1">#1 </td><td colspan=3D"1">Updating README&#8203;=2Emd =
+[19]
 </td></tr>
 </table></blockqoute><div height=3D"20">&nbsp;</div><div style=3D"color: #b=
 0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/git=

@@ -46,7 +46,6 @@ data Command
     | AutoMailer
     | AutoMailerSetRef GitRef Text
     | ShowAutoMailerRefs
-    | CheckBranchPoints
     | ForgetHash
     | ParseMaintainerFile FilePath
     | ParseConfigFile FilePath
@@ -112,7 +111,6 @@ optsParse = Opts
                <> command "parse-config-file"      (oneArgFile ParseConfigFile     (progDesc ""))
                <> command "eval-configs"           (info (pure EvalConfigs)        (progDesc ""))
                <> command "show-auto-mailer-refs"  (info (pure ShowAutoMailerRefs) (progDesc ""))
-               <> command "check-refs"             (info (pure CheckBranchPoints)  (progDesc ""))
                <> command "forget-hash"            (info (pure ForgetHash)         (progDesc ""))
                <> command "misc"                   (info (pure Misc)               (progDesc ""))
             )) (progDesc "Various debugging commands")

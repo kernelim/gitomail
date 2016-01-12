@@ -503,7 +503,8 @@ run = do
                 ExitSuccess -> do
                     msg "All seems good!"
                     return ()
-                _ -> do msg "Found difference between expected output and actual output"
+                _ -> do msg "-------------------------------------------------------------------"
+                        msg "Found difference between expected output and actual output"
                         msg ""
                         msgLines x
                         msgLines y

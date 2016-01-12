@@ -1,5 +1,3 @@
-Checking ref heads/topic1-1, 11 commits
-  Skipping old commit 00010fffffffffffffffffffffffffffffffffff
   Skipping old commit 00011fffffffffffffffffffffffffffffffffff
   Skipping old commit 00012fffffffffffffffffffffffffffffffffff
   Skipping old commit 00013fffffffffffffffffffffffffffffffffff

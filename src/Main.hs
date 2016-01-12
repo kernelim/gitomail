@@ -56,7 +56,6 @@ runCmd = do
             O.Highlight maybeFilename      -> highlight maybeFilename
 
             -- Debug
-            O.CheckBranchPoints            -> checkBranchPoints
             O.ForgetHash                   -> forgetHash
             O.ShowAutoMailerRefs           -> showAutoMailerRefs
             O.ParseMaintainerFile filepath -> do
