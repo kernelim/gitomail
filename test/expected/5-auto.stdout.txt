@@ -1,4 +1,3 @@
-  Skipping old commit 00010fffffffffffffffffffffffffffffffffff
   Formatting 00011fffffffffffffffffffffffffffffffffff
   Formatting 00012fffffffffffffffffffffffffffffffffff
 Sending E-Mails!

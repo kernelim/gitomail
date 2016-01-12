@@ -69,7 +69,10 @@ instance E.Exception UnexpectedGitState
 instance Show UnexpectedGitState where
     show (UnexpectedGitState msgstr) = "UnexpectedGitState: " ++ msgstr
 
-data CommitSummaryType = CSTNew | CSTBranchPoint | CSTExisting
+data CommitSummaryType
+    = CSTBranchPoint O.GitRef
+    | CSTNew
+    | CSTExisting
       deriving Show
 
 data SummaryInfo = SummaryInfo
@@ -227,11 +230,12 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
                            writeIORef numberingI (n + 1)
                            return n
                    case siType of
-                       CSTBranchPoint -> modifyIORef' branchPointsI ((Nothing, siCommitHash) :)
-                       CSTExisting    -> do nr <- getNr
-                                            modifyIORef' belowOrEqOldRefI ((Just nr, siCommitHash) :)
-                       CSTNew         -> do nr <- getNr
-                                            modifyIORef' newCommitsI ((Just nr, siCommitHash) :)
+                       CSTBranchPoint refName
+                                        -> modifyIORef' branchPointsI ((Just refName, Nothing, siCommitHash) :)
+                       CSTExisting      -> do nr <- getNr
+                                              modifyIORef' belowOrEqOldRefI ((Nothing, Just nr, siCommitHash) :)
+                       CSTNew           -> do nr <- getNr
+                                              modifyIORef' newCommitsI ((Nothing, Just nr, siCommitHash) :)
 
             newCommits <- readIORef newCommitsI
             belowOrEqOldRef <- readIORef belowOrEqOldRefI
@@ -274,7 +278,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
 
                 forM_ commitLists $ \(name, list, includeCCTo) -> do
                    emptySoFarI <- newIORef True
-                   forM_ list $ \(maybeNr, commitHash) -> do
+                   forM_ list $ \(maybeRefName, maybeNr, commitHash) -> do
                        mailinfo <- makeOneMailCommit CommitMailSummary db ref commitHash maybeNr
                        case mailinfo of
                            Right (MailInfo{..}, CommitInfo{..}) -> do
@@ -305,16 +309,20 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
                                insert flistRowI $ F.TForm col $ F.mkPlain $ ciAuthorName +@ " "
                                insert flistRowI $ F.TForm col $ F.mkFormS F.Monospace $ linkToWeb $ F.mkPlain $ githash +@ " "
 
-                               nr <- case maybeNr of
+                               field <- case maybeNr of
                                    Just nr -> do
                                        modifyIORef' githashtoNumberI (Map.insert commitHash nr)
                                        return $ T.pack $ "#" ++ show nr ++ " "
                                    Nothing ->
-                                       return " "
+                                       case maybeRefName of
+                                           Just refName -> do
+                                               return $ "(" +@ GIT.refRepr refName +@ ") "
+                                           Nothing ->
+                                               return " "
 
                                let maybeBold f =
                                        if ciInexactDiffHashNew then F.mkFormS F.Emphesis f else f
-                               insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain nr
+                               insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain field
                                insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain $ ciCommitSubject +@ "\n"
 
                                flistRow <- readIORef flistRowI
@@ -396,26 +404,30 @@ autoMailer = do
             forM refStat $ \(refname, topCommitHash, maybeRefInRepo) -> do
                 logDebug $ putStrLn $ "ref: " ++ T.unpack refname ++ " "
                               ++ T.unpack topCommitHash ++ " " ++ show maybeRefInRepo
-                let iterF world startCommitHash = do
+                branchPointsI <- newIORef Set.empty
+                let iterF world startCommitHash checkBranchPoints = do
                       seenI <- newIORef Map.empty
                       let iter = GIT.iterateHistoryUntil () $ \() commit parents -> do
                              seen <- readIORef seenI
-                             when (not (commit `Map.member` world)) $ do
-                                 writeIORef seenI $ Map.insert commit (refname, parents) seen
-                             let newParent a = not (a `Map.member` world) && not (a `Map.member` seen)
-                             return ((), filter newParent parents)
+                             if not (commit `Map.member` world) && not (commit `Map.member` seen)
+                                 then do writeIORef seenI $ Map.insert commit (refname, parents) seen
+                                         return ((), parents)
+                                 else do when checkBranchPoints $
+                                             modifyIORef' branchPointsI (Set.insert commit)
+                                         return ((), [])
                       _ <- iter repoPath startCommitHash
                       readIORef seenI
 
                 world <- readIORef worldI
-                cur <- iterF world topCommitHash
+                cur <- iterF world topCommitHash True
                 result <- case maybeRefInRepo of
-                    Just r ->
-                        let refInfo = (refname, r, topCommitHash)
+                    Just r -> do
+                        branchPoints <- readIORef branchPointsI
+                        let refInfo = (refname, r, topCommitHash, branchPoints)
                          in case r of
                               NewRef -> return $ Just (refInfo, Map.keys $ cur, Nothing)
                               (ModifiedRef oldHash) -> do
-                                  old <- iterF world oldHash
+                                  old <- iterF world oldHash False
                                   return $ Just (refInfo, Map.keys $ cur, Just (oldHash, Map.keys $ old))
                     Nothing ->
                         return Nothing
@@ -499,10 +511,11 @@ autoMailer = do
         markedForSendingI <- newIORef Set.empty
 
         forM_ branchChanges $ \(refInfo, branchChange) -> do
-            let (refName, refInRepo, topCommitHash) = refInfo
+            let (refName, refInRepo, topCommitHash, branchPoints) = refInfo
             world <- readIORef worldI
             let f refmod commits = do
-                    (numbersMap, summaryMailInfo) <- makeSummaryEMail db (refName, topCommitHash) refmod refInRepo commits
+                    (numbersMap, summaryMailInfo) <- makeSummaryEMail db (refName, topCommitHash) refmod refInRepo
+                        (commitsBranchPoints ++ commits)
                     return (numbersMap, summaryMailInfo, commits)
                 ourCommmits oid =
                     case Map.lookup oid world of
@@ -513,32 +526,35 @@ autoMailer = do
                         Just (_, []) -> Just oid
                         _ -> Nothing
                 noRoots oids = catMaybes $ map roots oids
+                commitsBranchPoints =
+                       catMaybes $ map (\oid -> g oid (Map.lookup oid world)) (Set.toList branchPoints)
+                    where g oid (Just (ref, _)) = if ref /= refName
+                                                      then Just $ SummaryInfo (GIT.oidToText oid) (CSTBranchPoint ref)
+                                                      else Nothing
+                          g _    Nothing        = Nothing
+
             (numbersMap, summaryMailInfo, commits) <- case branchChange of
                 BranchAddedCommits added existing -> do
                     logDebug $ putStrLn $ "ref: added - " ++ T.unpack refName ++ " "
                         ++ (show $ length added) ++ " commits, " ++ (show $ length existing) ++ " existing"
-                    let our_existing = reverse $ filter ourCommmits existing
-                        commits_before = case noRoots our_existing of
-                                            [] -> map (\oid -> SummaryInfo (GIT.oidToText oid) CSTExisting) our_existing
+                    let ourExisting = reverse $ filter ourCommmits existing
+                        commitsBefore = case noRoots ourExisting of
+                                            [] -> map (\oid -> SummaryInfo (GIT.oidToText oid) CSTExisting) ourExisting
                                             (_:_) -> []
-                        commits_after = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) $
+                        commitsAfter = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) $
                                          filter ourCommmits added
-                    f RefFFModFast $ commits_before ++ commits_after
+                    f RefFFModFast $ commitsBefore ++ commitsAfter
                 BranchRebased added removed -> do
                     logDebug $ putStrLn $ "ref: rebase - " ++ T.unpack refName ++ " "
                         ++ (show $ length added) ++ " commits, " ++ (show $ length removed) ++ " removed"
-                    let commits_before = case map (\oid -> SummaryInfo (GIT.oidToText oid) CSTBranchPoint) $
-                                              filter (not . ourCommmits) added of
-                                              (x:_) -> [x]
-                                              _ -> []
-                        commits_after = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) $
+                    let commitsAfter = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) $
                                          filter ourCommmits added
-                    f RefFFModNoFast $ commits_before ++ commits_after
+                    f RefFFModNoFast $ commitsAfter
                 BranchNew content -> do
                     logDebug $ putStrLn $ "ref: new - " ++ T.unpack refName ++ " "
                         ++ (show $ length content) ++ " commits, "
                     let commits = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) content
-                    f RefFFModFast commits
+                    f RefFFModFast $ commits
 
             modifyIORef' mailsI ((:) (return (), summaryMailInfo))
 
