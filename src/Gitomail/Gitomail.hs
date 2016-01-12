@@ -283,7 +283,7 @@ githashRepr githash = do
     return $ T.take (config CFG.^.|| CFG.hashSize) githash
 
 getVersion :: Text
-getVersion = T.concat [T.pack $ showVersion version, ", git ", V.version]
+getVersion = T.concat [T.pack $ showVersion version, V.version]
 
 getFooter :: (MonadGitomail m) => m F.FList
 getFooter = do
