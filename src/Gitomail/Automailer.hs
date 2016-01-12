@@ -30,7 +30,7 @@ import           Control.Monad               (forM, forM_, when)
 import           Control.Monad.IO.Class      (liftIO, MonadIO)
 import qualified Data.ByteString.Char8       as BS8
 import qualified Data.DList                  as DList
-import           Data.List                   (sortOn, groupBy, nub, (\\))
+import           Data.List                   (sortOn, groupBy, nub, (\\), sort)
 import qualified Data.Map                    as Map
 import           Data.Maybe                  (fromMaybe, catMaybes)
 import qualified Data.Set                    as Set
@@ -46,6 +46,7 @@ import           Control.Monad.State.Strict  (gets)
 import           Network.Mail.Mime           (Mail (..), htmlPart, plainPart)
 import           Text.Regex.TDFA             ((=~))
 import           Text.Regex.TDFA.Text        ()
+import           Text.Read                   (readMaybe)
 ----
 import           Gitomail.Config             ((^.||))
 import qualified Gitomail.Config             as CFG
@@ -59,6 +60,7 @@ import qualified Lib.Formatting              as F
 import qualified Lib.InlineFormatting        as F
 import           Lib.Regex                   (matchWhole)
 import           Lib.Monad                   (lSeqForM)
+import           Lib.Text                    (removeTrailingNewLine)
 import           Lib.LiftedPrelude
 ------------------------------------------------------------------------------------
 
@@ -119,14 +121,14 @@ sortRefsByPriority reflist = do
     refsMatcher <- getRefsMatcher
     refScore <- getRefScoreFunc
     byScores <- fmap catMaybes $ lSeqForM reflist $ \(refname, hash) -> do
-        return $
-            if refsMatcher refname
-                then Just (refScore refname, (refname, hash))
-                else Nothing
-    -- TODO: The committer timestamp of the top commit may be a good
-    -- candidate for sorting within a priority?
+        if refsMatcher refname
+            then do timestamp <- fmap (readMaybe . T.unpack . removeTrailingNewLine)
+                       $ gitCmd ["show", hash, "--pretty=%ct", "-s"]
+                    return $ Just (refScore refname, (timestamp :: Maybe Int, refname, hash))
+            else return Nothing
     let g = groupBy (\x y -> fst x == fst y) $ sortOn ((0 -) . fst) byScores
-    return $ map (map snd) g
+        h = map (sort . map snd) g
+    return $ map (map (\(_, a, b) -> (a, b))) h
 
 getAutoMailerRefs :: (MonadGitomail m) => m [GitRefList]
 getAutoMailerRefs = getRefState >>= sortRefsByPriority

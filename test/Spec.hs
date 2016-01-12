@@ -31,6 +31,7 @@ import qualified Data.Text.IO              as T
 import qualified Data.Map                  as Map
 import           Data.Map                   (Map)
 import           System.Console.ANSI
+import           System.Environment         (setEnv)
 import           System.FilePath            ((</>))
 import           System.Directory           (setCurrentDirectory,
                                             createDirectory, getCurrentDirectory,
@@ -484,6 +485,7 @@ run = do
            wrap "help" $ msgLines help
 
         withSystemTempDirectory "gitomail-test" $ \tempDir -> do
+            liftIO $ setEnv "GIT_COMMITTER_DATE" "1400000000 +0000"
             let outputDir = tempDir </> "output"
 
             cur <- liftIO $ getCurrentDirectory
