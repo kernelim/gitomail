@@ -459,6 +459,18 @@ tests tempDir = do
     gitomailC "19-auto" automailer
     removeBranch "staging"
 
+    msg "Verifying for same commits in several branches"
+    ---------------------------------------------------------
+
+    forM_ [27] otherAppend
+    checkoutCreate "before-master-lexically"
+    forM_ [28..29] otherAppend
+    gitP ["branch", "z-after-master", "before-master-lexically"]
+    checkout "master"
+    gitomailC "20-auto" automailer
+    removeBranch "before-master-lexically"
+    removeBranch "z-after-master"
+
     msg "Ref going backward after init"
     ----------------------------------
 

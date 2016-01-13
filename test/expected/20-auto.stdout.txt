@@ -1,0 +1,18 @@
+Relating commits to refs
+Ref heads/master: creating summaries
+Ref heads/master: creating E-Mails
+  Formatting 00040fffffffffffffffffffffffffffffffffff
+Ref heads/before-master-lexically: creating summaries
+Ref heads/before-master-lexically: creating E-Mails
+  Formatting 00041fffffffffffffffffffffffffffffffffff
+  Formatting 00042fffffffffffffffffffffffffffffffffff
+Ref heads/z-after-master: creating summaries
+Ref heads/z-after-master: creating E-Mails
+Sending all E-Mails
+Sending E-Mails!
+  Writing $TEMP/1 - '[repo] master branch added 1 commit: 00039ffff..00040ffff'
+  Writing $TEMP/2 - '[repo before-master-lexically 00040ffff, #1] Updating Other.txt [27]'
+  Writing $TEMP/3 - '[repo] before-master-lexically branch is new with 2 commits'
+  Writing $TEMP/4 - '[repo before-master-lexically 00041ffff, #1] Updating Other.txt [28]'
+  Writing $TEMP/5 - '[repo before-master-lexically 00042ffff, #2] Updating Other.txt [29]'
+  Skipping,  No E-Mail destination for summary

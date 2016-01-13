@@ -1,0 +1,39 @@
+From: <bot@gitomail.com>
+To:  =?utf-8?Q?Main_User?=<main@gitomail.com>
+Message-Id: <0000000000-0000020-0002-gitomail-bot@gitomail.com>
+X-Mailer: gitomail 0.0.0
+Subject: [repo] master branch added 1 commit: 00039ffff..00040ffff
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
+
+--<random-replaced-for-test>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+
+Content
+Main User 00040ffff #1 Updating Other=2Etxt [27]
+
+Sent by Gitomail 
+
+--<random-replaced-for-test>
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<blockqoute><table cellpadding=3D"2"><tr><td colspan=3D"5"><div style=3D"te=
+xt-decoration: underline">
+Content
+</div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
+<td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
+a href=3D"https://github=2Ecom/gitomail/repo/commit/00040ffffffffffffffffff=
+fffffffffffffffff" style=3D"text-decoration: none">00040ffff </a></span></f=
+ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#1 </div></td><=
+td colspan=3D"1"><div style=3D"font-weight: bold">Updating Other&#8203;=2Et=
+xt [27]
+</div></td></tr>
+</table></blockqoute><div height=3D"20">&nbsp;</div><div style=3D"color: #b=
+0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/git=
+omail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">Gitom=
+ail</span></a> 
+</div>
+--<random-replaced-for-test>--
