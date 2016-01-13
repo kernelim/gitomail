@@ -3,7 +3,7 @@ To:  =?utf-8?Q?Main_User?=<main@gitomail.com>
 Message-Id: <0000000000-0000020-0003-gitomail-bot@gitomail.com>
 X-Mailer: gitomail 0.0.0
 Reply-to:  =?utf-8?Q?Main_User?=<main@gitomail.com>
-Subject: [repo before-master-lexically 00040ffff, #1] Updating Other.txt [27]
+Subject: [repo master 00040ffff, #1] Updating Other.txt [27]
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
 
@@ -37,7 +37,7 @@ Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00040ffffffffffffffffffffffffffff=
-fffffff<br>Branches: before-master-lexically, master, z-after-master<br><fo=
+fffffff<br>Branches: master, before-master-lexically, z-after-master<br><fo=
 nt size=3D"3"><div><pre style=3D"line-height: 125%">
 </pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 125%"><=
 div style=3D"background: #F5F5F3; font-family: monospace">

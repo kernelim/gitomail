@@ -17,51 +17,45 @@
 module Gitomail.Automailer
     ( autoMailer
     , autoMailerSetRef
-    , getAutoMailerRefs
     , showAutoMailerRefs
     , forgetHash
     , UnexpectedGitState(..)
     ) where
 
 ------------------------------------------------------------------------------------
-import qualified Control.Exception.Lifted    as E
-import           Control.Lens.Operators      ((^.), (&))
-import           Control.Monad               (forM, forM_, when)
-import           Control.Monad.IO.Class      (liftIO, MonadIO)
-import qualified Data.ByteString.Char8       as BS8
-import qualified Data.DList                  as DList
-import           Data.List                   (sortOn, groupBy, nub, (\\), sort)
-import qualified Data.Map                    as Map
-import           Data.Maybe                  (fromMaybe, catMaybes)
-import qualified Data.Set                    as Set
-import           Data.Text                   (Text)
-import           Data.Foldable               (toList)
-import qualified Data.Text                   as T
-import qualified Data.Text.IO                as T
-import qualified Data.Text.Encoding          as T
-import qualified Data.Text.Lazy              as TL
-import           Data.Typeable               (Typeable)
-import           Database.LevelDB.Base       (DB)
-import qualified Database.LevelDB.Base       as DB
-import           Control.Monad.State.Strict  (gets)
-import           Network.Mail.Mime           (Mail (..), htmlPart, plainPart)
-import           Text.Regex.TDFA             ((=~))
-import           Text.Regex.TDFA.Text        ()
-import           Text.Read                   (readMaybe)
+import qualified Control.Exception.Lifted   as E
+import           Control.Lens.Operators     ((&), (^.))
+import           Control.Monad              (forM, forM_, when)
+import           Control.Monad.IO.Class     (MonadIO, liftIO)
+import           Control.Monad.State.Strict (gets)
+import qualified Data.ByteString.Char8      as BS8
+import qualified Data.DList                 as DList
+import           Data.Foldable              (toList)
+import           Data.List                  (nub, (\\))
+import qualified Data.Map                   as Map
+import           Data.Maybe                 (catMaybes, fromMaybe)
+import qualified Data.Set                   as Set
+import           Data.Text                  (Text)
+import qualified Data.Text                  as T
+import qualified Data.Text.Encoding         as T
+import qualified Data.Text.IO               as T
+import qualified Data.Text.Lazy             as TL
+import           Data.Typeable              (Typeable)
+import           Database.LevelDB.Base      (DB)
+import qualified Database.LevelDB.Base      as DB
+import           Network.Mail.Mime          (Mail (..), htmlPart, plainPart)
+import           Text.Regex.TDFA.Text       ()
 ----
-import           Gitomail.Config             ((^.||))
-import qualified Gitomail.Config             as CFG
-import qualified Gitomail.Opts               as O
 import           Gitomail.CommitToMail
+import           Gitomail.Config            ((^.||))
+import qualified Gitomail.Config            as CFG
 import           Gitomail.Gitomail
-import           Lib.Monad                   (whenM)
-import           Lib.Text                    ((+@))
-import qualified Lib.Git                     as GIT
-import qualified Lib.Formatting              as F
-import qualified Lib.InlineFormatting        as F
-import           Lib.Regex                   (matchWhole)
-import           Lib.Monad                   (lSeqForM)
-import           Lib.Text                    (removeTrailingNewLine)
+import qualified Gitomail.Opts              as O
+import qualified Lib.Formatting             as F
+import qualified Lib.Git                    as GIT
+import qualified Lib.InlineFormatting       as F
+import           Lib.Monad                  (whenM)
+import           Lib.Text                   ((+@))
 import           Lib.LiftedPrelude
 ------------------------------------------------------------------------------------
 
@@ -77,11 +71,9 @@ data CommitSummaryType
       deriving Show
 
 data SummaryInfo = SummaryInfo
-      { siCommitHash   :: !GIT.GitCommitHash
-      , siType         :: !CommitSummaryType
+      { siCommitHash :: !GIT.GitCommitHash
+      , siType       :: !CommitSummaryType
       } deriving Show
-
-type GitRefList = [(O.GitRef, GIT.GitCommitHash)]
 
 data RefMod
     = NewRef
@@ -98,44 +90,6 @@ data BranchDetails
     | BranchRebased      [GIT.GitOid] [GIT.GitOid]
     | BranchNew          [GIT.GitOid]
       deriving Show
-
-getRefScoreFunc :: (MonadGitomail m) => m (Text -> Int)
-getRefScoreFunc = do
-    config <- getConfig
-    let rootRefsTexts = config ^.|| CFG.rootRefs
-    let rootRefs = map matchWhole rootRefsTexts
-    let scoreRef ref = fromMaybe 0 $ lookup True $ zip (rootRefs <*> [ref]) [1..(length rootRefsTexts)]
-    return scoreRef
-
-getRefState :: (MonadGitomail m) => m GitRefList
-getRefState = do
-    refsLines <- fmap T.lines $ gitCmd ["show-ref", "--heads", "--tags", "--dereference"]
-    fmap catMaybes $ lSeqForM refsLines $ \line -> do
-        let invalid f =
-               E.throw $ InvalidCommandOutput ("git show-ref returned: " ++ show f)
-        case line =~ ("^([a-f0-9]+) refs/(tags/[^^]+)([\\^]{})?$" :: Text) of
-            [[_, _, _, ""]] -> return Nothing
-            [[_, hash, name, "^{}"]] -> return $ Just (name, hash)
-            x1 -> case line =~ ("^([a-f0-9]+) refs/(heads/.*)$" :: Text) of
-                [[_, hash, name]] -> return $ Just (name, hash)
-                x2 -> invalid (line, x1, x2)
-
-sortRefsByPriority :: (MonadGitomail m) => GitRefList -> m [GitRefList]
-sortRefsByPriority reflist = do
-    refsMatcher <- getRefsMatcher
-    refScore <- getRefScoreFunc
-    byScores <- fmap catMaybes $ lSeqForM reflist $ \(refname, hash) -> do
-        if refsMatcher refname
-            then do timestamp <- fmap (readMaybe . T.unpack . removeTrailingNewLine)
-                       $ gitCmd ["show", hash, "--pretty=%ct", "-s"]
-                    return $ Just (refScore refname, (timestamp :: Maybe Int, refname, hash))
-            else return Nothing
-    let g = groupBy (\x y -> fst x == fst y) $ sortOn ((0 -) . fst) byScores
-        h = map (sort . map snd) g
-    return $ map (map (\(_, a, b) -> (a, b))) h
-
-getAutoMailerRefs :: (MonadGitomail m) => m [GitRefList]
-getAutoMailerRefs = getRefState >>= sortRefsByPriority
 
 commitSeenKey :: BS8.ByteString -> BS8.ByteString
 commitSeenKey commit = BS8.concat [ "commit-seen-",  commit]
@@ -376,7 +330,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
 autoMailer :: (MonadGitomail m) => m ()
 autoMailer = do
     repoPath <- getRepositoryPath
-    refsByPriority <- getAutoMailerRefs
+    refsByPriority <- getSortedRefs
     opts <- gets opts
 
     let logDebug = when (opts ^. O.verbose)
@@ -605,9 +559,8 @@ autoMailer = do
 
 showAutoMailerRefs :: (MonadGitomail m) => m ()
 showAutoMailerRefs = do
-    refs <- getAutoMailerRefs
+    refs <- getSortedRefs
     forM_ refs $ \lst -> do
         putStrLn "--"
         forM_ lst $ \(ref, hash) -> do
             putStrLn $ concat $ [T.unpack hash, " ", T.unpack ref]
-

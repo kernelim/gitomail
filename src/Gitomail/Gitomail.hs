@@ -13,6 +13,7 @@
 module Gitomail.Gitomail
   ( MonadGitomail
   , ParameterNeeded(..)
+  , InvalidCommandOutput(..)
   , compilePatterns
   , getCommitURL
   , getBlobInCommitURL
@@ -26,6 +27,7 @@ module Gitomail.Gitomail
   , getRepositoryPath
   , getVersion
   , getTopAliases
+  , getSortedRefs
   , genExtraEMailHeaders
   , gitCmd
   , githashRepr
@@ -37,8 +39,8 @@ module Gitomail.Gitomail
 
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted    as E
-import           Control.Lens.Operators      ((^.), (&), (<+=))
-import           Control.Lens                (makeLenses)
+import           Control.Lens.Operators      ((^.), (&), (<+=), (.=))
+import           Control.Lens                (makeLenses, use)
 import           Control.Monad               (forM,)
 import           Control.Monad.Catch         (MonadMask)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
@@ -57,26 +59,34 @@ import           Network.Mail.Mime           (Address (..))
 import           Data.UnixTime               (getUnixTime, UnixTime(..))
 import           System.Directory            (canonicalizePath, doesFileExist,
                                               getCurrentDirectory, setCurrentDirectory)
+import           Data.List                   (groupBy, sortOn, sort)
 import           System.FilePath             ((</>), takeBaseName)
 import           System.Exit                 (ExitCode (..))
 import           System.Environment          (getEnv)
 import           System.Random               as Rand
 import           Data.Char                   (chr, ord)
+import           Text.Regex.TDFA             ((=~))
+import           Text.Regex.TDFA.Text        ()
+import           Text.Read                   (readMaybe)
 ----
 import           Paths_gitomail              (version)
 import qualified Gitomail.Config             as CFG
+import           Gitomail.Config             ((^.||))
 import qualified Gitomail.Maintainers        as Maintainers
 import qualified Gitomail.Opts               as O
 import qualified Gitomail.Version            as V
 import           Lib.EMail                   (parseEMail', InvalidEMail(..))
 import qualified Lib.Git                     as GIT
 import qualified Lib.Formatting              as F
+import           Lib.Monad                   (lSeqForM)
 import           Lib.Text                    ((+@), showT, leadingZeros,
-                                              safeDecode)
+                                              safeDecode, removeTrailingNewLine)
 import           Lib.Memo                    (cacheIO, cacheIO')
 import           Lib.Process                 (readProcess, readProcess'')
 import           Lib.Regex                   (matchWhole)
 ------------------------------------------------------------------------------------
+
+type GitRefList = [(O.GitRef, GIT.GitCommitHash)]
 
 data Gitomail = Gitomail {
     opts                :: O.Opts
@@ -89,6 +99,7 @@ data Gitomail = Gitomail {
   , __getFromEMail      :: IO (Address)
   , __getRepositoryPath :: IO FilePath
   , __getConfig         :: IO CFG.Config
+  , _sortedRefList      :: Maybe (FilePath, [GitRefList])
   }
 
 makeLenses ''Gitomail
@@ -109,6 +120,7 @@ getGitomail opts = do
     -- Various cached loaders
 
     let _fakeMessageId = 0
+    let _sortedRefList = Nothing
 
     __loadFiles <- cacheIO $ \(filepath, gitref) ->
         Maintainers.loadFiles filepath gitref
@@ -334,3 +346,66 @@ genExtraEMailHeaders (Address _ email) = do
         ("Message-Id", T.concat ["<", numbers, "-gitomail-", email, ">"]),
         ("X-Mailer", T.concat ["gitomail ", v])
       ]
+
+
+getRefScoreFunc :: (MonadGitomail m) => m (Text -> Int)
+getRefScoreFunc = do
+    config <- getConfig
+    let rootRefsTexts = config ^.|| CFG.rootRefs
+    let rootRefs = map matchWhole rootRefsTexts
+    let scoreRef ref = fromMaybe 0 $ lookup True $ zip (rootRefs <*> [ref]) [1..(length rootRefsTexts)]
+    return scoreRef
+
+data InvalidCommandOutput = InvalidCommandOutput String deriving (Typeable)
+instance E.Exception InvalidCommandOutput
+instance Show InvalidCommandOutput where
+    show (InvalidCommandOutput msgstr) = "InvalidCommandOutput: " ++ msgstr
+
+getRefState :: (MonadGitomail m) => m GitRefList
+getRefState = do
+    refsLines <- fmap T.lines $ gitCmd ["show-ref", "--heads", "--tags", "--dereference"]
+    fmap catMaybes $ lSeqForM refsLines $ \line -> do
+        let invalid f =
+               E.throw $ InvalidCommandOutput ("git show-ref returned: " ++ show f)
+        case line =~ ("^([a-f0-9]+) refs/(tags/[^^]+)([\\^]{})?$" :: Text) of
+            [[_, _, _, ""]] -> return Nothing
+            [[_, hash, name, "^{}"]] -> return $ Just (name, hash)
+            x1 -> case line =~ ("^([a-f0-9]+) refs/(heads/.*)$" :: Text) of
+                [[_, hash, name]] -> return $ Just (name, hash)
+                x2 -> invalid (line, x1, x2)
+
+sortRefsByPriority :: (MonadGitomail m) => GitRefList -> m [GitRefList]
+sortRefsByPriority reflist = do
+    refsMatcher <- getRefsMatcher
+    refScore <- getRefScoreFunc
+    byScores <- fmap catMaybes $ lSeqForM reflist $ \(refname, hash) -> do
+        if refsMatcher refname
+            then do timestamp <- fmap (readMaybe . T.unpack . removeTrailingNewLine)
+                       $ gitCmd ["show", hash, "--pretty=%ct", "-s"]
+                    return $ Just (refScore refname, (timestamp :: Maybe Int, refname, hash))
+            else return Nothing
+    let g = groupBy (\x y -> fst x == fst y) $ sortOn ((0 -) . fst) byScores
+        h = map (sort . map snd) g
+    return $ map (map (\(_, a, b) -> (a, b))) h
+
+getSortedRefs :: (MonadGitomail m) => m [GitRefList]
+getSortedRefs =
+    cacheSortedRefs (getRefState >>= sortRefsByPriority)
+    where
+        -- TODO: how to generalize this without a type error, and hopefully
+        -- replace all the __* record crap above?
+        cacheSortedRefs :: MonadGitomail m =>  m [GitRefList] -> m [GitRefList]
+        cacheSortedRefs act = do
+            let accessor = sortedRefList
+            repoPath <- getRepositoryPath
+            srl <- use accessor
+            let cacheMiss =
+                  do res <- act
+                     accessor .= Just (repoPath, res)
+                     return res
+            case srl of
+                Nothing -> cacheMiss
+                Just (inp, res) ->
+                    do if inp == repoPath
+                           then return res
+                           else cacheMiss

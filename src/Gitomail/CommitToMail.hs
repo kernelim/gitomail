@@ -98,11 +98,6 @@ instance E.Exception InvalidDiff
 instance Show InvalidDiff where
     show (InvalidDiff msgstr) = "InvalidDiff: " ++ msgstr
 
-data InvalidCommandOutput = InvalidCommandOutput String deriving (Typeable)
-instance E.Exception InvalidCommandOutput
-instance Show InvalidCommandOutput where
-    show (InvalidCommandOutput msgstr) = "InvalidCommandOutput: " ++ msgstr
-
 data SMTPFail = SMTPFail String deriving (Typeable)
 instance E.Exception SMTPFail
 instance Show SMTPFail where
@@ -141,9 +136,15 @@ sendMailSession f = do
 gitBranchesContainingCommit :: (MonadGitomail m) => Text -> m [Text]
 gitBranchesContainingCommit ref = do
     containedInBranches <- gitCmd ["branch", "--contains", ref]
+    sortedRefs <- fmap (map fst . concat) $ getSortedRefs
+
     let gitBranchWhitespaceRemoval = T.filter (\x -> (not . (elem x)) (" *" :: [Char]))
-    return $ containedInBranches
-            & gitBranchWhitespaceRemoval & T.lines
+        branches = Set.fromList $ map ("heads/" +@)
+               $ containedInBranches & gitBranchWhitespaceRemoval & T.lines
+        matchingRefs = filter (`Set.member` branches) sortedRefs
+        matchingBranches = map (T.drop (T.length "heads/")) $ matchingRefs
+
+    return matchingBranches
 
 inexactDiffWasSentStrDBKey :: InexactDiffHash -> BS8.ByteString
 inexactDiffWasSentStrDBKey diff = BS8.concat [ "inexact-diff-sent-",  diff ]
@@ -388,7 +389,6 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                       then GIT.treeVal i
                       else mempty
 
-            refsMatcher <- getRefsMatcher
             repoName <- getRepoName
             shortHash <- mapCommitHash commitHash >>= githashRepr
 
@@ -400,8 +400,8 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                     & T.replace "%b" leadingBranch
                     & T.replace "%s" commitSubjectLine
                 leadingBranch =
-                    case filter refsMatcher $ map ("heads/" +@) containedInBranchesList of
-                       (x:_) -> T.drop (T.length "heads/") x
+                    case containedInBranchesList of
+                       (x:_) -> x
                        [] -> "<?>"
 
             let Maintainers.AssignedFileStatus {..} = maintainerInfo
