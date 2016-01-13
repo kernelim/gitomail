@@ -37,7 +37,6 @@ executable gitomail
                    , Lib.LiftedIO
                    , Lib.LiftedPrelude
                    , Lib.Maybe
-                   , Lib.Memo
                    , Lib.Monad
                    , Lib.Process
                    , Lib.Lexer.Lexer

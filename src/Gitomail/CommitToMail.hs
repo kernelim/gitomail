@@ -324,8 +324,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
         Right ("", _) -> return $ Left $ "Empty commit: " ++ (show commitHash)
         Right (patch, maybeParentHash) -> do
             config <- getConfig
-            repoPath <- getRepositoryPath
-            matched <- matchFiles (repoPath, commitHash)
+            matched <- matchFiles commitHash
 
             (commitMessageBody, diff, footer') <-
                  case (TI.indices "\n\n" patch,

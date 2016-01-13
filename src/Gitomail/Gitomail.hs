@@ -83,7 +83,6 @@ import qualified Lib.Formatting              as F
 import           Lib.Monad                   (lSeqForM)
 import           Lib.Text                    ((+@), showT, leadingZeros,
                                               safeDecode, removeTrailingNewLine)
-import           Lib.Memo                    (cacheIO, cacheIO')
 import           Lib.Process                 (readProcess, readProcess'')
 import           Lib.Regex                   (matchWhole)
 ------------------------------------------------------------------------------------
@@ -93,15 +92,15 @@ type GitRefList = [(O.GitRef, GIT.GitCommitHash)]
 data Gitomail = Gitomail {
     opts                :: O.Opts
   , _fakeMessageId      :: Int
-  , __loadFiles         :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe BS8.ByteString))
-  , __parseFiles        :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe Maintainers.Unit))
-  , __compilePatterns   :: (FilePath, O.GitRef) -> IO (GIT.Tree (Maybe [Maintainers.DefInFile]))
-  , __matchFiles        :: (FilePath, O.GitRef) -> IO (GIT.Tree Maintainers.AssignedFileStatus)
-  , __getExtraCCTo      :: IO ([Address], [Address])
-  , __getFromEMail      :: IO (Address)
-  , __getRepositoryPath :: IO FilePath
-  , __getConfig         :: IO CFG.Config
   , _sortedRefList      :: Maybe (FilePath, [GitRefList])
+  , __loadFiles         :: Maybe (O.GitRef, (GIT.Tree (Maybe BS8.ByteString)))
+  , __parseFiles        :: Maybe (O.GitRef, (GIT.Tree (Maybe Maintainers.Unit)))
+  , __compilePatterns   :: Maybe (O.GitRef, (GIT.Tree (Maybe [Maintainers.DefInFile])))
+  , __matchFiles        :: Maybe (O.GitRef, (GIT.Tree Maintainers.AssignedFileStatus))
+  , __getExtraCCTo      :: Maybe ((), ([Address], [Address]))
+  , __getRepositoryPath :: Maybe ((), FilePath)
+  , __getConfig         :: Maybe ((), CFG.Config)
+  , __getFromEMail      :: Maybe ((), Address)
   }
 
 makeLenses ''Gitomail
@@ -116,104 +115,135 @@ instance E.Exception GitRepoNotFound
 instance Show GitRepoNotFound where
     show (GitRepoNotFound msgstr) = "GitRepoNotFound: " ++ msgstr
 
+data InvalidCommandOutput = InvalidCommandOutput String deriving (Typeable)
+instance E.Exception InvalidCommandOutput
+instance Show InvalidCommandOutput where
+    show (InvalidCommandOutput msgstr) = "InvalidCommandOutput: " ++ msgstr
 
 getGitomail :: O.Opts -> IO (Gitomail)
 getGitomail opts = do
-    -- Various cached loaders
+    return $ Gitomail opts 0 Nothing Nothing Nothing Nothing Nothing
+                             Nothing Nothing Nothing Nothing
 
-    let _fakeMessageId = 0
-    let _sortedRefList = Nothing
+cacheInStateBySomething :: (MonadState c m, Eq b)
+                       => (Lens c c (Maybe (b, a)) (Maybe (b, a)))
+                       -> m a
+                       -> b
+                       -> m a
+cacheInStateBySomething accessor act value = do
+    srl <- use accessor
+    let cacheMiss =
+          do res <- act
+             accessor .= Just (value, res)
+             return res
+    case srl of
+        Nothing -> cacheMiss
+        Just (inp, res) ->
+            do if inp == value
+                   then return res
+                   else cacheMiss
 
-    __loadFiles <- cacheIO $ \(filepath, gitref) ->
-        Maintainers.loadFiles filepath gitref
-
-    __parseFiles <- cacheIO $ \v -> do
-        filesLoaded <- __loadFiles v
-        Maintainers.parseFiles filesLoaded
-
-    __compilePatterns <- cacheIO $ \v -> do
-        filesParsed <- __parseFiles v
-        Maintainers.compilePatterns filesParsed
-
-    __matchFiles <- cacheIO $ \v -> do
-        patternsCompiled <- __compilePatterns v
-        Maintainers.matchFiles (Maintainers.assignDefinitionFiles patternsCompiled)
-
-    __getRepositoryPath <- cacheIO' $ do
-        -- On which repository are we working on? We need assistance from
-        -- 'git' to find the '.git', and we use it either on O.repositoryPath
-        -- or the current directory.
-
-        origDir <- getCurrentDirectory
-        maybe (return ()) setCurrentDirectory (opts ^. O.repositoryPath)
-        (exitcode, stdout, stderr) <- readProcess'' "git" ["rev-parse", "--git-dir"] ""
-        setCurrentDirectory origDir
-
-        let path = fromMaybe origDir (opts ^. O.repositoryPath)
-        case exitcode of
-            ExitSuccess -> return $ path </> (T.unpack $ T.strip stdout)
-            _ -> E.throw $ GitRepoNotFound $ (show (exitcode, stderr))
-
-    __getConfig <-  cacheIO' $ do
-        let safeGetEnv v =
-                E.catch (fmap Just $ getEnv v) (\(_ :: E.SomeException) -> return Nothing)
-            existence e = fmap (\case True -> [e] ; False -> []) $ doesFileExist e
-            homeConfig' =
-                safeGetEnv "HOME" >>= \case
-                    Nothing -> return []
-                    Just homePath -> existence $ homePath </> ".gitomailconf.yaml"
-            repoConfig' = do
-                repoPath <- __getRepositoryPath
-                existence $ repoPath </> "gitomailconf.yaml"
-            checkOpt a = if opts ^. O.noImplicitConfigs then return [] else a
-
-        homeConfig <- checkOpt homeConfig'
-        repoConfig <- checkOpt repoConfig'
-
-        case homeConfig ++ repoConfig ++ opts ^. O.configPaths of
-            []    -> (E.throw $ ParameterNeeded $ BS8.unpack "config paths")
-            paths -> fmap CFG.final $ fmap (foldl1 CFG.combine) $ forM paths $ CFG.parse
-
-    __getExtraCCTo <- cacheIO' $ do
-        [cc, to] <- forM [(O.extraCC, "CC"), (O.extraTo, "To")] $ \(getter, name) -> do
-            forM (map parseEMail' (opts ^. getter)) $ \case
-                     Left r -> E.throw $ InvalidEMail $ name ++ ": " ++  r
-                     Right r -> return r
-        return (cc, to)
-
-    __getFromEMail <- cacheIO' $ do
-        config <- __getConfig
-        case config ^. CFG.fromEMail of
-            Nothing  -> E.throw $ ParameterNeeded $ BS8.unpack "from_email"
-            Just fromEMail ->
-                case parseEMail' fromEMail of
-                    Left r -> E.throw $ InvalidEMail $ "from_email: " ++ r
-                    Right r -> return r
-
-    return $ Gitomail{..}
+cacheByRepoPathname :: (MonadGitomail m)
+                       => (Lens Gitomail Gitomail (Maybe (FilePath, a)) (Maybe (FilePath, a)))
+                       -> m a
+                       -> m a
+cacheByRepoPathname accessor act = do
+    getRepositoryPath >>= cacheInStateBySomething accessor act
 
 class (MonadIO m, MonadState Gitomail m, MonadBaseControl IO m, MonadMask m) => MonadGitomail m where
 instance (MonadIO m, MonadBaseControl IO m, MonadMask m) => MonadGitomail (StateT Gitomail m) where
 
+loadFiles :: (MonadGitomail m) => O.GitRef -> m (GIT.Tree (Maybe BS8.ByteString))
+loadFiles gitref = do
+    repoPath <- getRepositoryPath
+    let act = Maintainers.loadFiles repoPath gitref
+    cacheInStateBySomething _loadFiles act gitref
+
+parseFiles :: (MonadGitomail m) => O.GitRef -> m (GIT.Tree (Maybe Maintainers.Unit))
+parseFiles gitref = do
+    let act = loadFiles gitref >>= Maintainers.parseFiles
+    cacheInStateBySomething _parseFiles act gitref
+
+compilePatterns :: (MonadGitomail m) => O.GitRef -> m (GIT.Tree (Maybe [(Int, Maintainers.Definition)]))
+compilePatterns gitref = do
+    let act = parseFiles gitref >>= Maintainers.compilePatterns
+    cacheInStateBySomething _compilePatterns act gitref
+
+matchFiles   :: (MonadGitomail m) => O.GitRef -> m (GIT.Tree Maintainers.AssignedFileStatus)
+matchFiles gitref = do
+    let act = do patterns <- compilePatterns gitref
+                 Maintainers.matchFiles (Maintainers.assignDefinitionFiles patterns)
+    cacheInStateBySomething _matchFiles act gitref
+
 getRepositoryPath :: (MonadGitomail m) => m FilePath
-getRepositoryPath = gets __getRepositoryPath >>= liftIO
+getRepositoryPath = cacheInStateBySomething _getRepositoryPath act ()
+    where
+        act = do
+            opts <- gets opts
+            liftIO $ do
+                -- On which repository are we working on? We need assistance from
+                -- 'git' to find the '.git', and we use it either on O.repositoryPath
+                -- or the current directory.
+
+                origDir <- getCurrentDirectory
+                maybe (return ()) setCurrentDirectory (opts ^. O.repositoryPath)
+                (exitcode, stdout, stderr) <- readProcess'' "git" ["rev-parse", "--git-dir"] ""
+                setCurrentDirectory origDir
+
+                let path = fromMaybe origDir (opts ^. O.repositoryPath)
+                case exitcode of
+                    ExitSuccess -> return $ path </> (T.unpack $ T.strip stdout)
+                    _ -> E.throw $ GitRepoNotFound $ (show (exitcode, stderr))
 
 getConfig         :: (MonadGitomail m) => m CFG.Config
-getConfig         = gets __getConfig >>= liftIO
+getConfig         = cacheInStateBySomething _getConfig act ()
+    where
+        act = do
+            opts <- gets opts
+            repoPath <- getRepositoryPath
+            liftIO $ do
+                let safeGetEnv v =
+                        E.catch (fmap Just $ getEnv v) (\(_ :: E.SomeException) -> return Nothing)
+                    existence e = fmap (\case True -> [e] ; False -> []) $ doesFileExist e
+                    homeConfig' =
+                        safeGetEnv "HOME" >>= \case
+                            Nothing -> return []
+                            Just homePath -> existence $ homePath </> ".gitomailconf.yaml"
+                    repoConfig' = do
+                        existence $ repoPath </> "gitomailconf.yaml"
+                    checkOpt a = if opts ^. O.noImplicitConfigs then return [] else a
+
+                homeConfig <- checkOpt homeConfig'
+                repoConfig <- checkOpt repoConfig'
+
+                case homeConfig ++ repoConfig ++ opts ^. O.configPaths of
+                    []    -> (E.throw $ ParameterNeeded $ BS8.unpack "config paths")
+                    paths -> fmap CFG.final $ fmap (foldl1 CFG.combine) $ forM paths $ CFG.parse
 
 getFromEMail      :: (MonadGitomail m) => m Address
-getFromEMail      = gets __getFromEMail >>= liftIO
+getFromEMail      = do
+        cacheInStateBySomething _getFromEMail act ()
+    where
+        act = do
+          config <- getConfig
+          case config ^. CFG.fromEMail of
+              Nothing  -> E.throw $ ParameterNeeded $ BS8.unpack "from_email"
+              Just fromEMail ->
+                  case parseEMail' fromEMail of
+                      Left r -> E.throw $ InvalidEMail $ "from_email: " ++ r
+                      Right r -> return r
 
 getExtraCCTo      :: (MonadGitomail m) => m ([Address], [Address])
-getExtraCCTo      = gets __getExtraCCTo >>= liftIO
-
-matchFiles        :: (MonadGitomail m) =>
-                    (FilePath, O.GitRef) -> m (GIT.Tree Maintainers.AssignedFileStatus)
-matchFiles x      = gets __matchFiles >>= \f -> liftIO $ f x
-
-compilePatterns   :: (MonadGitomail m) =>
-                     (FilePath, O.GitRef) -> m (GIT.Tree (Maybe [(Int, Maintainers.Definition)]))
-compilePatterns x = gets __compilePatterns >>= \f -> liftIO $ f x
+getExtraCCTo      = do
+        cacheInStateBySomething _getExtraCCTo act ()
+    where
+        act = do
+            opts <- gets opts
+            [cc, to] <- forM [(O.extraCC, "CC"), (O.extraTo, "To")] $ \(getter, name) -> do
+                forM (map parseEMail' (opts ^. getter)) $ \case
+                         Left r -> E.throw $ InvalidEMail $ name ++ ": " ++  r
+                         Right r -> return r
+            return (cc, to)
 
 getRepoName :: (MonadGitomail m) => m Text
 getRepoName = do
@@ -278,8 +308,7 @@ getRefsMatcher = do
 
 getTopAliases :: (MonadGitomail m) => O.GitRef -> m (Map.Map Text Address)
 getTopAliases gitRef = do
-    repoPath <- getRepositoryPath
-    patternsCompiled <- compilePatterns (repoPath, gitRef)
+    patternsCompiled <- compilePatterns gitRef
     let f (Maintainers.Alias name email) = do
             case parseEMail' $ safeDecode email of
                 Left _        -> return Nothing
@@ -349,7 +378,6 @@ genExtraEMailHeaders (Address _ email) = do
         ("X-Mailer", T.concat ["gitomail ", v])
       ]
 
-
 getRefScoreFunc :: (MonadGitomail m) => m (Text -> Int)
 getRefScoreFunc = do
     config <- getConfig
@@ -357,11 +385,6 @@ getRefScoreFunc = do
     let rootRefs = map matchWhole rootRefsTexts
     let scoreRef ref = fromMaybe 0 $ lookup True $ zip (rootRefs <*> [ref]) [1..(length rootRefsTexts)]
     return scoreRef
-
-data InvalidCommandOutput = InvalidCommandOutput String deriving (Typeable)
-instance E.Exception InvalidCommandOutput
-instance Show InvalidCommandOutput where
-    show (InvalidCommandOutput msgstr) = "InvalidCommandOutput: " ++ msgstr
 
 getRefState :: (MonadGitomail m) => m GitRefList
 getRefState = do
@@ -389,24 +412,6 @@ sortRefsByPriority reflist = do
     let g = groupBy (\x y -> fst x == fst y) $ sortOn ((0 -) . fst) byScores
         h = map (sort . map snd) g
     return $ map (map (\(_, a, b) -> (a, b))) h
-
-cacheByRepoPathname :: (MonadGitomail m)
-                       => (Lens Gitomail Gitomail (Maybe (FilePath, a)) (Maybe (FilePath, a)))
-                       -> m a
-                       -> m a
-cacheByRepoPathname accessor act = do
-    repoPath <- getRepositoryPath
-    srl <- use accessor
-    let cacheMiss =
-          do res <- act
-             accessor .= Just (repoPath, res)
-             return res
-    case srl of
-        Nothing -> cacheMiss
-        Just (inp, res) ->
-            do if inp == repoPath
-                   then return res
-                   else cacheMiss
 
 getSortedRefs :: (MonadGitomail m) => m [GitRefList]
 getSortedRefs = cacheByRepoPathname sortedRefList (getRefState >>= sortRefsByPriority)

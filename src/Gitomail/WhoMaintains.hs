@@ -61,8 +61,7 @@ whoMaintains :: (MonadGitomail m) => m ()
 whoMaintains = do
     opts <- gets opts
     let gitRef = opts ^. O.gitRef & fromMaybe "HEAD" -- TODO: should be the index by default
-    repoPath <- getRepositoryPath
-    matched <- matchFiles (repoPath, gitRef)
+    matched <- matchFiles gitRef
     let
         func path (GIT.File i) =
             do
@@ -89,8 +88,8 @@ showEffectiveDefs = do
     opts <- gets opts
     repoPath <- getRepositoryPath
     let gitRef = opts ^. O.gitRef & fromMaybe "HEAD"
-    patternsCompiled <- compilePatterns (repoPath, gitRef)
-    matched <- matchFiles (repoPath, gitRef)
+    patternsCompiled <- compilePatterns gitRef
+    matched <- matchFiles gitRef
     avail <- Maintainers.getAvailableDefs patternsCompiled
     used <- Maintainers.getEffectiveDefs matched
     putStrLn "List of definitions affecting no files or overriden by other definitions:"
