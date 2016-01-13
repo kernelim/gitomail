@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE TemplateHaskell           #-}
 {-# LANGUAGE FlexibleContexts          #-}
@@ -33,6 +34,7 @@ module Gitomail.Gitomail
   , githashRepr
   , mapCommitHash
   , matchFiles
+  , sortedRefList
   , opts
   , withDB
   ) where
@@ -40,7 +42,7 @@ module Gitomail.Gitomail
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted    as E
 import           Control.Lens.Operators      ((^.), (&), (<+=), (.=))
-import           Control.Lens                (makeLenses, use)
+import           Control.Lens                (makeLenses, use, Lens)
 import           Control.Monad               (forM,)
 import           Control.Monad.Catch         (MonadMask)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
@@ -388,24 +390,23 @@ sortRefsByPriority reflist = do
         h = map (sort . map snd) g
     return $ map (map (\(_, a, b) -> (a, b))) h
 
+cacheByRepoPathname :: (MonadGitomail m)
+                       => (Lens Gitomail Gitomail (Maybe (FilePath, a)) (Maybe (FilePath, a)))
+                       -> m a
+                       -> m a
+cacheByRepoPathname accessor act = do
+    repoPath <- getRepositoryPath
+    srl <- use accessor
+    let cacheMiss =
+          do res <- act
+             accessor .= Just (repoPath, res)
+             return res
+    case srl of
+        Nothing -> cacheMiss
+        Just (inp, res) ->
+            do if inp == repoPath
+                   then return res
+                   else cacheMiss
+
 getSortedRefs :: (MonadGitomail m) => m [GitRefList]
-getSortedRefs =
-    cacheSortedRefs (getRefState >>= sortRefsByPriority)
-    where
-        -- TODO: how to generalize this without a type error, and hopefully
-        -- replace all the __* record crap above?
-        cacheSortedRefs :: MonadGitomail m =>  m [GitRefList] -> m [GitRefList]
-        cacheSortedRefs act = do
-            let accessor = sortedRefList
-            repoPath <- getRepositoryPath
-            srl <- use accessor
-            let cacheMiss =
-                  do res <- act
-                     accessor .= Just (repoPath, res)
-                     return res
-            case srl of
-                Nothing -> cacheMiss
-                Just (inp, res) ->
-                    do if inp == repoPath
-                           then return res
-                           else cacheMiss
+getSortedRefs = cacheByRepoPathname sortedRefList (getRefState >>= sortRefsByPriority)
