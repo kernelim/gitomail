@@ -234,56 +234,61 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
                 forM_ commitLists $ \(name, list, includeCCTo) -> do
                    emptySoFarI <- newIORef True
                    forM_ list $ \(maybeRefName, maybeNr, commitHash) -> do
-                       mailinfo <- makeOneMailCommit CommitMailSummary db ref commitHash maybeNr
-                       case mailinfo of
-                           Right (MailInfo{..}, CommitInfo{..}) -> do
-                               let row = F.TableRow
-                               let col' c = F.TableCol c
-                               let col = col' 1
+                       ci@CommitInfo{..} <- getCommitInfo CommitMailSummary db ref commitHash maybeNr
+                       let row = F.TableRow
+                       let col' c = F.TableCol c
+                       let col = col' 1
 
-                               flistRowI <- newIORef DList.empty
+                       flistRowI <- newIORef DList.empty
 
-                               whenM (readIORef emptySoFarI) $ do
-                                   writeIORef emptySoFarI False
-                                   insert flistI $ F.TForm (F.TableRow)
-                                                 $ F.mkFormS (col' 5)
-                                                 $ F.mkFormS F.Underline
-                                                 $ F.mkPlain (T.concat ["\n", name, "\n"])
+                       whenM (readIORef emptySoFarI) $ do
+                           writeIORef emptySoFarI False
+                           insert flistI $ F.TForm (F.TableRow)
+                                         $ F.mkFormS (col' 5)
+                                         $ F.mkFormS F.Underline
+                                         $ F.mkPlain (T.concat ["\n", name, "\n"])
 
-                               mappedCommitHash <- mapCommitHash commitHash
-                               githash <- githashRepr mappedCommitHash
+                       mappedCommitHash <- mapCommitHash commitHash
+                       githash <- githashRepr mappedCommitHash
+                       case ciToMaybeMailInfo ci of
+                           Just MailInfo{..} -> do
                                insert mailsI $ if includeCCTo
-                                                    then miMail
-                                                    else miMail { mailCc = [], mailTo = [] }
-                               linkToWeb <- getCommitURL mappedCommitHash >>= \case
-                                   Nothing  -> return id
-                                   Just url -> return $ \x -> F.mkFormS (F.Link url) x
+                                                 then miMail
+                                                 else miMail { mailCc = [], mailTo = [] }
+                           Nothing -> return ()
 
-                               insert flistRowI $ F.TForm (F.TableCellPad 10) (F.mkPlain "")
+                       linkToWeb <- getCommitURL mappedCommitHash >>= \case
+                           Nothing  -> return id
+                           Just url -> return $ \x -> F.mkFormS (F.Link url) x
 
-                               insert flistRowI $ F.TForm col $ F.mkPlain $ ciAuthorName +@ " "
-                               insert flistRowI $ F.TForm col $ F.mkFormS F.Monospace $ linkToWeb $ F.mkPlain $ githash +@ " "
+                       insert flistRowI $ F.TForm (F.TableCellPad 10) (F.mkPlain "")
 
-                               field <- case maybeNr of
-                                   Just nr -> do
-                                       modifyIORef' githashtoNumberI (Map.insert commitHash nr)
-                                       return $ T.pack $ "#" ++ show nr ++ " "
+                       insert flistRowI $ F.TForm col $ F.mkPlain $ ciAuthorName +@ " "
+                       insert flistRowI $ F.TForm col $ F.mkFormS F.Monospace $ linkToWeb $ F.mkPlain $ githash +@ " "
+
+                       field <- case maybeNr of
+                           Just nr -> do
+                               modifyIORef' githashtoNumberI (Map.insert commitHash nr)
+                               return $ T.pack $ "#" ++ show nr ++ " "
+                           Nothing ->
+                               case maybeRefName of
+                                   Just refName -> do
+                                       return $ "(" +@ GIT.refRepr refName +@ ") "
                                    Nothing ->
-                                       case maybeRefName of
-                                           Just refName -> do
-                                               return $ "(" +@ GIT.refRepr refName +@ ") "
-                                           Nothing ->
-                                               return " "
+                                       return " "
 
-                               let maybeBold f =
-                                       if ciInexactDiffHashNew then F.mkFormS F.Emphesis f else f
-                               insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain field
-                               insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain $ ciCommitSubject +@ "\n"
+                       let bold =
+                               case ciContent of
+                                   Left _ -> False
+                                   Right CommitContentInfo{..} ->
+                                       cciInexactDiffHashNew
+                           maybeBold f =
+                               if bold then F.mkFormS F.Emphesis f else f
+                       insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain field
+                       insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain $ ciCommitSubject +@ "\n"
 
-                               flistRow <- readIORef flistRowI
-                               insert flistI $ F.TForm row flistRow
-                           Left _ ->
-                               return ()
+                       flistRow <- readIORef flistRowI
+                       insert flistI $ F.TForm row flistRow
 
                 insert flistI (F.TPlain "\n")
 
@@ -521,7 +526,9 @@ autoMailer = do
                         let commits = reverse $ map (\oid -> SummaryInfo (GIT.oidToText oid) CSTNew) content
                         f RefFFModFast $ commits
 
-                modifyIORef' mailsI ((:) (return (), summaryMailInfo))
+                case summaryMailInfo of
+                    Right mailInfo -> modifyIORef' mailsI ((:) (return (), mailInfo))
+                    Left _ -> return ()
 
                 liftIO $ T.putStrLn $ "Ref " +@ refName +@ ": creating E-Mails"
 
@@ -531,18 +538,18 @@ autoMailer = do
                     shownCommitHash <- mapCommitHash siCommitHash
                     if | isNew && notSent
                                 -> do putStrLn $ "  Formatting " ++ (T.unpack shownCommitHash)
-                                      info <- makeOneMailCommit CommitMailFull
+                                      info <- getCommitInfo CommitMailFull
                                             db refName siCommitHash (Map.lookup siCommitHash numbersMap)
-                                      let mailinfoAndAction = (action, fmap fst info)
-                                          action = do
-                                              markSeen syncOp siCommitHash
-                                              modifyIORef' updatedRefsI $ Map.insert refName siCommitHash
-                                              updateRefsMap
-                                              case info of
-                                                  Right (MailInfo {..}, CommitInfo{..}) ->
-                                                      putInexactDiffHashInDB db ciInexactDiffHash
-                                                  Left _ -> return ()
-                                      modifyIORef' mailsI ((:) mailinfoAndAction)
+                                      case info of
+                                          CommitInfo _ _ (Right CommitContentInfo{..}) -> do
+                                              let mailinfoAndAction = (action, cciMail)
+                                                  action = do
+                                                      markSeen syncOp siCommitHash
+                                                      modifyIORef' updatedRefsI $ Map.insert refName siCommitHash
+                                                      updateRefsMap
+                                                      putInexactDiffHashInDB db cciInexactDiffHash
+                                              modifyIORef' mailsI ((:) mailinfoAndAction)
+                                          _ -> return ()
                        | otherwise -> putStrLn $ "  Skipping old commit " ++ (T.unpack shownCommitHash)
 
 

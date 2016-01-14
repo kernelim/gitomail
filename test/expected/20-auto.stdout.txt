@@ -15,4 +15,3 @@ Sending E-Mails!
   Writing $TEMP/3 - '[repo] before-master-lexically branch is new with 2 commits'
   Writing $TEMP/4 - '[repo before-master-lexically 00041ffff, #1] Updating Other.txt [28]'
   Writing $TEMP/5 - '[repo before-master-lexically 00042ffff, #2] Updating Other.txt [29]'
-  Skipping,  No E-Mail destination for summary

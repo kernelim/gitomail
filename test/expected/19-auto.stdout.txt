@@ -4,7 +4,7 @@ Ref heads/master: creating E-Mails
   Skipping old commit 00034fffffffffffffffffffffffffffffffffff
   Skipping old commit 00035fffffffffffffffffffffffffffffffffff
   Skipping old commit 00036fffffffffffffffffffffffffffffffffff
-  Skipping old commit 00037fffffffffffffffffffffffffffffffffff
+  Formatting 00037fffffffffffffffffffffffffffffffffff
   Formatting 00038fffffffffffffffffffffffffffffffffff
   Formatting 00039fffffffffffffffffffffffffffffffffff
 Sending all E-Mails

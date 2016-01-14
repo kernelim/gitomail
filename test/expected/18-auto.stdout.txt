@@ -22,5 +22,3 @@ Sending E-Mails!
   Writing $TEMP/6 - '[repo mergetopic-2 00034ffff, #1] Updating README.md [19]'
   Writing $TEMP/7 - '[repo mergetopic-2 00035ffff, #2] Updating README.md [20]'
   Writing $TEMP/8 - '[repo mergetopic-2 00036ffff, #3] Updating README.md [21]'
-  Skipping,  No E-Mail destination for summary
-  Skipping,  Skipping Merge commits

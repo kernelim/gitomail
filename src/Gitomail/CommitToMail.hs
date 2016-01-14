@@ -19,7 +19,9 @@ module Gitomail.CommitToMail (
     CommitMailKind(..),
     MailInfo(..),
     CommitInfo(..),
-    makeOneMailCommit,
+    CommitContentInfo(..),
+    getCommitInfo,
+    ciToMaybeMailInfo,
     sendMailSession,
     sendMails,
     sendOne,
@@ -40,8 +42,6 @@ import qualified Data.ByteString             as BS
 import qualified Data.ByteString.Base16      as Base16
 import qualified Data.ByteString.Char8       as BS8
 import qualified Data.ByteString.Lazy        as BL
-
-import           Data.Either                 (rights)
 import           Data.List                   (intersperse, (\\))
 import qualified Data.Map                    as Map
 import           Data.Maybe                  (catMaybes, fromMaybe)
@@ -165,18 +165,27 @@ checkInexactDiffHashInDB db inexactDiffHash = do
 type InexactDiffHash = BS.ByteString
 type SubjectLine = Text
 
-data CommitInfo = CommitInfo {
-        ciAuthorName         :: Text
-      , ciInexactDiffHash    :: InexactDiffHash
-      , ciInexactDiffHashNew :: Bool
-      , ciCommitSubject      :: Text
-      , ciFormatted          :: F.FList
-    }
-
 data MailInfo = MailInfo {
         miMail    :: Mail
       , miSubject :: SubjectLine
     }
+
+data CommitContentInfo = CommitContentInfo {
+        cciInexactDiffHash    :: InexactDiffHash
+      , cciInexactDiffHashNew :: Bool
+      , cciFormatted          :: F.FList
+      , cciMail               :: MailInfo
+    }
+
+data CommitInfo = CommitInfo {
+        ciAuthorName         :: Text
+      , ciCommitSubject      :: Text
+      , ciContent            :: Either String CommitContentInfo
+    }
+
+ciToMaybeMailInfo :: CommitInfo -> Maybe MailInfo
+ciToMaybeMailInfo (CommitInfo _ _ (Right (CommitContentInfo _ _ _ mi))) = Just mi
+ciToMaybeMailInfo _ = Nothing
 
 highlightSourceInDiffFile :: (MonadGitomail m) =>
               Text -> Text -> DH.DiffHeader -> DH.DiffContent -> m (Maybe F.FList)
@@ -283,14 +292,14 @@ highlightSourceInDiff parsed = do
 data CommitMailKind = CommitMailSummary | CommitMailFull
     deriving Eq
 
-makeOneMailCommit :: (MonadGitomail m)
+getCommitInfo :: (MonadGitomail m)
                      => CommitMailKind
                      -> DB
                      -> O.GitRef
                      -> GIT.GitCommitHash
                      -> Maybe Int
-                     -> m (Either String (MailInfo, CommitInfo))
-makeOneMailCommit cmk db ref commitHash maybeNr = do
+                     -> m CommitInfo
+getCommitInfo cmk db ref commitHash maybeNr = do
     opts <- gets opts
     when (opts ^. O.verbose) $ do
         putStrLn $ "makeOne: ref: " ++ show ref ++ " hash: " ++ show commitHash
@@ -303,7 +312,9 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
             [a,b,c,d] -> return (a,b,c,d)
             _ -> E.throw $ InvalidCommandOutput "TODO"
 
-    let parentHashes =
+    let returnCommitInfo eitherContent =
+            return $ CommitInfo authorName commitSubjectLine eitherContent
+        parentHashes =
             if parentHashesStr == "" then [] else T.splitOn " " parentHashesStr
         formatPatchArgsEither =
             case parentHashes of
@@ -320,8 +331,8 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
             return $ Right (patch, maybeParentHash)
 
     case patchEither of
-        Left s -> return $ Left s
-        Right ("", _) -> return $ Left $ "Empty commit: " ++ (show commitHash)
+        Left s -> returnCommitInfo $ Left s
+        Right ("", _) -> returnCommitInfo $ Left $ "Empty commit: " ++ (show commitHash)
         Right (patch, maybeParentHash) -> do
             config <- getConfig
             matched <- matchFiles commitHash
@@ -440,7 +451,7 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                           (_                 , _,   _)    -> (Right toList, ccList)
 
             case toListE of
-                Left s -> return $ Left s
+                Left s -> returnCommitInfo $ Left s
                 Right toList ->
                    do commitHash' <- mapCommitHash commitHash
                       parentCommitHash' <- case maybeParentHash of
@@ -506,15 +517,15 @@ makeOneMailCommit cmk db ref commitHash maybeNr = do
                           html = TL.fromChunks [ htmlOnlyHeader, F.flistToInlineStyleHtml blobInCommitURLFunc flists ]
                           plain = TL.fromChunks [ F.flistToText flists ]
                           replyTo = Address (Just authorName) authorEMail
-                          commitInfo =
-                              CommitInfo authorName diffInexactHash miInexactDiffHashNew commitSubjectLine flists
+                          mailInfo = MailInfo mail subjectLine
+                          contentInfo = CommitContentInfo diffInexactHash miInexactDiffHashNew flists mailInfo
 
-                      return $ Right $ (MailInfo mail subjectLine, commitInfo)
+                      returnCommitInfo $ Right contentInfo
 
 
-sendMails :: (MonadGitomail m) => [(IO (), Either String MailInfo)] -> m ()
+sendMails :: (MonadGitomail m) => [(IO (), MailInfo)] -> m ()
 sendMails mails = do
-    if length (rights $ map snd mails) == 0
+    if length mails == 0
         then putStrLn $ "No E-Mails to send."
         else sendEmails
   where sendEmails = do
@@ -526,7 +537,7 @@ sendMails mails = do
                     e mconn (opts, indexI) mailinfo
                     liftIO $ act
             where
-                e mconn (opts, indexI) (Right (MailInfo {..})) = do
+                e mconn (opts, indexI) ((MailInfo {..})) = do
                     case opts ^. O.outputPath of
                         Nothing -> do
                             case mconn of
@@ -543,30 +554,33 @@ sendMails mails = do
                             putStrLn $ "  Writing " ++ outputFile
                                            ++ " - '" ++ (T.unpack miSubject) ++ "'"
                             BS.writeFile outputFile $ BS.concat (BL.toChunks bs)
-                e _ _ (Left msg) = do
-                    putStrLn $ "  Skipping,  " ++ msg
 
-justOne :: MonadGitomail m => m (Either String (MailInfo, CommitInfo))
+justOne :: MonadGitomail m => m CommitInfo
 justOne = do
     opts <- gets opts
     let gitRef = opts ^. O.gitRef & fromMaybe "HEAD"
     withDB $ \db -> do
         commitHash <- fmap removeTrailingNewLine $ gitCmd ["show", gitRef, "--pretty=%H", "-s"]
-        makeOneMailCommit CommitMailFull db gitRef commitHash Nothing
+        getCommitInfo CommitMailFull db gitRef commitHash Nothing
 
 sendOne :: (MonadGitomail m) => m ()
 sendOne = do
-    mailinfo <- justOne
-    sendMails [(return (), fmap fst mailinfo)]
+    contentinfo <- justOne
+    case ciToMaybeMailInfo contentinfo of
+        (Just mailinfo) -> sendMails [(return (), mailinfo)]
+        _ -> return ()
 
 showOne :: (MonadGitomail m) => m ()
 showOne = do
-    mailinfo <- justOne
     opts <- gets opts
-    case mailinfo of
-        Left str -> putStrLn str
-        Right (MailInfo{..}, CommitInfo{..}) -> do
-            when (opts ^. O.verbose) $ do
-                liftIO $ T.putStr $ F.fshow ciFormatted
-            liftIO $ T.putStr $ FA.ansiFormatting $ ciFormatted
-            return ()
+    contentinfo <- justOne
+    case contentinfo of
+        CommitInfo{..} -> do
+            case ciContent of
+                Left str -> do
+                    putStrLn str
+                Right (CommitContentInfo{..}) -> do
+                    when (opts ^. O.verbose) $ do
+                        liftIO $ T.putStr $ F.fshow cciFormatted
+                    liftIO $ T.putStr $ FA.ansiFormatting $ cciFormatted
+                    return ()
