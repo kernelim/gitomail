@@ -1,24 +1,8 @@
 flags: {}
 packages:
 - location:
-    git: https://github.com/da-x/HaskellNet.git
-    commit: 51f4fd41523fd5a59463cd0dcb1962737a0f87de
-  extra-dep: true
-- location:
-    git: https://github.com/dpwright/HaskellNet-SSL.git
-    commit: 35c03e8f844f14fb063b4efeff94d864207efb29
-  extra-dep: true
-- location:
-    git: https://github.com/snoyberg/mime-mail
-    commit: 88e4f6c614b6a7925125d7c61329a4e3ae2a0194
-  subdirs:
-  - mime-mail
-  extra-dep: true
-- location:
     git: https://github.com/kernelim/leveldb-haskell
     commit: 6e92a6cb26b6f75857e95705c15902b85758dd53
   extra-dep: true
 - .
-resolver: lts-3.7
-extra-deps:
-- regex-tdfa-text-1.0.0.3
+resolver: lts-4.1

@@ -26,9 +26,6 @@ where
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.ByteString.Char8 as BS
 import Data.ByteString (ByteString)
-#if ALEX_MAJOR < 3  || (ALEX_MAJOR == 3  &&  ALEX_MINOR <= 14)
-import qualified Control.Monad as Control.Monad
-#endif
 }
 
 %wrapper "monadUserState-bytestring"
@@ -54,11 +51,7 @@ state:-
 {
 
 -- Some action helpers:
-#if ALEX_MAJOR < 3  || (ALEX_MAJOR == 3  &&  ALEX_MINOR <= 14)
-tok' r f (p, _, input) len = do
-#else
 tok' r f (p, _, input, _) len = do
-#endif
    case r of
       Just i -> alexSetStartCode i
       Nothing -> return ()
@@ -95,32 +88,9 @@ data TokenClass
 
 alexEOF :: Alex Token
 alexEOF = do
-#if ALEX_MAJOR < 3  || (ALEX_MAJOR == 3  &&  ALEX_MINOR <= 1)
-  (p, _, _) <- alexGetInput
-#else
   (p, _, _, _) <- alexGetInput
-#endif
   return $ Token p TokenEOF
 
 type AlexUserState = ()
 alexInitUserState = ()
-
-#if ALEX_MAJOR < 3  || (ALEX_MAJOR == 3  &&  ALEX_MINOR <= 1)
-
-instance Functor Alex where
-  fmap f m = do x <- m; return (f x)
-
-instance Applicative Alex where
-  pure = return
-  (<*>) = Control.Monad.ap
-
-#endif
-
-#if ALEX_MAJOR == 3  &&  ALEX_MINOR < 1
-
-ignorePendingBytes :: AlexInput -> AlexInput
-ignorePendingBytes i = i   -- no pending bytes when lexing bytestrings
-
-#endif
-
 }

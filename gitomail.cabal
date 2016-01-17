@@ -71,7 +71,7 @@ executable gitomail
                      , mime-mail            >= 0.4.11
                      , monad-control
                      , mtl                  >= 2.2.1
-                     , optparse-applicative >= 0.11   &&  < 0.12
+                     , optparse-applicative >= 0.11
                      , process-extras
                      , random >= 1.1
                      , regex-base           >= 0.93.2
@@ -81,7 +81,6 @@ executable gitomail
                      , tagged               >= 0.8.1
                      , text
                      , transformers         >= 0.4.2.0
-                     , tuple
                      , unix-time
                      , yaml                 >= 0.8.15.1
                      , patience
