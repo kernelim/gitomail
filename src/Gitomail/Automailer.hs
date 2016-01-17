@@ -51,12 +51,12 @@ import           Gitomail.Config            ((^.||))
 import qualified Gitomail.Config            as CFG
 import           Gitomail.Gitomail
 import qualified Gitomail.Opts              as O
-import qualified Lib.Formatting             as F
+import qualified Fancydiff.Formatting       as F
 import qualified Lib.Git                    as GIT
 import qualified Lib.InlineFormatting       as F
+import           Lib.LiftedPrelude
 import           Lib.Monad                  (whenM)
 import           Lib.Text                   ((+@))
-import           Lib.LiftedPrelude
 ------------------------------------------------------------------------------------
 
 data UnexpectedGitState = UnexpectedGitState String deriving (Typeable)

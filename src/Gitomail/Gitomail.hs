@@ -57,12 +57,12 @@ import           Data.Typeable               (Typeable)
 import           Data.Version                (showVersion)
 import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
-import           Network.Mail.Mime           (Address (..))
 import           Data.UnixTime               (getUnixTime, UnixTime(..))
-import           System.Directory            (canonicalizePath, doesFileExist,
-                                              getCurrentDirectory, setCurrentDirectory)
+import qualified Fancydiff.Formatting        as F
 import           Data.List                   (groupBy, sortOn, sort)
 import           System.FilePath             ((</>), takeBaseName)
+import           System.Directory            (canonicalizePath, doesFileExist,
+                                              getCurrentDirectory, setCurrentDirectory)
 import           System.Exit                 (ExitCode (..))
 import           System.Environment          (getEnv)
 import           System.Random               as Rand
@@ -70,6 +70,7 @@ import           Data.Char                   (chr, ord)
 import           Text.Regex.TDFA             ((=~))
 import           Text.Regex.TDFA.Text        ()
 import           Text.Read                   (readMaybe)
+import           Network.Mail.Mime           (Address (..))
 ----
 import           Paths_gitomail              (version)
 import qualified Gitomail.Config             as CFG
@@ -79,7 +80,6 @@ import qualified Gitomail.Opts               as O
 import qualified Gitomail.Version            as V
 import           Lib.EMail                   (parseEMail', InvalidEMail(..))
 import qualified Lib.Git                     as GIT
-import qualified Lib.Formatting              as F
 import           Lib.Monad                   (lSeqForM)
 import           Lib.Text                    ((+@), showT, leadingZeros,
                                               safeDecode, removeTrailingNewLine)

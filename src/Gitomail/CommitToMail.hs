@@ -36,26 +36,29 @@ import           Control.Lens.Operators      ((&), (^.))
 import           Control.Monad               (forM, forM_, when)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (gets)
-import qualified Data.DList                  as DList
 import qualified Crypto.Hash.SHA1            as SHA1
 import qualified Data.ByteString             as BS
 import qualified Data.ByteString.Base16      as Base16
 import qualified Data.ByteString.Char8       as BS8
 import qualified Data.ByteString.Lazy        as BL
+import qualified Data.DList                  as DList
 import           Data.List                   (intersperse, (\\))
 import qualified Data.Map                    as Map
 import           Data.Maybe                  (catMaybes, fromMaybe)
 import qualified Data.Set                    as Set
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
-import qualified Data.Text.IO                as T
 import qualified Data.Text.Encoding          as T
 import           Data.Text.Internal.Search   as TI
+import qualified Data.Text.IO                as T
 import qualified Data.Text.Lazy              as TL
-import qualified Data.Array                  as A
 import           Data.Typeable               (Typeable)
 import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
+import qualified Fancydiff.Formatting        as F
+import qualified Fancydiff.Lib               as FL
+import           Git                         (withRepository)
+import           Git.Libgit2                 (lgFactory)
 import           Network.HaskellNet.Auth     (AuthType (PLAIN))
 import           Network.HaskellNet.SMTP     (authenticate, sendMimeMail2)
 import           Network.HaskellNet.SMTP.SSL (SMTPConnection,
@@ -76,21 +79,15 @@ import qualified Gitomail.Config             as CFG
 import           Gitomail.Gitomail
 import qualified Gitomail.Maintainers        as Maintainers
 import qualified Gitomail.Opts               as O
-import           Gitomail.Highlight          (getHighlighter)
 import           Gitomail.WhoMaintains
 import           Lib.EMail                   (InvalidEMail, emailRegEx,
                                               parseEMail)
 import qualified Lib.Git                     as GIT
-import qualified Lib.Formatting              as F
 import qualified Lib.InlineFormatting        as F
-import qualified Lib.AnsiFormatting          as FA
-import qualified Lib.DiffHighlight           as DH
 import           Lib.LiftedPrelude
-import           Lib.DList                   (dlistConcat)
-import           Lib.Monad                   (dlistForM)
-import           Lib.Regex                   (matchWhole, (=~+))
-import           Lib.Text                    (removeTrailingNewLine, (+@),
-                                              safeDecode)
+import           Lib.Regex                   (matchWhole)
+import           Lib.Text                    (removeTrailingNewLine, safeDecode,
+                                              (+@))
 ------------------------------------------------------------------------------------
 
 data InvalidDiff = InvalidDiff String deriving (Typeable)
@@ -178,116 +175,14 @@ data CommitContentInfo = CommitContentInfo {
     }
 
 data CommitInfo = CommitInfo {
-        ciAuthorName         :: Text
-      , ciCommitSubject      :: Text
-      , ciContent            :: Either String CommitContentInfo
+        ciAuthorName    :: Text
+      , ciCommitSubject :: Text
+      , ciContent       :: Either String CommitContentInfo
     }
 
 ciToMaybeMailInfo :: CommitInfo -> Maybe MailInfo
 ciToMaybeMailInfo (CommitInfo _ _ (Right (CommitContentInfo _ _ _ mi))) = Just mi
 ciToMaybeMailInfo _ = Nothing
-
-highlightSourceInDiffFile :: (MonadGitomail m) =>
-              Text -> Text -> DH.DiffHeader -> DH.DiffContent -> m (Maybe F.FList)
-highlightSourceInDiffFile fromBlobHash toBlobHash diffMeta content  = do
-    fromFilenameI <- newIORef Nothing
-    toFilenameI <- newIORef Nothing
-
-    forM_ diffMeta $ \(_, f) ->
-        case f of
-            F.DiffRemoveFile fromFilename ->
-                writeIORef fromFilenameI $ Just fromFilename
-            F.DiffAddFile toFilename ->
-                writeIORef toFilenameI $ Just toFilename
-            _ -> return ()
-
-    fromFilenameM <- readIORef fromFilenameI
-    toFilenameM <- readIORef toFilenameI
-
-    case (fromFilenameM, toFilenameM) of
-        (Just fromFilename, Just toFilename) -> do
-            repoPath <- getRepositoryPath
-            let readMaybeBlob hash =
-                    case hash of
-                        "0000000000000000000000000000000000000000" -> return ""
-                        _ -> GIT.readBlob repoPath hash
-
-            fromB <- readMaybeBlob fromBlobHash
-            toB <- readMaybeBlob toBlobHash
-
-            let highlightWholeBlob filename blob =
-                    F.splitToLinesArray $
-                           (getHighlighter filename) (T.decodeUtf8 blob)
-                fromHighlighted = highlightWholeBlob fromFilename fromB
-                toHighlighted = highlightWholeBlob toFilename toB
-
-            let _dumpHighlight h =
-                  forM_ (zip [1 :: Int ..] (A.elems h)) $ \(idx, line) ->
-                      liftIO $ T.putStrLn $
-                           T.concat [(T.pack $ show idx), ": ", F.flistToText line]
-
-            -- _dumpHighlight fromHighlighted
-
-            hunkIndexesI <- newIORef Nothing
-            content' <- dlistForM content $ \x ->
-                let (def, _) = x
-                    keepIt = return $ F.fragmentize [(def, Nothing)]
-                    takeLine src prepText a1 b1 f = do
-                        mIndexes <- readIORef hunkIndexesI
-                        case mIndexes of
-                            Just (fromIdx, toIdx) -> do
-                                writeIORef hunkIndexesI (Just (fromIdx + a1, toIdx + b1))
-                                -- TODO: idx error handling
-                                let r = F.TPlain prepText `DList.cons` (src A.! f (fromIdx, toIdx))
-                                    _dumpAnsi = liftIO $ T.putStr $ FA.ansiFormatting $ r
-                                return r
-
-                            Nothing -> keepIt
-
-                in case x of
-                (t, F.DiffHunkHeader) -> do
-                    let r = "^@@ -([0-9]+),[0-9]+ [+]([0-9]+),[0-9]+ @@" :: Text
-                    case (t =~ r) :: [[Text]] of
-                        [[_, startFromStr, startToStr]] -> do
-                            -- TODO: error handling
-                            writeIORef hunkIndexesI
-                                (Just ((read $ T.unpack startFromStr) :: Int,
-                                       (read $ T.unpack startToStr)   :: Int))
-                        _ -> writeIORef hunkIndexesI Nothing
-                    keepIt
-
-                (_, F.DiffUnchanged) -> takeLine fromHighlighted " " 1 1 fst
-                (_, F.DiffRemove)    -> takeLine fromHighlighted "-" 1 0 fst
-                (_, F.DiffAdd)       -> takeLine toHighlighted   "+" 0 1 snd
-
-                _ -> keepIt
-
-            return $ Just ((F.clearFormatting diffMeta) `DList.append` dlistConcat content')
-        _ -> return Nothing
-
-highlightSourceInDiff :: (MonadGitomail m) => DH.ParsedDiff -> m F.FList
-highlightSourceInDiff parsed = do
-    fmap dlistConcat $ dlistForM parsed $ \case
-        Left other -> return $ F.clearFormatting other
-        Right (diffMeta, content) -> do
-            let def = F.clearFormatting diffMeta `DList.append` F.clearFormatting content
-                r = "^index ([a-f0-9]+)[.][.]([a-f0-9]+)( .*)?\n$" :: Text
-                indexFind (x, _) = "index " `T.isPrefixOf` x
-
-            case filter indexFind diffMeta of
-                [(line, _)] ->
-                    case ((line :: Text) =~+ r) :: [[Text]] of
-                        [[_, a, b, c]] -> do
-                            let modDiffMeta =
-                                    map (\x -> if indexFind x
-                                                  then (T.concat [
-                                                      "index ", T.take 12 a,
-                                                      "..", T.take 12 b, c, "\n"], snd x)
-                                                  else x) diffMeta
-                            x <- highlightSourceInDiffFile a b modDiffMeta content
-                            return $ fromMaybe def x
-                        _ -> return def
-                _ -> return def
 
 data CommitMailKind = CommitMailSummary | CommitMailFull
     deriving Eq
@@ -476,17 +371,11 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                           CommitMailFull -> do
                               diffHighlighted <-
                                   case config ^.|| CFG.sourceHighlight of
-                                      False -> return $ DH.highlight diff
-                                      True -> do  sourceInDiffHighlighted <- highlightSourceInDiff (DH.parseDiff diff)
-                                                  let text = F.flistToText sourceInDiffHighlighted
-                                                      diffHighlighted = DH.highlight text
-                                                  case F.combineFLists text diffHighlighted sourceInDiffHighlighted of
-                                                      Left str -> do
-                                                          -- ToDo: this error should be emitted.
-                                                          liftIO $ T.putStrLn $ T.pack str
-                                                          return diffHighlighted
-                                                      Right x -> do
-                                                          return x
+                                      False -> return $ FL.highlight diff
+                                      True -> do
+                                          path <- getRepositoryPath
+                                          withRepository lgFactory path $ do
+                                              FL.trySourceHighlight diff
 
                               return $ (F.highlightMonospace commitMessageBody)
                                           `DList.append` diffHighlighted
@@ -582,5 +471,5 @@ showOne = do
                 Right (CommitContentInfo{..}) -> do
                     when (opts ^. O.verbose) $ do
                         liftIO $ T.putStr $ F.fshow cciFormatted
-                    liftIO $ T.putStr $ FA.ansiFormatting $ cciFormatted
+                    liftIO $ T.putStr $ FL.ansiFormatting $ cciFormatted
                     return ()

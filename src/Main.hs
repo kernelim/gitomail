@@ -10,13 +10,14 @@ module Main (main) where
 ------------------------------------------------------------------------------------
 import qualified Data.ByteString.Lazy        as BL
 import qualified Data.Text                   as T
+import qualified Data.Text.IO                as T
 import           Control.Lens.Operators      ((^.))
 import           Control.Monad               (void)
 import           Control.Monad.IO.Class      (liftIO)
 import           Control.Monad.State.Strict  (evalStateT, gets)
 import           Options.Applicative         (execParser)
 import           System.Exit                 (exitFailure)
-
+import qualified Fancydiff.Lib               as FL
 ----
 import qualified Gitomail.Config             as CFG
 import qualified Gitomail.Maintainers        as Maintainers
@@ -25,10 +26,20 @@ import           Gitomail.Gitomail
 import           Gitomail.CommitToMail
 import           Gitomail.WhoMaintains
 import           Gitomail.Automailer
-import           Gitomail.Highlight
 import           Lib.LiftedPrelude
-import qualified Lib.Formatting              as F
 ------------------------------------------------------------------------------------
+
+highlight :: (MonadGitomail m) => Maybe T.Text -> m ()
+highlight s' = do
+    case s' of
+        Nothing -> return ()
+        Just s -> do
+            let highlighter = FL.getHighlighter s
+            content <- liftIO $ T.getContents
+
+            case highlighter content of
+                Left err -> liftIO $ putStrLn $ show err
+                Right res -> liftIO $ T.putStr $ FL.ansiFormatting res
 
 runCmd :: (MonadGitomail m) => m ()
 runCmd = do
@@ -68,7 +79,6 @@ runCmd = do
                 config <- getConfig
                 print config
             O.Misc -> do
-                liftIO $ F.test
                 return ()
 
 main :: IO ()

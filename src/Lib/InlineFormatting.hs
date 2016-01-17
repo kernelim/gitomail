@@ -1,5 +1,5 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE MultiWayIf        #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Lib.InlineFormatting
  where
@@ -9,22 +9,21 @@ import qualified Data.DList                    as DList
 import           Data.Foldable                 (toList)
 import           Data.Text                     (Text)
 import qualified Data.Text                     as T
-
 import qualified Data.Text.Lazy                as TL
-
+import           Fancydiff.Data                (Element (Ignore, Identifier))
+import           Fancydiff.Formatting
+import           Fancydiff.SourceHighlight     (defaultTheme)
 import           Text.Blaze.Html               (toHtml)
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
 import           Text.Printf                   (printf)
 ------------------------------------------------------------------------------------
-import           Lib.Text                      ((+@), showT)
 import           Lib.DList                     (dlistConcat)
-import           Lib.SourceHighlight           (defaultTheme)
-import           Lib.SourceHighlight.Data      (Element(Ignore, Identifier))
-import           Lib.Formatting
+import           Lib.Text                      (showT, (+@))
 ------------------------------------------------------------------------------------
 
 data FormatPos = Start | End
     deriving Eq
+
 
 flistToInlineStyleHtml :: Maybe (Bool -> Text -> Text) -> FList -> Text
 flistToInlineStyleHtml fileURL = root
@@ -72,6 +71,8 @@ flistToInlineStyleHtml fileURL = root
           html End   _ DiffHunkHeader = "</div>"
           html Start _ DiffUnchanged  = "<div style=\"background: #F5F5F3; font-family: monospace\">"
           html End   _ DiffUnchanged  = "</div>"
+          html Start _ DiffNothing    = "<div style=\"background: #F5F5F3; font-family: monospace\">"
+          html End   _ DiffNothing    = "</div>"
           html Start _ Underline      = "<div style=\"text-decoration: underline\">"
           html End   _ Underline      = "</div>"
           html Start _ Emphesis       = "<div style=\"font-weight: bold\">"

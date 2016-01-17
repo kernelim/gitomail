@@ -9,8 +9,6 @@ module Lib.Text (
     , leadingZeros
     , lineSplit
     , lineSplitAfter
-    , textToAText
-    , subAText
     ) where
 
 ------------------------------------------------------------------------------------
@@ -19,8 +17,6 @@ import           Data.Text                (Text)
 import qualified Data.Text                as T
 import           Data.Text.Encoding       (decodeUtf8With)
 import           Data.Text.Encoding.Error (lenientDecode)
-import           Data.Array.Unboxed
-
 ------------------------------------------------------------------------------------
 
 removeTrailingNewLine :: Text -> Text
@@ -39,17 +35,6 @@ leadingZeros n t = T.concat [ T.pack(take (n - (T.length t)) $ repeat '0'), t ]
 
 safeDecode :: ByteString -> Text
 safeDecode = decodeUtf8With lenientDecode
-
-type AText = UArray Int Char
-
-textToAText :: Text -> AText
-textToAText t = root
-    where n = T.length t
-          root = listArray (0, n - 1) (T.unpack t)
-
-subAText :: AText -> Int -> Int -> Text
-subAText t a len = T.pack (map (t !) [a .. a + len - 1])
-
 
 infixr 2 +@
 

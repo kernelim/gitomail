@@ -66,11 +66,11 @@ fffffff<br>Branches: master<br><font size=3D"3"><div><pre style=3D"line-hei=
 ght: 125%">
 </pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 125%"><=
 div style=3D"background: #F5F5F3; font-family: monospace">
----
+</div><div style=3D"background: #F5F5F3; font-family: monospace">---
  test&#8203;=2Ec  | 8 ++++++++
  test&#8203;=2Ehs | 4 ++--
  2 files changed, 10 insertions(+), 2 deletions(-)
-
+</div><div style=3D"background: #F5F5F3; font-family: monospace">
 </div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
  font-family: monospace">diff --git a/test&#8203;=2Ec b/test&#8203;=2Ec
 </div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=

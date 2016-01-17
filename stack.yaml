@@ -4,5 +4,9 @@ packages:
     git: https://github.com/kernelim/leveldb-haskell
     commit: 6e92a6cb26b6f75857e95705c15902b85758dd53
   extra-dep: true
+- location:
+    git: https://github.com/da-x/fancydiff
+    commit: 8abc4a119cfe2d4d9c026a914bc004686d5a1ed8
+  extra-dep: true
 - .
 resolver: lts-4.1

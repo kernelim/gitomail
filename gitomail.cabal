@@ -20,18 +20,14 @@ executable gitomail
                    , Gitomail.CommitToMail
                    , Gitomail.Config
                    , Gitomail.Gitomail
-                   , Gitomail.Highlight
                    , Gitomail.Maintainers
                    , Gitomail.Maintainers.Base
                    , Gitomail.Maintainers.Lexer
                    , Gitomail.Opts
                    , Gitomail.Version
                    , Gitomail.WhoMaintains
-                   , Lib.AnsiFormatting
-                   , Lib.DiffHighlight
                    , Lib.DList
                    , Lib.EMail
-                   , Lib.Formatting
                    , Lib.Git
                    , Lib.InlineFormatting
                    , Lib.LiftedIO
@@ -39,11 +35,8 @@ executable gitomail
                    , Lib.Maybe
                    , Lib.Monad
                    , Lib.Process
-                   , Lib.Lexer.Lexer
                    , Lib.Regex
                    , Lib.Sequence
-                   , Lib.SourceHighlight
-                   , Lib.SourceHighlight.Data
                    , Lib.Text
                    , Paths_gitomail
   build-depends:       Glob                 >= 0.7    &&  < 0.8
@@ -77,13 +70,13 @@ executable gitomail
                      , regex-base           >= 0.93.2
                      , regex-tdfa           >= 1.2.1
                      , regex-tdfa-text
-                     , stringsearch
                      , tagged               >= 0.8.1
                      , text
                      , transformers         >= 0.4.2.0
                      , unix-time
                      , yaml                 >= 0.8.15.1
                      , patience
+                     , fancydiff
   build-tools:         happy, alex
   default-language:    Haskell2010
 
@@ -115,6 +108,7 @@ test-suite gitomail-test
                      , regex-tdfa           >= 1.2.1
                      , regex-tdfa-text
                      , transformers         >= 0.4.2.0
+                     , fancydiff
   ghc-options:         -O2 -Wall
   build-tools:         gitomail
   default-language:    Haskell2010
