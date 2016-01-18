@@ -18,14 +18,14 @@
 if [[ "$1" == "locked" ]] ; then
     mkdir -p ~/.gitomail
     if [[ -e ~/.gitomail/log ]] ; then
-	SIZE=$(stat ~/.gitomail/log | grep 'Size: ' | awk -F" " '{print $2}')
-	if [[ "$(( ${SIZE} > 100000 ))" == "1" ]] ; then
-	    mv ~/.gitomail/log{,.bak}
-	fi
+        SIZE=$(stat ~/.gitomail/log | grep 'Size: ' | awk -F" " '{print $2}')
+        if [[ "$(( ${SIZE} > 100000 ))" == "1" ]] ; then
+            mv ~/.gitomail/log{,.bak}
+        fi
     fi
     echo "---------------------------------------------------------" >> ~/.gitomail/log
-    echo "`date`: Gitomail @ `pwd`" >> ~/.gitomail/log
-    gitomail auto-mailer >> ~/.gitomail/log 2>&1
+    echo "`date`: Gitomail @ ${GL_REPO}" >> ~/.gitomail/log
+    gitomail --repo-name ${GL_REPO} auto-mailer >> ~/.gitomail/log 2>&1
     echo "" >> ~/.gitomail/log
 else
     flock ~/.gitomail-lock ${BASH_SOURCE[0]} locked  2>/dev/null >/dev/null &
