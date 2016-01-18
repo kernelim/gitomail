@@ -72,11 +72,11 @@ combine a b = runIdentity $ Config
     <*> x _includeRefs
     <*> x _rootRefs
     <*> x _aliasRefMatch
+    <*> x _commitSubjectLine
+    <*> x _summarySubjectLine
     <*> x _commitURL
     <*> x _blobInCommitURL
     <*> x _fromEMail
-    <*> x _commitSubjectLine
-    <*> x _summarySubjectLine
     <*> x _repoName
     <*> x _sourceHighlight
     <*> x _hashSize
