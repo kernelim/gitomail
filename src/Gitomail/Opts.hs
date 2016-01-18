@@ -12,6 +12,7 @@ module Gitomail.Opts
   , configPaths
   , noImplicitConfigs
   , repositoryPath
+  , repositoryName
   , outputPath
   , version
   , verbose
@@ -70,6 +71,7 @@ data Opts = Opts
     , _extraCC             :: [EMailAddress]
     , _extraTo             :: [EMailAddress]
     , _repositoryPath      :: Maybe RepPath
+    , _repositoryName      :: Maybe Text
     , _gitRef              :: Maybe GitRef
     , _runCommand          :: Maybe Command
     } deriving (Show)
@@ -90,6 +92,8 @@ optsParse = Opts
      <*> ( many . textOption)      ( long "to"    <> help "Extra people for 'To:' in this invocation" )
      <*> ( optional . strOption)
                 ( long "repo"      <> short 'r'   <> help "Repository pathname" )
+     <*> ( optional . textOption)
+                ( long "repo-name" <> help "Repository name" )
      <*> ( optional . textOption)
                 ( long "g"         <> short 'g'   <> help "Git revision" )
      <*> optional (subparser

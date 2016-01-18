@@ -249,16 +249,19 @@ getRepoName :: (MonadGitomail m) => m Text
 getRepoName = do
     config <- getConfig
     opts <- gets opts
-    case (config ^. CFG.repoName, opts ^. O.repositoryPath) of
-        (Just name, _) ->
-            -- Prefer taking the repoName from the config file.
+    case (opts ^. O.repositoryName, config ^. CFG.repoName, opts ^. O.repositoryPath) of
+        (Just name, _, _) ->
+            -- If supplied from command line, take from there.
             return name
-        (Nothing, Just repoPath) -> do
+        (_, Just name, _) ->
+            -- Otherwise taking the repoName from the config file.
+            return name
+        (_, _, Just repoPath) -> do
             -- If the user-provided repoPath is a working directory that
             -- has .git, we can guess the repo name from its name.
             canon <- liftIO $ canonicalizePath repoPath
             return $ T.pack $ takeBaseName canon
-        (Nothing, Nothing) -> return "?"
+        (_, _, Nothing) -> return "?"
 
 getCommitURL :: (MonadGitomail m) => Text -> m (Maybe Text)
 getCommitURL hash = do
