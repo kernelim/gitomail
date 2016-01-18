@@ -10,10 +10,6 @@
 # ~/.gitomailconf.yaml, and per-repository configuration under each
 # repository's .git under gitomailconf.yaml
 #
-# (TODO: for setups that only modify the repo_name in gitomailconf.yaml
-# per repository, the repo-name can be inferred from the directory,
-# should Gitomail be Gitolite-aware).
-#
 
 if [[ "$1" == "locked" ]] ; then
     mkdir -p ~/.gitomail
