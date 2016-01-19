@@ -46,14 +46,16 @@ iterateFilesWithMaintainers
 iterateFilesWithMaintainers matched f = do
     let
         recurse path i@(GIT.Node _ m) = do
-            a <- fmap (foldl1 mappend) $ forM (Map.toList m) $ \(k, a) -> do
+            l <- forM (Map.toList m) $ \(k, a) -> do
                 let
                   c = case path of
                          "" -> [k]
                          _ -> [path, "/", k]
                 recurse (BS.concat c) a
             b <- f path i
-            return $ a `mappend` b
+            case l of
+                [] -> return b
+                _ -> return $ (foldl1 mappend l) `mappend` b
         recurse path i = f path i
     recurse "" matched
 
