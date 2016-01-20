@@ -39,6 +39,7 @@ data ConfigA a = Config
   , _commitURL          :: Maybe Text
   , _blobInCommitURL    :: Maybe Text
   , _fromEMail          :: Maybe Text
+  , _filteredDestEMails :: a     [Text]
   , _repoName           :: Maybe Text
   , _sourceHighlight    :: a     Bool
   , _hashSize           :: a     Int
@@ -77,6 +78,7 @@ combine a b = runIdentity $ Config
     <*> x _commitURL
     <*> x _blobInCommitURL
     <*> x _fromEMail
+    <*> x _filteredDestEMails
     <*> x _repoName
     <*> x _sourceHighlight
     <*> x _hashSize
@@ -103,6 +105,7 @@ final a = runIdentity $ Config
     <*> pass _commitURL
     <*> pass _blobInCommitURL
     <*> pass _fromEMail
+    <*> defl _filteredDestEMails  []
     <*> pass _repoName
     <*> defl _sourceHighlight  True
     <*> defl _hashSize     9
@@ -130,6 +133,7 @@ instance FromJSON (ConfigA Maybe) where
                   <*> field "commit_url"
                   <*> field "blob_in_commit_url"
                   <*> field "from_email"
+                  <*> field "filtered_email_destinations"
                   <*> field "repo_name"
                   <*> field "source_highlight"
                   <*> field "hash_size"

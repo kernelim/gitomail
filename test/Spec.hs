@@ -126,17 +126,20 @@ gitomail params = do
     readProcess bin params
 
 gitomailC :: (MonadSpec m) => Text -> [Text] -> m ()
-gitomailC save params = do
+gitomailC save params = gitomailCconf save params []
+
+gitomailCconf :: (MonadSpec m) => Text -> [Text] -> [(Text, Yaml.Value)] -> m ()
+gitomailCconf save params conf = do
     let fp = ".git/gitomail.conf"
     derandoms <- gets contextDerandom >>= readIORef
     curTestRunId <- testRunId <+= 1
 
-    writeFile' fp $ T.decodeUtf8 $ Yaml.encode $ Yaml.object
+    writeFile' fp $ T.decodeUtf8 $ Yaml.encode $ Yaml.object $
         [ "from_email"   Yaml..= Yaml.toJSON ("bot@gitomail.com" :: Text)
         , "hash_map"     Yaml..= Yaml.toJSON (Just derandoms)
         , "test_run_id"  Yaml..= Yaml.toJSON (curTestRunId)
         , "commit_url"   Yaml..= Yaml.toJSON ("https://github.com/gitomail/%r/commit/%H" :: Text)
-        ]
+        ] ++ conf
 
     t <- gets contextOutputs >>= \case
         Nothing -> E.throw $ UnexpectedState "no output dir"
@@ -470,6 +473,19 @@ tests tempDir = do
     gitomailC "20-auto" automailer
     removeBranch "before-master-lexically"
     removeBranch "z-after-master"
+
+    msg "Check E-Mail destination filter"
+    -------------------------------------
+
+    appendFile' "Maintainers" $ "alias other  Other User <other@gitomail.com>\n"
+    appendFile' "Maintainers" $ "reviewer other\n"
+    git' [add, "Maintainers"]
+    forM_ [30..31] readmeAppend
+    gitomailCconf "21-auto" automailer [
+        "filtered_email_destinations"  Yaml..= Yaml.toJSON ["other@gitomail.com" :: Text]
+        ]
+
+    git' ["reset", "--hard", "HEAD~2"]
 
     msg "Ref going backward after init"
     ----------------------------------

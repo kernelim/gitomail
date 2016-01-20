@@ -414,10 +414,11 @@ getCommitInfo cmk db ref commitHash maybeNr = do
 
 sendMails :: (MonadGitomail m) => [(IO (), MailInfo)] -> m ()
 sendMails mails = do
+    config <- getConfig
     if length mails == 0
         then putStrLn $ "No E-Mails to send."
-        else sendEmails
-  where sendEmails = do
+        else sendEmails config
+  where sendEmails config = do
             putStrLn $ "Sending E-Mails!"
             opts <- gets opts
             indexI <- newIORef (1 :: Int)
@@ -436,13 +437,22 @@ sendMails mails = do
                                      putStrLn $ "  Sending '" ++ (T.unpack miSubject) ++ "'"
                                      sendMimeMail2 miMail conn
                         Just outputPath -> do
-                            bs <- renderMail' miMail
+                            bs <- renderMail' $ filteredDestEMail miMail
                             index <- readIORef indexI
                             modifyIORef' indexI (+1)
                             let outputFile = outputPath </> show index -- TODO better filename
                             putStrLn $ "  Writing " ++ outputFile
                                            ++ " - '" ++ (T.unpack miSubject) ++ "'"
                             BS.writeFile outputFile $ BS.concat (BL.toChunks bs)
+
+                filteredDestEMail m@Mail{..} =
+                    m { mailTo = f mailTo
+                      , mailCc = f mailCc
+                      , mailBcc = f mailBcc
+                      }
+                    where f = filter g
+                          g (Address _ email) =
+                              not (email `elem` (config ^.|| CFG.filteredDestEMails))
 
 justOne :: MonadGitomail m => m CommitInfo
 justOne = do
