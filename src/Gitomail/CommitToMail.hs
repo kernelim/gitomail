@@ -427,30 +427,40 @@ sendMails mails = do
                     e mconn (opts, indexI) mailinfo
                     liftIO $ act
             where
-                e mconn (opts, indexI) ((MailInfo {..})) = do
-                    case opts ^. O.outputPath of
-                        Nothing -> do
-                            case mconn of
-                                 Nothing -> do bs <- renderMail' miMail
-                                               BL.putStr bs
-                                 Just conn -> do
-                                     putStrLn $ "  Sending '" ++ (T.unpack miSubject) ++ "'"
-                                     sendMimeMail2 miMail conn
-                        Just outputPath -> do
-                            bs <- renderMail' $ filteredDestEMail miMail
-                            index <- readIORef indexI
-                            modifyIORef' indexI (+1)
-                            let outputFile = outputPath </> show index -- TODO better filename
-                            putStrLn $ "  Writing " ++ outputFile
-                                           ++ " - '" ++ (T.unpack miSubject) ++ "'"
-                            BS.writeFile outputFile $ BS.concat (BL.toChunks bs)
+                e mconn (opts, indexI) ((MailInfo {..})) =
+                    case filteredDestEMail miMail of
+                        Nothing -> return ()
+                        Just filteredEMail -> do
+                            case opts ^. O.outputPath of
+                                Nothing -> do
+                                    case mconn of
+                                         Nothing -> do bs <- renderMail' filteredEMail
+                                                       BL.putStr bs
+                                         Just conn -> do
+                                             putStrLn $ "  Sending '" ++ (T.unpack miSubject) ++ "'"
+                                             sendMimeMail2 filteredEMail conn
+                                Just outputPath -> do
+                                    bs <- renderMail' filteredEMail
+                                    index <- readIORef indexI
+                                    modifyIORef' indexI (+1)
+                                    let outputFile = outputPath </> show index -- TODO better filename
+                                    putStrLn $ "  Writing " ++ outputFile
+                                                   ++ " - '" ++ (T.unpack miSubject) ++ "'"
+                                    BS.writeFile outputFile $ BS.concat (BL.toChunks bs)
 
-                filteredDestEMail m@Mail{..} =
-                    m { mailTo = f mailTo
-                      , mailCc = f mailCc
-                      , mailBcc = f mailBcc
-                      }
-                    where f = filter g
+                filteredDestEMail m@Mail{..} = root
+                    where root =
+                              case (filteredTo, filteredCc) of
+                                  ([], [])   -> Nothing
+                                  ([], x:xs) -> Just $ r [x] xs
+                                  (x, y)     -> Just $ r x y
+                          r x y = m { mailTo = x
+                                    , mailCc = y
+                                    , mailBcc = f mailBcc
+                                    }
+                          filteredTo = f mailTo
+                          filteredCc = f mailCc
+                          f = filter g
                           g (Address _ email) =
                               not (email `elem` (config ^.|| CFG.filteredDestEMails))
 
