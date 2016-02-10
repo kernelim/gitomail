@@ -20,7 +20,7 @@ if [[ "$1" == "locked" ]] ; then
         fi
     fi
     echo "---------------------------------------------------------" >> ~/.gitomail/log
-    echo "`date`: Gitomail @ ${GL_REPO}" >> ~/.gitomail/log
+    echo "`date`: `gitomail --version` @ ${GL_REPO}" >> ~/.gitomail/log
     gitomail --repo-name ${GL_REPO} auto-mailer >> ~/.gitomail/log 2>&1
     echo "" >> ~/.gitomail/log
 else
