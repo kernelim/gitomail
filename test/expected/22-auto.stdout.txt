@@ -1,0 +1,15 @@
+Relating commits to refs
+Ref heads/master: creating summaries
+Ref heads/master: creating E-Mails
+Ref heads/branch-a: creating summaries
+Ref heads/branch-a: creating E-Mails
+  Formatting 00045fffffffffffffffffffffffffffffffffff
+Ref heads/branch-b: creating summaries
+Ref heads/branch-b: creating E-Mails
+  Formatting 00046fffffffffffffffffffffffffffffffffff
+Sending all E-Mails
+Sending E-Mails!
+  Writing $TEMP/1 - '[repo] branch-a branch is new with 1 commit'
+  Writing $TEMP/2 - '[repo branch-a 00045ffff, #1] Updating README.md [33]'
+  Writing $TEMP/3 - '[repo] branch-b branch is new with 1 commit'
+  Writing $TEMP/4 - '[repo branch-b 00046ffff, #1] Updating README.md [34]'

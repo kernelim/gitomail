@@ -18,7 +18,8 @@
 * Cleanups, refactoring.
 * Submodule support.
 * Rethink handling of empty commits (currently no mails are sent).
-* Rethink handling of invalid/redundant Maintainers data.
+* Rethink handling of invalid/redundant Maintainers data. Provide a command line
+  option for it to be used in project's build time.
 
 ## Nice to have
 

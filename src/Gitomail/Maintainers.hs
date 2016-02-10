@@ -9,6 +9,7 @@ module Gitomail.Maintainers
   , Definition(..)
   , Unit(..)
   , DefInFile
+  , MatchErrors(..)
   , assignDefinitionFiles
   , compilePatterns
   , fileName
@@ -46,6 +47,7 @@ import qualified Gitomail.Maintainers.Base   as MB
 import qualified Lib.Git                   as GIT
 import           Lib.Maybe                 (maybeF)
 import           Lib.Monad                 (foldSubJoinT21toT12M)
+import           Lib.LiftedPrelude
 ------------------------------------------------------------------------------------
 
 data Error = Error Int Int String
@@ -119,7 +121,8 @@ assignDefinitionFiles tree = r [] [] tree
                     _ -> p2
         r _ p2 (GIT.File _) = GIT.File p2
 
-type DefEMail = ((Path, Int), EMail)
+type Location = (Path, Int)
+type DefEMail = (Location, EMail)
 data AssignedFileStatus = AssignedFileStatus
     { fsMaintainer :: !(Maybe DefEMail)
     , fsObservers  :: ![DefEMail]
@@ -137,16 +140,11 @@ instance Monoid AssignedFileStatus where
                               _ -> fsMaintainer a
           }
 
-fileStatusToDefSet :: AssignedFileStatus -> Set (Path, Int)
+fileStatusToDefSet :: AssignedFileStatus -> Set Location
 fileStatusToDefSet (AssignedFileStatus a b c) =
   Set.fromList $ map fst $ (case a of Nothing -> [] ; Just i -> [i]) ++ b ++ c
 
-data InvalidAlias = InvalidAlias String deriving (Typeable)
-instance E.Exception InvalidAlias
-instance Show InvalidAlias where
-  show (InvalidAlias msgstr) = "InvalidAlias: " ++ msgstr
-
-getAvailableDefs :: Monad m => GIT.Tree (Maybe [DefInFile]) -> m (Set (Path, Int))
+getAvailableDefs :: Monad m => GIT.Tree (Maybe [DefInFile]) -> m (Set Location)
 getAvailableDefs tree =
   do x <- root
      foldSubJoinT21toT12M x Set.empty $ add
@@ -157,37 +155,51 @@ getAvailableDefs tree =
         f p lst (Just xs) = return $ (path, xs):lst
           where path = BS8.pack $ joinPath $ reverse $ map BS8.unpack (drop 1 p)
 
-getEffectiveDefs :: Monad m => GIT.Tree AssignedFileStatus -> m (Set (Path, Int))
+getEffectiveDefs :: Monad m => GIT.Tree AssignedFileStatus -> m (Set Location)
 getEffectiveDefs tree = GIT.foldTree Set.empty f tree
   where f _ s content = return $ Set.union (fileStatusToDefSet content) s
 
-matchFiles :: Monad m => GIT.Tree [(BS8.ByteString, [DefInFile])] -> m (GIT.Tree AssignedFileStatus)
-matchFiles tree = GIT.mapTreeM f tree
-  where f pathcomps content = root
-          where
-            match_options = Glob.matchDefault { Glob.matchDotsImplicitly = True }
-            matcher = Glob.matchWith match_options
-            empty_fs = AssignedFileStatus Nothing [] []
-            path = joinPath $ reverse $ map BS8.unpack pathcomps
-            root = do
-              aliases <- join Map.empty $ \m (_, def) ->
-                case def of
-                  Alias name email -> return $ Map.insert name email m -- TODO: handle dups
-                  _ -> return m
-              join empty_fs $ \fs (location, def) ->
-                case def of
-                  Assign assignt alias pattern -> do
-                    if matcher pattern path
-                        then maybeF
-                             (Map.lookup alias aliases)
-                             (E.throw $ InvalidAlias $ BS8.unpack alias)
-                                $ \email -> return $ mappend fs (case assignt of
-                                              Maintainer -> empty_fs { fsMaintainer = Just (location, email) }
-                                              Observer -> empty_fs { fsObservers = [(location, email)] }
-                                              Reviewer -> empty_fs { fsReviewers = [(location, email)] })
-                        else return fs
-                  _ -> return fs
-            join = foldSubJoinT21toT12M content
+type InvalidAliases = Set (Location, BS8.ByteString)
+
+data MatchErrors = MatchErrors InvalidAliases
+
+matchFiles :: (MonadIO m, Monad m) =>
+               GIT.Tree [(BS8.ByteString, [DefInFile])] -> m (GIT.Tree AssignedFileStatus,
+                                                              MatchErrors)
+matchFiles tree =
+    do invalidsI <- newIORef $ Set.fromList []
+       let f pathcomps content =
+               root
+             where
+                 match_options = Glob.matchDefault { Glob.matchDotsImplicitly = True }
+                 matcher = Glob.matchWith match_options
+                 empty_fs = AssignedFileStatus Nothing [] []
+                 path = joinPath $ reverse $ map BS8.unpack pathcomps
+                 root = do
+                    aliases <- join Map.empty $ \m (_, def) ->
+                      case def of
+                        Alias name email -> return $ Map.insert name email m -- TODO: handle dups
+                        _ -> return m
+                    join empty_fs $ \fs (location, def) ->
+                      case def of
+                        Assign assignt alias pattern -> do
+                          if matcher pattern path
+                              then maybeF
+                                   (Map.lookup alias aliases)
+                                   (do modifyIORef' invalidsI $ Set.insert (location, alias)
+                                       return fs)
+                                      $ \email -> return $ mappend fs (case assignt of
+                                                    Maintainer -> empty_fs { fsMaintainer = Just (location, email) }
+                                                    Observer -> empty_fs { fsObservers = [(location, email)] }
+                                                    Reviewer -> empty_fs { fsReviewers = [(location, email)] })
+                              else return fs
+                        _ -> return fs
+                 join = foldSubJoinT21toT12M content
+
+       assignments <- GIT.mapTreeM f tree
+       invalids <- readIORef invalidsI
+       return (assignments, MatchErrors invalids)
+
 
 data FailedReadingRepo = FailedReadingRepo String deriving (Typeable)
 instance E.Exception FailedReadingRepo

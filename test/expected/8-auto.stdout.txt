@@ -3,5 +3,5 @@ Ref heads/master: creating summaries
 Ref heads/master: creating E-Mails
 Ref heads/older: creating summaries
 Ref heads/older: creating E-Mails
-  Skipping old commit 00047fffffffffffffffffffffffffffffffffff
+  Skipping old commit 00049fffffffffffffffffffffffffffffffffff
 No E-Mails to send.

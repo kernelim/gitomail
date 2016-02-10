@@ -230,7 +230,7 @@ getCommitInfo cmk db ref commitHash maybeNr = do
         Right ("", _) -> returnCommitInfo $ Left $ "Empty commit: " ++ (show commitHash)
         Right (patch, maybeParentHash) -> do
             config <- getConfig
-            matched <- matchFiles commitHash
+            (matched, matchErrors) <- matchFiles commitHash
 
             (commitMessageBody, diff, footer') <-
                  case (TI.indices "\n\n" patch,
@@ -253,6 +253,7 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                                  (diff, footer')            = T.splitAt (z - y)      rest2
 
                              return (commitMessageBody, diff, footer')
+
             let footer =
                     case config ^. CFG.hashMap of
                        Nothing -> footer'
@@ -365,7 +366,13 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                                 , (Just $ T.concat $ [ "Branches: ",
                                               T.concat (intersperse ", " containedInBranchesList)])
                                 , flagsMaybe
-                              ]
+                              ] ++ case matchErrors of
+                                      Maintainers.MatchErrors errors ->
+                                          flip map (Set.toList errors) $ \((path, line), alias) -> T.concat [
+                                              "Warning: " ,
+                                              safeDecode path, case path of {"" -> "" ; _ -> "/" }, "Maintainers",
+                                              ":", T.pack $ show line, ": ",
+                                                  "invalid alias: ", safeDecode alias]
 
                       parsedFLists <- case cmk of
                           CommitMailFull -> do

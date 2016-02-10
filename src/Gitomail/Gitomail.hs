@@ -96,7 +96,7 @@ data Gitomail = Gitomail {
   , __loadFiles         :: Maybe (O.GitRef, (GIT.Tree (Maybe BS8.ByteString)))
   , __parseFiles        :: Maybe (O.GitRef, (GIT.Tree (Maybe Maintainers.Unit)))
   , __compilePatterns   :: Maybe (O.GitRef, (GIT.Tree (Maybe [Maintainers.DefInFile])))
-  , __matchFiles        :: Maybe (O.GitRef, (GIT.Tree Maintainers.AssignedFileStatus))
+  , __matchFiles        :: Maybe (O.GitRef, ((GIT.Tree Maintainers.AssignedFileStatus, Maintainers.MatchErrors)))
   , __getExtraCCTo      :: Maybe ((), ([Address], [Address]))
   , __getRepositoryPath :: Maybe ((), FilePath)
   , __getConfig         :: Maybe ((), CFG.Config)
@@ -169,7 +169,8 @@ compilePatterns gitref = do
     let act = parseFiles gitref >>= Maintainers.compilePatterns
     cacheInStateBySomething _compilePatterns act gitref
 
-matchFiles   :: (MonadGitomail m) => O.GitRef -> m (GIT.Tree Maintainers.AssignedFileStatus)
+matchFiles   :: (MonadGitomail m) => O.GitRef -> m (GIT.Tree Maintainers.AssignedFileStatus,
+                                                    Maintainers.MatchErrors)
 matchFiles gitref = do
     let act = do patterns <- compilePatterns gitref
                  Maintainers.matchFiles (Maintainers.assignDefinitionFiles patterns)

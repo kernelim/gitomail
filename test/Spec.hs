@@ -487,6 +487,24 @@ tests tempDir = do
 
     git' ["reset", "--hard", "HEAD~2"]
 
+
+    msg "One branch has bad Maintainers info, another one doesn't"
+    --------------------------------------------------------------
+
+    checkoutCreate "branch-a"
+    appendFile' "Maintainers" $ "reviewer bla\n"
+    git' [add, "Maintainers"]
+    forM_ [33] readmeAppend
+
+    checkout "master"
+    checkoutCreate "branch-b"
+    git' [add, "Maintainers"]
+    forM_ [34] readmeAppend
+    gitomailC "22-auto" automailer
+    checkout "master"
+    removeBranch "branch-a"
+    removeBranch "branch-b"
+
     msg "Ref going backward after init"
     ----------------------------------
 
