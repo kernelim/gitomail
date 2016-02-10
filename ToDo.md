@@ -18,6 +18,7 @@
 * Cleanups, refactoring.
 * Submodule support.
 * Rethink handling of empty commits (currently no mails are sent).
+* Rethink handling of invalid/redundant Maintainers data.
 
 ## Nice to have
 
