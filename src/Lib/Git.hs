@@ -16,8 +16,6 @@ module Lib.Git
   , TreeMap
   , mapTreeM
   , mapTreeMaybeM
-  , oidToText
-  , textToOid
   , foldTree
   , printTree
   , readBlob
@@ -25,14 +23,12 @@ module Lib.Git
   , treeMap
   , refRepr
   , Git.RefName
-  , GitCommitHash
-  , GitOid
-  , parseOid
+  , CommitHash
   , iterateHistoryUntil
   ) where
 
 ------------------------------------------------------------------------------------
-import           Control.Monad             (forM_, when)
+import           Control.Monad             (forM_, when, forM)
 import           Control.Monad.IO.Class    (liftIO)
 import           Control.Monad.Catch        (MonadMask)
 import           Control.Monad.Trans       (lift)
@@ -61,7 +57,7 @@ import           Lib.Monad                 (mapWithKeyM)
 import           Lib.LiftedPrelude
 ------------------------------------------------------------------------------------
 
-type GitCommitHash = Text
+type CommitHash = Text
 type GitOid = Git.Libgit2.OidPtr
 
 type TreeMap a = Map BS.ByteString (Tree a)
@@ -96,17 +92,19 @@ textToOid :: Text -> IO OidPtr
 textToOid t = Git.textToSha t >>= shaToOid
 
 iterateHistoryUntil :: forall (m :: * -> *) (t :: * -> *) a.
-                       (Foldable t, MonadIO m, MonadBaseControl IO m, MonadMask m)
+                       (Traversable t, Foldable t, MonadIO m, MonadBaseControl IO m, MonadMask m)
                        => a
-                       -> (a -> GitOid -> [GitOid] -> IO (a, t (GitOid)))
+                       -> (a -> CommitHash -> [CommitHash] -> IO (a, t (CommitHash)))
                        -> FilePath
-                       -> GitCommitHash
+                       -> CommitHash
                        -> m (Either String ())
 iterateHistoryUntil v'' f path firstrev = do
     withRepository lgFactory path $ do
-        let filterF v  oid parents act = do
-                b <- lift $ liftIO $ f v oid (map (\(Tagged parent) -> parent) parents)
-                act b
+        let filterF v  oidH parentsH act = do
+                let oid = oidToText oidH
+                (a, tl) <- lift $ liftIO $ f v oid (map (\(Tagged parent) -> oidToText parent) parentsH)
+                tl' <- forM tl (liftIO . textToOid)
+                act (a, tl')
         let recurse v (Git.CommitObj commit) = do
                 let Tagged oid = Git.commitOid commit
                 filterF v oid (Git.commitParents commit) $ \(v', parents) ->

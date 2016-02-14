@@ -90,7 +90,7 @@ import           Lib.Process                 (readProcess, readProcess'')
 import           Lib.Regex                   (matchWhole)
 ------------------------------------------------------------------------------------
 
-type GitRefList = [(O.GitRef, GIT.GitCommitHash)]
+type GitRefList = [(O.GitRef, GIT.CommitHash)]
 
 data Gitomail = Gitomail {
     opts                :: O.Opts
@@ -327,7 +327,7 @@ getTopAliases gitRef = do
     m <- mapM f (map snd defs)
     return $ Map.fromList $ catMaybes m
 
-githashRepr :: (MonadGitomail m) => GIT.GitCommitHash -> m Text
+githashRepr :: (MonadGitomail m) => GIT.CommitHash -> m Text
 githashRepr githash = do
     config <- getConfig
     return $ T.take (config CFG.^.|| CFG.hashSize) githash
@@ -348,7 +348,7 @@ getFooter = do
                        $ F.mkFormS F.Dark $ F.mkPlain "Gitomail",
                    F.TPlain " "] ++ v' ++ [F.TPlain "\n"]
 
-mapCommitHash :: (MonadGitomail m) => GIT.GitCommitHash -> m (GIT.GitCommitHash)
+mapCommitHash :: (MonadGitomail m) => GIT.CommitHash -> m (GIT.CommitHash)
 mapCommitHash h = do
     config <- getConfig
     return $  maybe h (\m -> fromMaybe h (Map.lookup h m)) (config ^. CFG.hashMap)

@@ -76,6 +76,7 @@ executable gitomail
                      , time >= 1.5.0.1
                      , transformers         >= 0.4.2.0
                      , unix-time
+                     , unordered-containers >= 0.2.5.1
                      , yaml                 >= 0.8.15.1
   build-tools:         happy, alex
   default-language:    Haskell2010
@@ -109,6 +110,7 @@ test-suite gitomail-test
                      , text
                      , time >= 1.5.0.1
                      , transformers         >= 0.4.2.0
+                     , unordered-containers >= 0.2.5.1
                      , yaml
   ghc-options:         -O2 -Wall
   build-tools:         gitomail

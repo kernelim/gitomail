@@ -191,7 +191,7 @@ getCommitInfo :: (MonadGitomail m)
                      => CommitMailKind
                      -> DB
                      -> O.GitRef
-                     -> GIT.GitCommitHash
+                     -> GIT.CommitHash
                      -> Maybe Int
                      -> m CommitInfo
 getCommitInfo cmk db ref commitHash maybeNr = do
