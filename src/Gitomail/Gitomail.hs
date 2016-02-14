@@ -69,8 +69,11 @@ import           System.Random               as Rand
 import           Data.Char                   (chr, ord)
 import           Text.Regex.TDFA             ((=~))
 import           Text.Regex.TDFA.Text        ()
-import           Text.Read                   (readMaybe)
 import           Network.Mail.Mime           (Address (..))
+import           Git                         (withRepository)
+import qualified Git                         as Git
+import           Git.Libgit2                 (lgFactory)
+import           Data.Time.LocalTime         (zonedTimeToUTC)
 ----
 import           Paths_gitomail              (version)
 import qualified Gitomail.Config             as CFG
@@ -82,7 +85,7 @@ import           Lib.EMail                   (parseEMail', InvalidEMail(..))
 import qualified Lib.Git                     as GIT
 import           Lib.Monad                   (lSeqForM)
 import           Lib.Text                    ((+@), showT, leadingZeros,
-                                              safeDecode, removeTrailingNewLine)
+                                              safeDecode)
 import           Lib.Process                 (readProcess, readProcess'')
 import           Lib.Regex                   (matchWhole)
 ------------------------------------------------------------------------------------
@@ -407,12 +410,25 @@ sortRefsByPriority :: (MonadGitomail m) => GitRefList -> m [GitRefList]
 sortRefsByPriority reflist = do
     refsMatcher <- getRefsMatcher
     refScore <- getRefScoreFunc
-    byScores <- fmap catMaybes $ lSeqForM reflist $ \(refname, hash) -> do
-        if refsMatcher refname
-            then do timestamp <- fmap (readMaybe . T.unpack . removeTrailingNewLine)
-                       $ gitCmd ["show", hash, "--pretty=%ct", "-s"]
-                    return $ Just (refScore refname, (timestamp :: Maybe Int, refname, hash))
-            else return Nothing
+    path <- getRepositoryPath
+    byScores <-
+        withRepository lgFactory path $ do
+            fmap catMaybes $ lSeqForM reflist $ \(refname, hash) ->
+                if refsMatcher refname
+                    then do obj <- Git.parseOid hash >>= Git.lookupObject
+                            let committerTime commit =
+                                    return $ Just $ Git.signatureWhen $ Git.commitCommitter $ commit
+                            maybeTimestamp <- case obj of
+                                Git.TagObj tag -> (Git.lookupCommit $ Git.tagCommit tag)
+                                                   >>= committerTime
+                                Git.CommitObj commit -> committerTime commit
+                                _ -> return Nothing
+                            case maybeTimestamp of
+                                Nothing -> return Nothing
+                                Just timestamp -> do
+                                    return $ Just (refScore refname ,
+                                                   (zonedTimeToUTC timestamp, refname, hash))
+                    else return Nothing
     let g = groupBy (\x y -> fst x == fst y) $ sortOn ((0 -) . fst) byScores
         h = map (sort . map snd) g
     return $ map (map (\(_, a, b) -> (a, b))) h

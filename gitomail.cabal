@@ -46,15 +46,16 @@ executable gitomail
                      , array
                      , base                 >= 4.7    &&  < 5.0
                      , base16-bytestring    >= 0.1.1.6
-                     , dlist
-                     , bytestring
                      , blaze-html
+                     , bytestring
                      , bytestring
                      , containers           >= 0.5.6.2
                      , cryptohash           >= 0.11.6
                      , directory
+                     , dlist
                      , either               >= 4.4.1
                      , exceptions           >= 0.8.0.2
+                     , fancydiff
                      , filepath
                      , gitlib
                      , gitlib-libgit2
@@ -72,10 +73,10 @@ executable gitomail
                      , regex-tdfa-text
                      , tagged               >= 0.8.1
                      , text
+                     , time >= 1.5.0.1
                      , transformers         >= 0.4.2.0
                      , unix-time
                      , yaml                 >= 0.8.15.1
-                     , fancydiff
   build-tools:         happy, alex
   default-language:    Haskell2010
 
@@ -92,22 +93,23 @@ test-suite gitomail-test
                      , array
                      , base
                      , bytestring
+                     , containers
+                     , directory
+                     , exceptions
+                     , fancydiff
                      , filepath
+                     , lens
                      , lifted-base          >= 0.2.3.6
                      , monad-control
                      , mtl                  >= 2.2.1
                      , process-extras
-                     , exceptions
-                     , directory
-                     , temporary >= 1.2.0.3
-                     , containers
-                     , yaml
-                     , text
-                     , lens
                      , regex-tdfa           >= 1.2.1
                      , regex-tdfa-text
+                     , temporary >= 1.2.0.3
+                     , text
+                     , time >= 1.5.0.1
                      , transformers         >= 0.4.2.0
-                     , fancydiff
+                     , yaml
   ghc-options:         -O2 -Wall
   build-tools:         gitomail
   default-language:    Haskell2010
