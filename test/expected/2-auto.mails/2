@@ -43,16 +43,16 @@ r: #111111"><font size=3D"3"><div><pre line-height: 125%">
 </div><div>
 </div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
 >diff --git a/README&#8203;=2Emd b/README&#8203;=2Emd
-</div><div style=3D"background: #98b0f0; color: #333333">index 39c9f3681a23=
+</div><div style=3D"background: #a0b8d8; color: #333333">index 39c9f3681a23=
 &#8203;=2E&#8203;=2E53d378b997b4 100644
 </div><div style=3D"background: #cccccc; color: #333333">--- a/README&#8203=
 ;=2Emd
 </div><div style=3D"background: #dddddd; color: #333333">+++ b/README&#8203=
 ;=2Emd
-</div><div style=3D"background: #a9ccdd; color: #545454; font-weight: bold"=
+</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
 >@@ -1 +1,2 @@
 </div><div> Content
-</div><div style=3D"background: #ccffcc; color: #333333">+Added content 1</=
+</div><div style=3D"background: #ceffce; color: #333333">+Added content 1</=
 div></pre></div></font><font size=3D"3"><div><pre line-height: 125%">
 -- 
 x&#8203;=2Ex&#8203;=2Ex

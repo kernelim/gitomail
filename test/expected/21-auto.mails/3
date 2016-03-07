@@ -46,19 +46,19 @@ r: #111111"><font size=3D"3"><div><pre line-height: 125%">
 </div><div>
 </div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
 >diff --git a/README&#8203;=2Emd b/README&#8203;=2Emd
-</div><div style=3D"background: #98b0f0; color: #333333">index 3205845726b9=
+</div><div style=3D"background: #a0b8d8; color: #333333">index 3205845726b9=
 &#8203;=2E&#8203;=2E88479aaacb3b 100644
 </div><div style=3D"background: #cccccc; color: #333333">--- a/README&#8203=
 ;=2Emd
 </div><div style=3D"background: #dddddd; color: #333333">+++ b/README&#8203=
 ;=2Emd
-</div><div style=3D"background: #a9ccdd; color: #545454; font-weight: bold"=
+</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
 >@@ -12,3 +12,4 @@ Added content 21
 </div><div> <span style=3D"color: #111111">Added content 25
 </span> <span style=3D"color: #111111">Added content 26
 </span> <span style=3D"color: #111111">Added content 30
-</span></div><div style=3D"background: #ccffcc; color: #333333">+<span styl=
-e=3D"color: #4c4c4c">Added content 31
+</span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
+e=3D"color: #0c0c0c">Added content 31
 </span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
 %">
 -- 

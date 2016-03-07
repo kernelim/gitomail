@@ -72,77 +72,77 @@ Description</pre></div></font><font size=3D"3"><div><pre line-height: 125%"=
 </div><div>
 </div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
 >diff --git a/test&#8203;=2Ec b/test&#8203;=2Ec
-</div><div style=3D"background: #98b0f0; color: #333333">new file mode 1006=
+</div><div style=3D"background: #a0b8d8; color: #333333">new file mode 1006=
 44
 index 000000000000&#8203;=2E&#8203;=2E12d780e2c4e9
 </div><div style=3D"background: #cccccc; color: #333333">--- /dev/null
 </div><div style=3D"background: #dddddd; color: #333333">+++ b/test&#8203;=
 =2Ec
-</div><div style=3D"background: #a9ccdd; color: #545454; font-weight: bold"=
+</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
 >@@ -0,0 +1,4 @@
-</div><div style=3D"background: #ccffcc; color: #333333">+<span style=3D"co=
-lor: #bd5585; font-weight: bold">int</span><span style=3D"color: #4c4c4c"> =
-</span><span style=3D"color: #7b4b7b">main</span><span style=3D"color: #4c4=
-c4c">(</span><span style=3D"color: #bd5585; font-weight: bold">int</span><s=
-pan style=3D"color: #4c4c4c"> </span><span style=3D"color: #4c4c4c">argc</s=
-pan><span style=3D"color: #4c4c4c">, </span><span style=3D"color: #bd5585; =
-font-weight: bold">char</span><span style=3D"color: #4c4c4c"> **</span><spa=
-n style=3D"color: #4c4c4c">argv</span><span style=3D"color: #4c4c4c">[])
-</span>+<span style=3D"color: #4c4c4c">{
-</span>+<span style=3D"color: #4c4c4c">	</span><span style=3D"color: #bd558=
-5; font-weight: bold">return</span><span style=3D"color: #4c4c4c"> </span><=
-span style=3D"color: #d86f6f">0</span><span style=3D"color: #4c4c4c">;
-</span>+<span style=3D"color: #4c4c4c">}
+</div><div style=3D"background: #ceffce; color: #333333">+<span style=3D"co=
+lor: #7d1545; font-weight: bold">int</span><span style=3D"color: #0c0c0c"> =
+</span><span style=3D"color: #3c0c3c">main</span><span style=3D"color: #0c0=
+c0c">(</span><span style=3D"color: #7d1545; font-weight: bold">int</span><s=
+pan style=3D"color: #0c0c0c"> </span><span style=3D"color: #0c0c0c">argc</s=
+pan><span style=3D"color: #0c0c0c">, </span><span style=3D"color: #7d1545; =
+font-weight: bold">char</span><span style=3D"color: #0c0c0c"> **</span><spa=
+n style=3D"color: #0c0c0c">argv</span><span style=3D"color: #0c0c0c">[])
+</span>+<span style=3D"color: #0c0c0c">{
+</span>+<span style=3D"color: #0c0c0c">	</span><span style=3D"color: #7d154=
+5; font-weight: bold">return</span><span style=3D"color: #0c0c0c"> </span><=
+span style=3D"color: #993030">0</span><span style=3D"color: #0c0c0c">;
+</span>+<span style=3D"color: #0c0c0c">}
 </span></div><div style=3D"background: #a8c0e0; color: #333333; font-weight=
 : bold">diff --git a/test&#8203;=2Ehs b/test&#8203;=2Ehs
-</div><div style=3D"background: #98b0f0; color: #333333">new file mode 1006=
+</div><div style=3D"background: #a0b8d8; color: #333333">new file mode 1006=
 44
 index 000000000000&#8203;=2E&#8203;=2Ea1583118223f
 </div><div style=3D"background: #cccccc; color: #333333">--- /dev/null
 </div><div style=3D"background: #dddddd; color: #333333">+++ b/test&#8203;=
 =2Ehs
-</div><div style=3D"background: #a9ccdd; color: #545454; font-weight: bold"=
+</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
 >@@ -0,0 +1,10 @@
-</div><div style=3D"background: #ccffcc; color: #333333">+<span style=3D"co=
-lor: #bd5585; font-weight: bold">module</span><span style=3D"color: #4c4c4c=
-"> </span><span style=3D"color: #3fa4c6">Main</span><span style=3D"color: #=
-4c4c4c"> </span><span style=3D"color: #bd5585; font-weight: bold">where</sp=
-an><span style=3D"color: #4c4c4c">
-</span>+<span style=3D"color: #4c4c4c">
-</span>+<span style=3D"color: #9f4b9f; font-weight: bold">factorial</span><=
-span style=3D"color: #4c4c4c"> </span><span style=3D"color: #4c4c4c">n</spa=
-n><span style=3D"color: #4c4c4c"> </span><span style=3D"color: #4b634b">=3D=
-</span><span style=3D"color: #4c4c4c"> </span><span style=3D"color: #bd5585=
-; font-weight: bold">if</span><span style=3D"color: #4c4c4c"> </span><span =
-style=3D"color: #4c4c4c">n</span><span style=3D"color: #4c4c4c"> &lt; </spa=
-n><span style=3D"color: #d86f6f">2</span><span style=3D"color: #4c4c4c"> </=
-span><span style=3D"color: #bd5585; font-weight: bold">then</span><span sty=
-le=3D"color: #4c4c4c"> </span><span style=3D"color: #d86f6f">1</span><span =
-style=3D"color: #4c4c4c"> </span><span style=3D"color: #bd5585; font-weight=
-: bold">else</span><span style=3D"color: #4c4c4c"> </span><span style=3D"co=
-lor: #4c4c4c">n</span><span style=3D"color: #4c4c4c"> * </span><span style=
-=3D"color: #4c4c4c">factorial</span><span style=3D"color: #4c4c4c"> </span>=
-<span style=3D"color: #637b63">(</span><span style=3D"color: #4c4c4c">n</sp=
-an><span style=3D"color: #4c4c4c">-</span><span style=3D"color: #d86f6f">1<=
-/span><span style=3D"color: #637b63">)</span><span style=3D"color: #4c4c4c"=
+</div><div style=3D"background: #ceffce; color: #333333">+<span style=3D"co=
+lor: #7d1545; font-weight: bold">module</span><span style=3D"color: #0c0c0c=
+"> </span><span style=3D"color: #004c6e">Main</span><span style=3D"color: #=
+0c0c0c"> </span><span style=3D"color: #7d1545; font-weight: bold">where</sp=
+an><span style=3D"color: #0c0c0c">
+</span>+<span style=3D"color: #0c0c0c">
+</span>+<span style=3D"color: #600c60; font-weight: bold">factorial</span><=
+span style=3D"color: #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</spa=
+n><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #0c240c">=3D=
+</span><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #7d1545=
+; font-weight: bold">if</span><span style=3D"color: #0c0c0c"> </span><span =
+style=3D"color: #0c0c0c">n</span><span style=3D"color: #0c0c0c"> &lt; </spa=
+n><span style=3D"color: #993030">2</span><span style=3D"color: #0c0c0c"> </=
+span><span style=3D"color: #7d1545; font-weight: bold">then</span><span sty=
+le=3D"color: #0c0c0c"> </span><span style=3D"color: #993030">1</span><span =
+style=3D"color: #0c0c0c"> </span><span style=3D"color: #7d1545; font-weight=
+: bold">else</span><span style=3D"color: #0c0c0c"> </span><span style=3D"co=
+lor: #0c0c0c">n</span><span style=3D"color: #0c0c0c"> * </span><span style=
+=3D"color: #0c0c0c">factorial</span><span style=3D"color: #0c0c0c"> </span>=
+<span style=3D"color: #243c24">(</span><span style=3D"color: #0c0c0c">n</sp=
+an><span style=3D"color: #0c0c0c">-</span><span style=3D"color: #993030">1<=
+/span><span style=3D"color: #243c24">)</span><span style=3D"color: #0c0c0c"=
 >
-</span>+<span style=3D"color: #4c4c4c">
-</span>+<span style=3D"color: #8c8d8c">-- Comment
-</span>+<span style=3D"color: #4c4c4c">
-</span>+<span style=3D"color: #9f4b9f; font-weight: bold">main</span><span =
-style=3D"color: #4c4c4c"> </span><span style=3D"color: #4b874b">::</span><s=
-pan style=3D"color: #4c4c4c"> </span><span style=3D"color: #3fa4c6">IO</spa=
-n><span style=3D"color: #4c4c4c"> </span><span style=3D"color: #637b63">()<=
-/span><span style=3D"color: #4c4c4c">
-</span>+<span style=3D"color: #9f4b9f; font-weight: bold">main</span><span =
-style=3D"color: #4c4c4c"> </span><span style=3D"color: #4b634b">=3D</span><=
-span style=3D"color: #4c4c4c"> </span><span style=3D"color: #bd5585; font-w=
-eight: bold">do</span><span style=3D"color: #4c4c4c">
-</span>+<span style=3D"color: #4c4c4c">    </span><span style=3D"color: #4c=
-4c4c">putStrLn</span><span style=3D"color: #4c4c4c"> </span><span style=3D"=
-color: #5168ac">&quot;Hello world&quot;</span><span style=3D"color: #4c4c4c=
+</span>+<span style=3D"color: #0c0c0c">
+</span>+<span style=3D"color: #4c4e4c">-- Comment
+</span>+<span style=3D"color: #0c0c0c">
+</span>+<span style=3D"color: #600c60; font-weight: bold">main</span><span =
+style=3D"color: #0c0c0c"> </span><span style=3D"color: #0c480c">::</span><s=
+pan style=3D"color: #0c0c0c"> </span><span style=3D"color: #004c6e">IO</spa=
+n><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #243c24">()<=
+/span><span style=3D"color: #0c0c0c">
+</span>+<span style=3D"color: #600c60; font-weight: bold">main</span><span =
+style=3D"color: #0c0c0c"> </span><span style=3D"color: #0c240c">=3D</span><=
+span style=3D"color: #0c0c0c"> </span><span style=3D"color: #7d1545; font-w=
+eight: bold">do</span><span style=3D"color: #0c0c0c">
+</span>+<span style=3D"color: #0c0c0c">    </span><span style=3D"color: #0c=
+0c0c">putStrLn</span><span style=3D"color: #0c0c0c"> </span><span style=3D"=
+color: #12286c">&quot;Hello world&quot;</span><span style=3D"color: #0c0c0c=
 ">
-</span>+<span style=3D"color: #4c4c4c">
+</span>+<span style=3D"color: #0c0c0c">
 </span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
 %">
 -- 

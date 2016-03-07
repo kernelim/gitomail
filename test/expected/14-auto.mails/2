@@ -72,25 +72,25 @@ r: #111111"><font size=3D"3"><div><pre line-height: 125%">
 </div><div>
 </div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
 >diff --git a/test&#8203;=2Ec b/test&#8203;=2Ec
-</div><div style=3D"background: #98b0f0; color: #333333">index 12d780e2c4e9=
+</div><div style=3D"background: #a0b8d8; color: #333333">index 12d780e2c4e9=
 &#8203;=2E&#8203;=2E6cc3759e0529 100644
 </div><div style=3D"background: #cccccc; color: #333333">--- a/test&#8203;=
 =2Ec
 </div><div style=3D"background: #dddddd; color: #333333">+++ b/test&#8203;=
 =2Ec
-</div><div style=3D"background: #a9ccdd; color: #545454; font-weight: bold"=
+</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
 >@@ -1,3 +1,11 @@
-</div><div style=3D"background: #ccffcc; color: #333333">+<span style=3D"co=
-lor: #8c8d8c">/*
-</span>+<span style=3D"color: #8c8d8c"> * Comment test&#8203;=2E
-</span>+<span style=3D"color: #8c8d8c"> */</span><span style=3D"color: #4c4=
-c4c">
-</span>+<span style=3D"color: #4c4c4c">
-</span>+<span style=3D"color: #8c8d8c">/*
-</span>+<span style=3D"color: #8c8d8c"> * Comment * test&#8203;=2E
-</span>+<span style=3D"color: #8c8d8c"> */</span><span style=3D"color: #4c4=
-c4c">
-</span>+<span style=3D"color: #4c4c4c">
+</div><div style=3D"background: #ceffce; color: #333333">+<span style=3D"co=
+lor: #4c4e4c">/*
+</span>+<span style=3D"color: #4c4e4c"> * Comment test&#8203;=2E
+</span>+<span style=3D"color: #4c4e4c"> */</span><span style=3D"color: #0c0=
+c0c">
+</span>+<span style=3D"color: #0c0c0c">
+</span>+<span style=3D"color: #4c4e4c">/*
+</span>+<span style=3D"color: #4c4e4c"> * Comment * test&#8203;=2E
+</span>+<span style=3D"color: #4c4e4c"> */</span><span style=3D"color: #0c0=
+c0c">
+</span>+<span style=3D"color: #0c0c0c">
 </span></div><div> <span style=3D"color: #a71d5d; font-weight: bold">int</s=
 pan><span style=3D"color: #111111"> </span><span style=3D"color: #501050">m=
 ain</span><span style=3D"color: #111111">(</span><span style=3D"color: #a71=
@@ -105,85 +105,85 @@ d; font-weight: bold">return</span><span style=3D"color: #111111"> </span><=
 span style=3D"color: #cc4040">0</span><span style=3D"color: #111111">;
 </span></div><div style=3D"background: #a8c0e0; color: #333333; font-weight=
 : bold">diff --git a/test&#8203;=2Ehs b/test&#8203;=2Ehs
-</div><div style=3D"background: #98b0f0; color: #333333">index a1583118223f=
+</div><div style=3D"background: #a0b8d8; color: #333333">index a1583118223f=
 &#8203;=2E&#8203;=2E8d3b51c2c766 100644
 </div><div style=3D"background: #cccccc; color: #333333">--- a/test&#8203;=
 =2Ehs
 </div><div style=3D"background: #dddddd; color: #333333">+++ b/test&#8203;=
 =2Ehs
-</div><div style=3D"background: #a9ccdd; color: #545454; font-weight: bold"=
+</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
 >@@ -1,10 +1,10 @@
 </div><div> <span style=3D"color: #a71d5d; font-weight: bold">module</span>=
-<span style=3D"color: #111111"> </span><span style=3D"color: #0086b3">Main<=
+<span style=3D"color: #111111"> </span><span style=3D"color: #006693">Main<=
 /span><span style=3D"color: #111111"> </span><span style=3D"color: #a71d5d;=
  font-weight: bold">where</span><span style=3D"color: #111111">
 </span> <span style=3D"color: #111111">
-</span></div><div style=3D"background: #ffcccc; color: #333333">-<span styl=
-e=3D"color: #9f4b9f; font-weight: bold">factorial</span><span style=3D"colo=
-r: #4c4c4c"> </span><span style=3D"color: #4c4c4c">n</span><span style=3D"c=
-olor: #4c4c4c"> </span><span style=3D"color: #4b634b">=3D</span><span style=
-=3D"color: #4c4c4c"> </span><span style=3D"color: #bd5585; font-weight: bol=
-d">if</span><span style=3D"color: #4c4c4c"> </span><span style=3D"color: #4=
-c4c4c">n</span><span style=3D"color: #4c4c4c"> &lt; </span><span style=3D"b=
-ackground: #ff9999; color: #333333"><span style=3D"color: #db7979">2</span>=
-</span><span style=3D"color: #4c4c4c"> </span><span style=3D"color: #bd5585=
-; font-weight: bold">then</span><span style=3D"color: #4c4c4c"> </span><spa=
-n style=3D"color: #d86f6f">1</span><span style=3D"color: #4c4c4c"> </span><=
-span style=3D"color: #bd5585; font-weight: bold">else</span><span style=3D"=
-color: #4c4c4c"> </span><span style=3D"color: #4c4c4c">n</span><span style=
-=3D"color: #4c4c4c"> * </span><span style=3D"color: #4c4c4c">factorial</spa=
-n><span style=3D"color: #4c4c4c"> </span><span style=3D"color: #637b63">(</=
-span><span style=3D"color: #4c4c4c">n</span><span style=3D"color: #4c4c4c">=
--</span><span style=3D"color: #d86f6f">1</span><span style=3D"color: #637b6=
-3">)</span><span style=3D"color: #4c4c4c">
-</span></div><div style=3D"background: #ccffcc; color: #333333">+<span styl=
-e=3D"color: #9f4b9f; font-weight: bold">factorial</span><span style=3D"colo=
-r: #4c4c4c"> </span><span style=3D"color: #4c4c4c">n</span><span style=3D"c=
-olor: #4c4c4c"> </span><span style=3D"color: #4b634b">=3D</span><span style=
-=3D"color: #4c4c4c"> </span><span style=3D"background: #99ff99; color: #333=
-333"><span style=3D"color: #c1608d; font-weight: bold">let</span><span styl=
-e=3D"color: #585858"> </span><span style=3D"color: #585858">m</span><span s=
-tyle=3D"color: #585858"> </span><span style=3D"color: #576e57">=3D</span><s=
-pan style=3D"color: #585858"> </span><span style=3D"color: #db7979">2</span=
-><span style=3D"color: #585858"> </span><span style=3D"color: #c1608d; font=
--weight: bold">in</span><span style=3D"color: #585858"> </span></span><span=
- style=3D"color: #bd5585; font-weight: bold">if</span><span style=3D"color:=
- #4c4c4c"> </span><span style=3D"color: #4c4c4c">n</span><span style=3D"col=
-or: #4c4c4c"> &lt; </span><span style=3D"background: #99ff99; color: #33333=
-3"><span style=3D"color: #585858">m</span></span><span style=3D"color: #4c4=
-c4c"> </span><span style=3D"color: #bd5585; font-weight: bold">then</span><=
-span style=3D"color: #4c4c4c"> </span><span style=3D"color: #d86f6f">1</spa=
-n><span style=3D"color: #4c4c4c"> </span><span style=3D"color: #bd5585; fon=
-t-weight: bold">else</span><span style=3D"color: #4c4c4c"> </span><span sty=
-le=3D"color: #4c4c4c">n</span><span style=3D"color: #4c4c4c"> * </span><spa=
-n style=3D"color: #4c4c4c">factorial</span><span style=3D"color: #4c4c4c"> =
-</span><span style=3D"color: #637b63">(</span><span style=3D"color: #4c4c4c=
-">n</span><span style=3D"color: #4c4c4c">-</span><span style=3D"color: #d86=
-f6f">1</span><span style=3D"color: #637b63">)</span><span style=3D"color: #=
-4c4c4c">
+</span></div><div style=3D"background: #ffcece; color: #333333">-<span styl=
+e=3D"color: #600c60; font-weight: bold">factorial</span><span style=3D"colo=
+r: #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</span><span style=3D"c=
+olor: #0c0c0c"> </span><span style=3D"color: #0c240c">=3D</span><span style=
+=3D"color: #0c0c0c"> </span><span style=3D"color: #7d1545; font-weight: bol=
+d">if</span><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #0=
+c0c0c">n</span><span style=3D"color: #0c0c0c"> &lt; </span><span style=3D"b=
+ackground: #ffa5a5; color: #333333"><span style=3D"color: #8e2c2c">2</span>=
+</span><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #7d1545=
+; font-weight: bold">then</span><span style=3D"color: #0c0c0c"> </span><spa=
+n style=3D"color: #993030">1</span><span style=3D"color: #0c0c0c"> </span><=
+span style=3D"color: #7d1545; font-weight: bold">else</span><span style=3D"=
+color: #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</span><span style=
+=3D"color: #0c0c0c"> * </span><span style=3D"color: #0c0c0c">factorial</spa=
+n><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #243c24">(</=
+span><span style=3D"color: #0c0c0c">n</span><span style=3D"color: #0c0c0c">=
+-</span><span style=3D"color: #993030">1</span><span style=3D"color: #243c2=
+4">)</span><span style=3D"color: #0c0c0c">
+</span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
+e=3D"color: #600c60; font-weight: bold">factorial</span><span style=3D"colo=
+r: #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</span><span style=3D"c=
+olor: #0c0c0c"> </span><span style=3D"color: #0c240c">=3D</span><span style=
+=3D"color: #0c0c0c"> </span><span style=3D"background: #a5ffa5; color: #333=
+333"><span style=3D"color: #741441; font-weight: bold">let</span><span styl=
+e=3D"color: #0b0b0b"> </span><span style=3D"color: #0b0b0b">m</span><span s=
+tyle=3D"color: #0b0b0b"> </span><span style=3D"color: #0b210b">=3D</span><s=
+pan style=3D"color: #0b0b0b"> </span><span style=3D"color: #8e2c2c">2</span=
+><span style=3D"color: #0b0b0b"> </span><span style=3D"color: #741441; font=
+-weight: bold">in</span><span style=3D"color: #0b0b0b"> </span></span><span=
+ style=3D"color: #7d1545; font-weight: bold">if</span><span style=3D"color:=
+ #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</span><span style=3D"col=
+or: #0c0c0c"> &lt; </span><span style=3D"background: #a5ffa5; color: #33333=
+3"><span style=3D"color: #0b0b0b">m</span></span><span style=3D"color: #0c0=
+c0c"> </span><span style=3D"color: #7d1545; font-weight: bold">then</span><=
+span style=3D"color: #0c0c0c"> </span><span style=3D"color: #993030">1</spa=
+n><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #7d1545; fon=
+t-weight: bold">else</span><span style=3D"color: #0c0c0c"> </span><span sty=
+le=3D"color: #0c0c0c">n</span><span style=3D"color: #0c0c0c"> * </span><spa=
+n style=3D"color: #0c0c0c">factorial</span><span style=3D"color: #0c0c0c"> =
+</span><span style=3D"color: #243c24">(</span><span style=3D"color: #0c0c0c=
+">n</span><span style=3D"color: #0c0c0c">-</span><span style=3D"color: #993=
+030">1</span><span style=3D"color: #243c24">)</span><span style=3D"color: #=
+0c0c0c">
 </span></div><div> <span style=3D"color: #111111">
 </span> <span style=3D"color: #666866">-- Comment
 </span> <span style=3D"color: #111111">
 </span> <span style=3D"color: #801080; font-weight: bold">main</span><span =
 style=3D"color: #111111"> </span><span style=3D"color: #106010">::</span><s=
-pan style=3D"color: #111111"> </span><span style=3D"color: #0086b3">IO</spa=
+pan style=3D"color: #111111"> </span><span style=3D"color: #006693">IO</spa=
 n><span style=3D"color: #111111"> </span><span style=3D"color: #305030">()<=
 /span><span style=3D"color: #111111">
 </span> <span style=3D"color: #801080; font-weight: bold">main</span><span =
 style=3D"color: #111111"> </span><span style=3D"color: #103010">=3D</span><=
 span style=3D"color: #111111"> </span><span style=3D"color: #a71d5d; font-w=
 eight: bold">do</span><span style=3D"color: #111111">
-</span></div><div style=3D"background: #ccffcc; color: #333333">+<span styl=
-e=3D"color: #4c4c4c">    </span><span style=3D"color: #4c4c4c">getLine</spa=
-n><span style=3D"color: #4c4c4c"> &gt;&gt;</span><span style=3D"color: #4b6=
-34b">=3D</span><span style=3D"color: #4c4c4c"> </span><span style=3D"color:=
- #4c4c4c">putStrLn</span><span style=3D"color: #4c4c4c">
+</span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
+e=3D"color: #0c0c0c">    </span><span style=3D"color: #0c0c0c">getLine</spa=
+n><span style=3D"color: #0c0c0c"> &gt;&gt;</span><span style=3D"color: #0c2=
+40c">=3D</span><span style=3D"color: #0c0c0c"> </span><span style=3D"color:=
+ #0c0c0c">putStrLn</span><span style=3D"color: #0c0c0c">
 </span></div><div> <span style=3D"color: #111111">    </span><span style=3D=
 "color: #111111">putStrLn</span><span style=3D"color: #111111"> </span><spa=
 n style=3D"color: #183691">&quot;Hello world&quot;</span><span style=3D"col=
 or: #111111">
-</span></div><div style=3D"background: #ffcccc; color: #333333">-<span styl=
-e=3D"color: #4c4c4c">
+</span></div><div style=3D"background: #ffcece; color: #333333">-<span styl=
+e=3D"color: #0c0c0c">
 </span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
 %">
 -- 
