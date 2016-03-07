@@ -16,7 +16,7 @@
 * Verify that the ASCII version of the E-Mail can still be imported as a patch.
 * Verify that merge commits are skipped, for now.
 * Cleanups, refactoring.
-* Submodule support.
+* Submodule support, or at least test for minimal handling.
 * Rethink handling of empty commits (currently no mails are sent).
 * Rethink handling of invalid/redundant Maintainers data. Provide a command line
   option for it to be used in project's build time.

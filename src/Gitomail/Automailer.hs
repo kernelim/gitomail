@@ -52,8 +52,8 @@ import           Gitomail.Config            ((^.||))
 import qualified Gitomail.Config            as CFG
 import           Gitomail.Gitomail
 import qualified Gitomail.Opts              as O
-import qualified Fancydiff.Formatting       as F
 import qualified Lib.Git                    as GIT
+import qualified Lib.Formatting             as F
 import qualified Lib.InlineFormatting       as F
 import           Lib.LiftedPrelude
 import           Lib.Monad                  (whenM)
@@ -319,7 +319,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
                             & T.replace "%r" repoName
                             & T.replace "%b" ref
                             & (T.replace "%s" $ T.concat subject)
-                        html        = TL.fromChunks [ F.flistToInlineStyleHtml Nothing flist ]
+                        html        = TL.fromChunks [ F.flistToInlineStyleHtml flist ]
                         plain       = TL.fromChunks [ F.flistToText flist ]
                         mail        = Mail
                           { mailFrom    = emailAddress

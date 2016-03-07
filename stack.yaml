@@ -1,12 +1,14 @@
 flags: {}
 packages:
-- location:
-    git: https://github.com/kernelim/leveldb-haskell
-    commit: 6e92a6cb26b6f75857e95705c15902b85758dd53
+- location: https://github.com/kernelim/leveldb-haskell/archive/6e92a6cb26b6f75857e95705c15902b85758dd53.zip
   extra-dep: true
-- location:
-    git: https://github.com/da-x/fancydiff
-    commit: 8abc4a119cfe2d4d9c026a914bc004686d5a1ed8
+- location: https://github.com/da-x/fancydiff/archive/fe036aec0d7e092ec85de14271dba31280f6f512.zip
   extra-dep: true
+- location: https://github.com/da-x/gitlib/archive/5b338169a2618337a60aaf17e2ab56a2654b1244.zip
+  extra-dep: true
+  subdirs:
+  - gitlib
+  - gitlib-libgit2
+  - hlibgit2
 - .
-resolver: lts-4.1
+resolver: lts-5.4

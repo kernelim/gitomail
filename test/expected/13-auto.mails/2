@@ -58,72 +58,99 @@ Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00023ffffffffffffffffffffffffffff=
-fffffff<br>Branches: master<br><font size=3D"3"><div><pre style=3D"line-hei=
-ght: 125%">
+fffffff<br>Branches: master<br><pre><div style=3D"background: #f5f5f5; colo=
+r: #111111"><font size=3D"3"><div><pre line-height: 125%">
 
-Description</pre></div></font><font size=3D"3"><div><pre style=3D"line-heig=
-ht: 125%"><div style=3D"background: #F5F5F3; font-family: monospace">
-</div><div style=3D"background: #F5F5F3; font-family: monospace">---
+Description</pre></div></font><font size=3D"3"><div><pre line-height: 125%"=
+><div>
+</div><div>---
  test&#8203;=2Ec  |  4 ++++
  test&#8203;=2Ehs | 10 ++++++++++
  2 files changed, 14 insertions(+)
  create mode 100644 test&#8203;=2Ec
  create mode 100644 test&#8203;=2Ehs
-</div><div style=3D"background: #F5F5F3; font-family: monospace">
-</div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
- font-family: monospace">diff --git a/test&#8203;=2Ec b/test&#8203;=2Ec
-</div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=
-pace">new file mode 100644
+</div><div>
+</div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
+>diff --git a/test&#8203;=2Ec b/test&#8203;=2Ec
+</div><div style=3D"background: #98b0f0; color: #333333">new file mode 1006=
+44
 index 000000000000&#8203;=2E&#8203;=2E12d780e2c4e9
-</div><div style=3D"background: #FFE0E0; font-family: monospace">--- /dev/n=
-ull
-</div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/test=
-&#8203;=2Ec
-</div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
-nospace">@@ -0,0 +1,4 @@
-</div><div style=3D"background: #E0FFE0; font-family: monospace">+<span sty=
-le=3D"color: #7e1646">int</span> <span style=3D"color: #007878">main</span>=
-(<span style=3D"color: #7e1646">int</span> argc, <span style=3D"color: #7e1=
-646">char</span> **argv[])
-+{
-+	<span style=3D"color: #7e1646">return</span> <span style=3D"color: #78240=
-0">0</span>;
-+}
-</div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
- font-family: monospace">diff --git a/test&#8203;=2Ehs b/test&#8203;=2Ehs
-</div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=
-pace">new file mode 100644
+</div><div style=3D"background: #cccccc; color: #333333">--- /dev/null
+</div><div style=3D"background: #dddddd; color: #333333">+++ b/test&#8203;=
+=2Ec
+</div><div style=3D"background: #a9ccdd; color: #545454; font-weight: bold"=
+>@@ -0,0 +1,4 @@
+</div><div style=3D"background: #ccffcc; color: #333333">+<span style=3D"co=
+lor: #bd5585; font-weight: bold">int</span><span style=3D"color: #4c4c4c"> =
+</span><span style=3D"color: #7b4b7b">main</span><span style=3D"color: #4c4=
+c4c">(</span><span style=3D"color: #bd5585; font-weight: bold">int</span><s=
+pan style=3D"color: #4c4c4c"> </span><span style=3D"color: #4c4c4c">argc</s=
+pan><span style=3D"color: #4c4c4c">, </span><span style=3D"color: #bd5585; =
+font-weight: bold">char</span><span style=3D"color: #4c4c4c"> **</span><spa=
+n style=3D"color: #4c4c4c">argv</span><span style=3D"color: #4c4c4c">[])
+</span>+<span style=3D"color: #4c4c4c">{
+</span>+<span style=3D"color: #4c4c4c">	</span><span style=3D"color: #bd558=
+5; font-weight: bold">return</span><span style=3D"color: #4c4c4c"> </span><=
+span style=3D"color: #d86f6f">0</span><span style=3D"color: #4c4c4c">;
+</span>+<span style=3D"color: #4c4c4c">}
+</span></div><div style=3D"background: #a8c0e0; color: #333333; font-weight=
+: bold">diff --git a/test&#8203;=2Ehs b/test&#8203;=2Ehs
+</div><div style=3D"background: #98b0f0; color: #333333">new file mode 1006=
+44
 index 000000000000&#8203;=2E&#8203;=2Ea1583118223f
-</div><div style=3D"background: #FFE0E0; font-family: monospace">--- /dev/n=
-ull
-</div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/test=
-&#8203;=2Ehs
-</div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
-nospace">@@ -0,0 +1,10 @@
-</div><div style=3D"background: #E0FFE0; font-family: monospace">+<span sty=
-le=3D"color: #7e1646">module</span> <span style=3D"color: #307878">Main</sp=
-an> <span style=3D"color: #7e1646">where</span>
-+
-+factorial n =3D <span style=3D"color: #7e1646">if</span> n &lt; <span styl=
-e=3D"color: #782400">2</span> <span style=3D"color: #7e1646">then</span> <s=
-pan style=3D"color: #782400">1</span> <span style=3D"color: #7e1646">else</=
-span> n * factorial (n-<span style=3D"color: #782400">1</span>)
-+
-+<span style=3D"color: #717271">-- Comment
-</span>+
-+main :: <span style=3D"color: #307878">IO</span> ()
-+main =3D <span style=3D"color: #7e1646">do</span>
-+    putStrLn <span style=3D"color: #3054c0">&quot;Hello world&quot;</span>=
-
-+
-</div></pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 1=
-25%">
+</div><div style=3D"background: #cccccc; color: #333333">--- /dev/null
+</div><div style=3D"background: #dddddd; color: #333333">+++ b/test&#8203;=
+=2Ehs
+</div><div style=3D"background: #a9ccdd; color: #545454; font-weight: bold"=
+>@@ -0,0 +1,10 @@
+</div><div style=3D"background: #ccffcc; color: #333333">+<span style=3D"co=
+lor: #bd5585; font-weight: bold">module</span><span style=3D"color: #4c4c4c=
+"> </span><span style=3D"color: #3fa4c6">Main</span><span style=3D"color: #=
+4c4c4c"> </span><span style=3D"color: #bd5585; font-weight: bold">where</sp=
+an><span style=3D"color: #4c4c4c">
+</span>+<span style=3D"color: #4c4c4c">
+</span>+<span style=3D"color: #9f4b9f; font-weight: bold">factorial</span><=
+span style=3D"color: #4c4c4c"> </span><span style=3D"color: #4c4c4c">n</spa=
+n><span style=3D"color: #4c4c4c"> </span><span style=3D"color: #4b634b">=3D=
+</span><span style=3D"color: #4c4c4c"> </span><span style=3D"color: #bd5585=
+; font-weight: bold">if</span><span style=3D"color: #4c4c4c"> </span><span =
+style=3D"color: #4c4c4c">n</span><span style=3D"color: #4c4c4c"> &lt; </spa=
+n><span style=3D"color: #d86f6f">2</span><span style=3D"color: #4c4c4c"> </=
+span><span style=3D"color: #bd5585; font-weight: bold">then</span><span sty=
+le=3D"color: #4c4c4c"> </span><span style=3D"color: #d86f6f">1</span><span =
+style=3D"color: #4c4c4c"> </span><span style=3D"color: #bd5585; font-weight=
+: bold">else</span><span style=3D"color: #4c4c4c"> </span><span style=3D"co=
+lor: #4c4c4c">n</span><span style=3D"color: #4c4c4c"> * </span><span style=
+=3D"color: #4c4c4c">factorial</span><span style=3D"color: #4c4c4c"> </span>=
+<span style=3D"color: #637b63">(</span><span style=3D"color: #4c4c4c">n</sp=
+an><span style=3D"color: #4c4c4c">-</span><span style=3D"color: #d86f6f">1<=
+/span><span style=3D"color: #637b63">)</span><span style=3D"color: #4c4c4c"=
+>
+</span>+<span style=3D"color: #4c4c4c">
+</span>+<span style=3D"color: #8c8d8c">-- Comment
+</span>+<span style=3D"color: #4c4c4c">
+</span>+<span style=3D"color: #9f4b9f; font-weight: bold">main</span><span =
+style=3D"color: #4c4c4c"> </span><span style=3D"color: #4b874b">::</span><s=
+pan style=3D"color: #4c4c4c"> </span><span style=3D"color: #3fa4c6">IO</spa=
+n><span style=3D"color: #4c4c4c"> </span><span style=3D"color: #637b63">()<=
+/span><span style=3D"color: #4c4c4c">
+</span>+<span style=3D"color: #9f4b9f; font-weight: bold">main</span><span =
+style=3D"color: #4c4c4c"> </span><span style=3D"color: #4b634b">=3D</span><=
+span style=3D"color: #4c4c4c"> </span><span style=3D"color: #bd5585; font-w=
+eight: bold">do</span><span style=3D"color: #4c4c4c">
+</span>+<span style=3D"color: #4c4c4c">    </span><span style=3D"color: #4c=
+4c4c">putStrLn</span><span style=3D"color: #4c4c4c"> </span><span style=3D"=
+color: #5168ac">&quot;Hello world&quot;</span><span style=3D"color: #4c4c4c=
+">
+</span>+<span style=3D"color: #4c4c4c">
+</span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
+%">
 -- 
 x&#8203;=2Ex&#8203;=2Ex
 
-</pre></div></font><div height=3D"20">&nbsp;</div><div style=3D"color: #b0b=
-0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/gitom=
-ail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">Gitomai=
-l</span></a> 
+</pre></div></font></div></pre><div height=3D"20">&nbsp;</div><div style=3D=
+"color: #b0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/ke=
+rnelim/gitomail" style=3D"text-decoration: none"><span style=3D"color: #a0a=
+0a0">Gitomail</span></a> 
 </div>
 --<random-replaced-for-test>--

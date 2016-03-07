@@ -29,6 +29,7 @@ executable gitomail
                    , Lib.DList
                    , Lib.EMail
                    , Lib.Git
+                   , Lib.Formatting
                    , Lib.InlineFormatting
                    , Lib.LiftedIO
                    , Lib.LiftedPrelude

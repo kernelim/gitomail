@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveDataTypeable        #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE FlexibleInstances         #-}
@@ -56,6 +55,8 @@ import           Data.Typeable               (Typeable)
 import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
 import qualified Fancydiff.Formatting        as F
+import qualified Fancydiff.HTMLFormatting    as F
+import qualified Fancydiff.Themes            as F
 import qualified Fancydiff.Lib               as FL
 import           Git                         (withRepository)
 import           Git.Libgit2                 (lgFactory)
@@ -83,7 +84,8 @@ import           Gitomail.WhoMaintains
 import           Lib.EMail                   (InvalidEMail, emailRegEx,
                                               parseEMail)
 import qualified Lib.Git                     as GIT
-import qualified Lib.InlineFormatting        as F
+import qualified Lib.InlineFormatting        as FI
+import qualified Lib.Formatting              as FI
 import           Lib.LiftedPrelude
 import           Lib.Regex                   (matchWhole)
 import           Lib.Text                    (removeTrailingNewLine, safeDecode,
@@ -170,7 +172,8 @@ data MailInfo = MailInfo {
 data CommitContentInfo = CommitContentInfo {
         cciInexactDiffHash    :: InexactDiffHash
       , cciInexactDiffHashNew :: Bool
-      , cciFormatted          :: F.FList
+      , cciFormatted1         :: F.FList
+      , cciFormatted2         :: FI.FList
       , cciMail               :: MailInfo
     }
 
@@ -181,7 +184,7 @@ data CommitInfo = CommitInfo {
     }
 
 ciToMaybeMailInfo :: CommitInfo -> Maybe MailInfo
-ciToMaybeMailInfo (CommitInfo _ _ (Right (CommitContentInfo _ _ _ mi))) = Just mi
+ciToMaybeMailInfo (CommitInfo _ _ (Right (CommitContentInfo _ _ _ _ mi))) = Just mi
 ciToMaybeMailInfo _ = Nothing
 
 data CommitMailKind = CommitMailSummary | CommitMailFull
@@ -382,7 +385,7 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                                       True -> do
                                           path <- getRepositoryPath
                                           withRepository lgFactory path $ do
-                                              FL.trySourceHighlight diff
+                                              FL.tryDiffWithSourceHighlight diff
 
                               return $ (F.highlightMonospace commitMessageBody)
                                           `DList.append` diffHighlighted
@@ -409,12 +412,16 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                                              ("Subject", subjectLine)]
                             , mailParts = [[plainPart plain, htmlPart html]]
                             }
-                          flists = parsedFLists `DList.append` emailFooter
-                          html = TL.fromChunks [ htmlOnlyHeader, F.flistToInlineStyleHtml blobInCommitURLFunc flists ]
-                          plain = TL.fromChunks [ F.flistToText flists ]
+                          htmlformat = (F.mkHtmlFormat F.HTMLInline F.brightBackground) { F.fmtFileLinker = blobInCommitURLFunc }
+                          html = TL.fromChunks [ htmlOnlyHeader,
+                                                 F.htmlFormatting htmlformat parsedFLists,
+                                                 FI.flistToInlineStyleHtml emailFooter]
+                          plain = TL.fromChunks [ F.flistToText parsedFLists,
+                                                  FI.flistToText emailFooter
+                                                ]
                           replyTo = Address (Just authorName) authorEMail
                           mailInfo = MailInfo mail subjectLine
-                          contentInfo = CommitContentInfo diffInexactHash miInexactDiffHashNew flists mailInfo
+                          contentInfo = CommitContentInfo diffInexactHash miInexactDiffHashNew parsedFLists emailFooter mailInfo
 
                       returnCommitInfo $ Right contentInfo
 
@@ -497,6 +504,8 @@ showOne = do
                     putStrLn str
                 Right (CommitContentInfo{..}) -> do
                     when (opts ^. O.verbose) $ do
-                        liftIO $ T.putStr $ F.fshow cciFormatted
-                    liftIO $ T.putStr $ FL.ansiFormatting $ cciFormatted
+                        liftIO $ T.putStr $ F.fshow cciFormatted1
+                        liftIO $ T.putStr $ FI.fshow cciFormatted2
+                    liftIO $ T.putStr $ F.flistToText $ cciFormatted1
+                    liftIO $ T.putStr $ FI.flistToText $ cciFormatted2
                     return ()

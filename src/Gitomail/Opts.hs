@@ -51,7 +51,6 @@ data Command
     | ParseMaintainerFile FilePath
     | ParseConfigFile FilePath
     | EvalConfigs
-    | Highlight (Maybe Text)
     | Misc
     deriving (Show)
 
@@ -104,7 +103,6 @@ optsParse = Opts
            <> command "send-one" sendOneRef
            <> command "auto-mailer" autoMailer
            <> command "auto-mailer-set-ref" autoMailerSetRef
-           <> command "highlight" highlight
            <> command "debug" debugCommands
            ))
     where
@@ -136,9 +134,6 @@ optsParse = Opts
 
         autoMailerSetRef = info (AutoMailerSetRef <$> (argument textParam (metavar "REF")) <*> (argument textParam (metavar "HASH")))
             (progDesc "Set the tracked ref to something else (for fine control of detected commit hashes between runs)")
-
-        highlight = info (Highlight <$> (optional . textOption) (short 'e' <> metavar "EXTENSION"))
-            (progDesc "Perform ANSI-color 24-bit color highlighting for stdin (filename only hints about source type)")
 
 opts :: ParserInfo Opts
 opts = info (optsParse <**> helper) idm

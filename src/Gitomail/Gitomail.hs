@@ -58,7 +58,6 @@ import           Data.Version                (showVersion)
 import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
 import           Data.UnixTime               (getUnixTime, UnixTime(..))
-import qualified Fancydiff.Formatting        as F
 import           Data.List                   (groupBy, sortOn, sort)
 import           System.FilePath             ((</>), takeBaseName)
 import           System.Directory            (canonicalizePath, doesFileExist,
@@ -82,6 +81,7 @@ import qualified Gitomail.Maintainers        as Maintainers
 import qualified Gitomail.Opts               as O
 import qualified Gitomail.Version            as V
 import           Lib.EMail                   (parseEMail', InvalidEMail(..))
+import qualified Lib.Formatting              as F
 import qualified Lib.Git                     as GIT
 import           Lib.Monad                   (lSeqForM)
 import           Lib.Text                    ((+@), showT, leadingZeros,

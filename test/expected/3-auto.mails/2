@@ -36,37 +36,35 @@ Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00003ffffffffffffffffffffffffffff=
-fffffff<br>Branches: topic<br><font size=3D"3"><div><pre style=3D"line-heig=
-ht: 125%">
-</pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 125%"><=
-div style=3D"background: #F5F5F3; font-family: monospace">
-</div><div style=3D"background: #F5F5F3; font-family: monospace">---
+fffffff<br>Branches: topic<br><pre><div style=3D"background: #f5f5f5; color=
+: #111111"><font size=3D"3"><div><pre line-height: 125%">
+</pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div>
+</div><div>---
  README&#8203;=2Emd | 1 +
  1 file changed, 1 insertion(+)
-</div><div style=3D"background: #F5F5F3; font-family: monospace">
-</div><div style=3D"background: #DCDCFF; color: #000080; font-weight: bold;=
- font-family: monospace">diff --git a/README&#8203;=2Emd b/README&#8203;=2E=
-md
-</div><div style=3D"background: #DCDCFF; color: #000080; font-family: monos=
-pace">index 53d378b997b4&#8203;=2E&#8203;=2E4bb45dbc32e9 100644
-</div><div style=3D"background: #FFE0E0; font-family: monospace">--- a/READ=
-ME&#8203;=2Emd
-</div><div style=3D"background: #E0FFE0; font-family: monospace">+++ b/READ=
-ME&#8203;=2Emd
-</div><div style=3D"background: #E0E0E0; font-weight: bold; font-family: mo=
-nospace">@@ -1,2 +1,3 @@
-</div><div style=3D"background: #F5F5F3; font-family: monospace"> Content
- Added content 1
-</div><div style=3D"background: #E0FFE0; font-family: monospace">+Added con=
-tent 2
-</div></pre></div></font><font size=3D"3"><div><pre style=3D"line-height: 1=
-25%">
+</div><div>
+</div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
+>diff --git a/README&#8203;=2Emd b/README&#8203;=2Emd
+</div><div style=3D"background: #98b0f0; color: #333333">index 53d378b997b4=
+&#8203;=2E&#8203;=2E4bb45dbc32e9 100644
+</div><div style=3D"background: #cccccc; color: #333333">--- a/README&#8203=
+;=2Emd
+</div><div style=3D"background: #dddddd; color: #333333">+++ b/README&#8203=
+;=2Emd
+</div><div style=3D"background: #a9ccdd; color: #545454; font-weight: bold"=
+>@@ -1,2 +1,3 @@
+</div><div> <span style=3D"color: #111111">Content
+</span> <span style=3D"color: #111111">Added content 1
+</span></div><div style=3D"background: #ccffcc; color: #333333">+<span styl=
+e=3D"color: #4c4c4c">Added content 2
+</span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
+%">
 -- 
 x&#8203;=2Ex&#8203;=2Ex
 
-</pre></div></font><div height=3D"20">&nbsp;</div><div style=3D"color: #b0b=
-0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/gitom=
-ail" style=3D"text-decoration: none"><span style=3D"color: #a0a0a0">Gitomai=
-l</span></a> 
+</pre></div></font></div></pre><div height=3D"20">&nbsp;</div><div style=3D=
+"color: #b0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/ke=
+rnelim/gitomail" style=3D"text-decoration: none"><span style=3D"color: #a0a=
+0a0">Gitomail</span></a> 
 </div>
 --<random-replaced-for-test>--
