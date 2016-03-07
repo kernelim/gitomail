@@ -19,6 +19,12 @@ BuildRequires:  openssl-devel
 BuildRequires:  gmp-devel
 BuildRequires:  pcre-devel
 
+%if 0%{?fedora} >= 24
+# GHC builds need tinfo.so.5
+BuildRequires:  ncurses-compat-libs
+BuildRequires:  glibc-langpack-en
+%endif
+
 %description
 Automatic E-Mail generation for Git with maintainership tracking.
 
@@ -27,11 +33,20 @@ Automatic E-Mail generation for Git with maintainership tracking.
 %prep
 %setup -q
 
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+
 rm version.sh
 cp %{_sourcedir}/Version.hs src/Gitomail/Version.hs
 stack --no-terminal setup
 
 %build
+
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+
 stack --no-terminal build
 
 %install
