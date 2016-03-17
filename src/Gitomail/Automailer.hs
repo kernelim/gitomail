@@ -12,8 +12,8 @@
 {-# LANGUAGE RankNTypes                #-}
 {-# LANGUAGE RecordWildCards           #-}
 {-# LANGUAGE ScopedTypeVariables       #-}
-{-# LANGUAGE TypeSynonymInstances      #-}
 {-# LANGUAGE StandaloneDeriving        #-}
+{-# LANGUAGE TypeSynonymInstances      #-}
 
 module Gitomail.Automailer
     ( autoMailer
@@ -32,10 +32,10 @@ import           Control.Monad.State.Strict (gets)
 import qualified Data.ByteString.Char8      as BS8
 import qualified Data.DList                 as DList
 import           Data.Foldable              (toList)
+import qualified Data.HashMap.Strict        as HMS
 import           Data.List                  (nub, (\\))
 import qualified Data.Map                   as Map
 import           Data.Maybe                 (catMaybes, fromMaybe)
-import qualified Data.HashMap.Strict        as HMS
 import qualified Data.Set                   as Set
 import           Data.Text                  (Text)
 import qualified Data.Text                  as T
@@ -52,8 +52,8 @@ import           Gitomail.Config            ((^.||))
 import qualified Gitomail.Config            as CFG
 import           Gitomail.Gitomail
 import qualified Gitomail.Opts              as O
-import qualified Lib.Git                    as GIT
 import qualified Lib.Formatting             as F
+import qualified Lib.Git                    as GIT
 import qualified Lib.InlineFormatting       as F
 import           Lib.LiftedPrelude
 import           Lib.Monad                  (whenM)
@@ -159,6 +159,9 @@ autoMailerSetRef gitref hash = do
                         let modified = Map.insert gitref hash refs
                         putStrLn $ "Now set to value: " ++ show hash
                         writeRefsMap opts db modified
+
+addIssueTrackLinks :: (MonadGitomail m) => Text -> m F.FList
+addIssueTrackLinks msg = parseIssueTrackMentions F.TPlain (\a b -> F.TForm (F.Link a) b) msg
 
 makeSummaryEMail :: (MonadGitomail m)
                   => DB
@@ -286,7 +289,8 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
                            maybeBold f =
                                if bold then F.mkFormS F.Emphesis f else f
                        insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain field
-                       insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain $ ciCommitSubject +@ "\n"
+                       commitSubject <- addIssueTrackLinks $ ciCommitSubject +@ "\n"
+                       insert flistRowI $ F.TForm col $ maybeBold $ commitSubject
 
                        flistRow <- readIORef flistRowI
                        insert flistI $ F.TForm row flistRow

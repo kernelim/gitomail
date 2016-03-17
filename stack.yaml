@@ -2,7 +2,7 @@ flags: {}
 packages:
 - location: https://github.com/kernelim/leveldb-haskell/archive/6e92a6cb26b6f75857e95705c15902b85758dd53.zip
   extra-dep: true
-- location: https://github.com/da-x/fancydiff/archive/fae448ade721a06bee2d16408e8a35dc07d2bf74.zip
+- location: https://github.com/da-x/fancydiff/archive/b9cd7a24f151c91d1dd64690d0d1c9de1928d43a.zip
   extra-dep: true
 - location: https://github.com/da-x/gitlib/archive/5b338169a2618337a60aaf17e2ab56a2654b1244.zip
   extra-dep: true

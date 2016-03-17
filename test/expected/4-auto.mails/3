@@ -3,7 +3,7 @@ To: =?utf-8?Q?Main_User?= <main@gitomail.com>
 Message-Id: <0000000000-0000004-0007-gitomail-bot@gitomail.com>
 X-Mailer: gitomail 0.0.0
 Reply-to: =?utf-8?Q?Main_User?= <main@gitomail.com>
-Subject: [repo master 00006ffff, #2] Updating README.md [5]
+Subject: [repo master 00006ffff, #2] Updating README.md [5] [OTHER-4]
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
 
@@ -37,8 +37,10 @@ Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00006ffffffffffffffffffffffffffff=
-fffffff<br>Branches: master, topic2<br><pre><div style=3D"background: #f5f5=
-f5; color: #111111"><font size=3D"3"><div><pre line-height: 125%">
+fffffff<br>Branches: master, topic2<br>Issue: <a href=3D"https://somefakepr=
+oject=2Ecom/browse/OTHER-4" style=3D"text-decoration: none">OTHER-4</a><br>=
+<pre><div style=3D"background: #f5f5f5; color: #111111"><font size=3D"3"><d=
+iv><pre line-height: 125%">
 </pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div>
 </div><div>---
  README&#8203;=2Emd | 1 +

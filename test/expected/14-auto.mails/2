@@ -133,9 +133,9 @@ span style=3D"color: #7d1545; font-weight: bold">else</span><span style=3D"=
 color: #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</span><span style=
 =3D"color: #0c0c0c"> * </span><span style=3D"color: #0c0c0c">factorial</spa=
 n><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #243c24">(</=
-span><span style=3D"color: #0c0c0c">n</span><span style=3D"color: #0c0c0c">=
--</span><span style=3D"color: #993030">1</span><span style=3D"color: #243c2=
-4">)</span><span style=3D"color: #0c0c0c">
+span><span style=3D"color: #0c0c0c">n</span><span style=3D"color: #993030">=
+-1</span><span style=3D"color: #243c24">)</span><span style=3D"color: #0c0c=
+0c">
 </span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
 e=3D"color: #600c60; font-weight: bold">factorial</span><span style=3D"colo=
 r: #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</span><span style=3D"c=
@@ -158,9 +158,8 @@ t-weight: bold">else</span><span style=3D"color: #0c0c0c"> </span><span sty=
 le=3D"color: #0c0c0c">n</span><span style=3D"color: #0c0c0c"> * </span><spa=
 n style=3D"color: #0c0c0c">factorial</span><span style=3D"color: #0c0c0c"> =
 </span><span style=3D"color: #243c24">(</span><span style=3D"color: #0c0c0c=
-">n</span><span style=3D"color: #0c0c0c">-</span><span style=3D"color: #993=
-030">1</span><span style=3D"color: #243c24">)</span><span style=3D"color: #=
-0c0c0c">
+">n</span><span style=3D"color: #993030">-1</span><span style=3D"color: #24=
+3c24">)</span><span style=3D"color: #0c0c0c">
 </span></div><div> <span style=3D"color: #111111">
 </span> <span style=3D"color: #666866">-- Comment
 </span> <span style=3D"color: #111111">

@@ -12,10 +12,10 @@ Content-Transfer-Encoding: quoted-printable
 
 
 Content
-Main User 00010ffff #4 Updating README=2Emd [9]
-Main User 00009ffff #3 Updating README=2Emd [8]
-Main User 00006ffff #2 Updating README=2Emd [5]
-Main User 00005ffff #1 Updating README=2Emd [4]
+Main User 00010ffff #4 Updating README=2Emd [9] [PROJECT-31]
+Main User 00009ffff #3 Updating README=2Emd [8] [PROJECT-31]
+Main User 00006ffff #2 Updating README=2Emd [5] [OTHER-4]
+Main User 00005ffff #1 Updating README=2Emd [4] [OTHER-4]
 
 Sent by Gitomail 
 
@@ -32,28 +32,32 @@ a href=3D"https://github=2Ecom/gitomail/repo/commit/00010ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00010ffff </a></span></f=
 ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#4 </div></td><=
 td colspan=3D"1"><div style=3D"font-weight: bold">Updating README&#8203;=2E=
-md [9]
+md [9] [<a href=3D"https://somefakeproject=2Ecom/browse/PROJECT-31" style=
+=3D"text-decoration: none">PROJECT-31</a>]
 </div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
 a href=3D"https://github=2Ecom/gitomail/repo/commit/00009ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00009ffff </a></span></f=
 ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#3 </div></td><=
 td colspan=3D"1"><div style=3D"font-weight: bold">Updating README&#8203;=2E=
-md [8]
+md [8] [<a href=3D"https://somefakeproject=2Ecom/browse/PROJECT-31" style=
+=3D"text-decoration: none">PROJECT-31</a>]
 </div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
 a href=3D"https://github=2Ecom/gitomail/repo/commit/00006ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00006ffff </a></span></f=
 ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#2 </div></td><=
 td colspan=3D"1"><div style=3D"font-weight: bold">Updating README&#8203;=2E=
-md [5]
+md [5] [<a href=3D"https://somefakeproject=2Ecom/browse/OTHER-4" style=3D"t=
+ext-decoration: none">OTHER-4</a>]
 </div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
 a href=3D"https://github=2Ecom/gitomail/repo/commit/00005ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00005ffff </a></span></f=
 ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#1 </div></td><=
 td colspan=3D"1"><div style=3D"font-weight: bold">Updating README&#8203;=2E=
-md [4]
+md [4] [<a href=3D"https://somefakeproject=2Ecom/browse/OTHER-4" style=3D"t=
+ext-decoration: none">OTHER-4</a>]
 </div></td></tr>
 </table></blockqoute><div height=3D"20">&nbsp;</div><div style=3D"color: #b=
 0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/git=

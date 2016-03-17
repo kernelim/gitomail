@@ -20,7 +20,7 @@ Main User 00012ffff #2 Updating Other=2Etxt [7]
 Main User 00011ffff #1 Updating Other=2Etxt [6]
 
 Branch points
-Main User 00010ffff (master branch) Updating README=2Emd [9]
+Main User 00010ffff (master branch) Updating README=2Emd [9] [PROJECT-31]
 
 Sent by Gitomail 
 
@@ -67,7 +67,8 @@ Branch points
 a href=3D"https://github=2Ecom/gitomail/repo/commit/00010ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00010ffff </a></span></f=
 ont></td><td colspan=3D"1">(master branch) </td><td colspan=3D"1">Updating =
-README&#8203;=2Emd [9]
+README&#8203;=2Emd [9] [<a href=3D"https://somefakeproject=2Ecom/browse/PRO=
+JECT-31" style=3D"text-decoration: none">PROJECT-31</a>]
 </td></tr>
 </table></blockqoute><div height=3D"20">&nbsp;</div><div style=3D"color: #b=
 0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/git=

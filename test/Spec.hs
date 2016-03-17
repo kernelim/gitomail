@@ -135,10 +135,12 @@ gitomailCconf save params conf = do
     curTestRunId <- testRunId <+= 1
 
     writeFile' fp $ T.decodeUtf8 $ Yaml.encode $ Yaml.object $
-        [ "from_email"   Yaml..= Yaml.toJSON ("bot@gitomail.com" :: Text)
-        , "hash_map"     Yaml..= Yaml.toJSON (Just derandoms)
-        , "test_run_id"  Yaml..= Yaml.toJSON (curTestRunId)
-        , "commit_url"   Yaml..= Yaml.toJSON ("https://github.com/gitomail/%r/commit/%H" :: Text)
+        [ "from_email"         Yaml..= Yaml.toJSON ("bot@gitomail.com" :: Text)
+        , "hash_map"           Yaml..= Yaml.toJSON (Just derandoms)
+        , "test_run_id"        Yaml..= Yaml.toJSON (curTestRunId)
+        , "issue_track_match"  Yaml..= Yaml.toJSON ("[[]((PROJECT|OTHER)-[0-9]+)[]]" :: Text)
+        , "issue_track_url"    Yaml..= Yaml.toJSON ("https://somefakeproject.com/browse/%s" :: Text)
+        , "commit_url"         Yaml..= Yaml.toJSON ("https://github.com/gitomail/%r/commit/%H" :: Text)
         ] ++ conf
 
     t <- gets contextOutputs >>= \case
@@ -226,17 +228,18 @@ tests tempDir = do
             git' ["commit", "-m", msg']
             gitDerandomizeHashHEAD
 
-        fileAppend file i = do
+        fileAppend msg' file i = do
             appendFile' (T.unpack file) $ "Added content " +@ showT (i :: Int) +@ "\n"
             git' [add, file]
-            commit $ "Updating " +@ file +@ " [" +@ showT i +@ "]"
+            commit $ "Updating " +@ file +@ " [" +@ showT i +@ "]" +@ msg'
 
         takeFile fromFile toFile = do
             readFile' (sourceDir </> "test" </> "source" </> fromFile) >>= writeFile' toFile
             git' [add, T.pack toFile]
 
-        readmeAppend          = fileAppend readme
-        otherAppend           = fileAppend other
+        readmeAppendMsg msg'  = fileAppend msg' readme
+        readmeAppend          = fileAppend "" readme
+        otherAppend           = fileAppend "" other
         backToMaster          = git' ["checkout", "master"]
         checkoutCreate branch = git' ["checkout", "-b", branch]
         removeBranch branch   = git' ["branch", "-D", branch]
@@ -292,7 +295,7 @@ tests tempDir = do
     msg "Verifying for a topic branch with master progression"
     ---------------------------------------------------------
 
-    forM_ [4..5] readmeAppend
+    forM_ [4..5] $ readmeAppendMsg " [OTHER-4]"
     --  <old>: a*
     --  master[<old>]: --
     --  topic[<old>]: **
@@ -307,7 +310,7 @@ tests tempDir = do
     --  topic2[master]: --
 
     backToMaster
-    forM_ [8..9] readmeAppend
+    forM_ [8..9] $ readmeAppendMsg " [PROJECT-31]\n\nAlso referring to [OTHER-4]"
 
     --  <old>: a*
     --  <old2>[<old>]: --

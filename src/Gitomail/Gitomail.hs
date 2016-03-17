@@ -15,6 +15,7 @@ module Gitomail.Gitomail
   ( MonadGitomail
   , ParameterNeeded(..)
   , InvalidCommandOutput(..)
+  , parseIssueTrackMentions
   , compilePatterns
   , getCommitURL
   , getBlobInCommitURL
@@ -49,6 +50,7 @@ import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (StateT, gets, MonadState)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 import qualified Data.ByteString.Char8       as BS8
+import qualified Data.DList                  as DList
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
 import           Data.Maybe                  (fromMaybe, catMaybes)
@@ -87,7 +89,7 @@ import           Lib.Monad                   (lSeqForM)
 import           Lib.Text                    ((+@), showT, leadingZeros,
                                               safeDecode)
 import           Lib.Process                 (readProcess, readProcess'')
-import           Lib.Regex                   (matchWhole)
+import           Lib.Regex                   (matchWhole, splitByCaptures)
 ------------------------------------------------------------------------------------
 
 type GitRefList = [(O.GitRef, GIT.CommitHash)]
@@ -435,3 +437,16 @@ sortRefsByPriority reflist = do
 
 getSortedRefs :: (MonadGitomail m) => m [GitRefList]
 getSortedRefs = cacheByRepoPathname sortedRefList (getRefState >>= sortRefsByPriority)
+
+parseIssueTrackMentions :: MonadGitomail m =>
+                            (Text -> a) -> (Text -> DList.DList a -> a) -> Text -> m (DList.DList a)
+parseIssueTrackMentions plain link msg = do
+    config <- getConfig
+    case (config ^. CFG.issueTrackMatch, config ^. CFG.issueTrackURL) of
+        (Just regex, Just url) ->
+             do let captures = splitByCaptures regex 1 msg
+                let mkUrl r = T.replace "%s" r url
+                let perElem (Left str) = plain str
+                    perElem (Right str) = link (mkUrl str) $ DList.singleton (plain str)
+                return $ DList.fromList $ map perElem captures
+        _ -> return $ DList.singleton (plain msg)

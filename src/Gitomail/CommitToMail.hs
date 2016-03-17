@@ -161,6 +161,21 @@ checkInexactDiffHashInDB db inexactDiffHash = do
         Just _ -> return True
         Nothing -> return False
 
+addIssueTrackLinks :: (MonadGitomail m) => Text -> m F.FList
+addIssueTrackLinks msg = parseIssueTrackMentions F.TPlain (\a b -> F.TForm (F.Link a) b) msg
+
+listIssueTrackLinks :: (MonadGitomail m) => Text -> m (Maybe F.FList)
+listIssueTrackLinks msg = do
+    links <- addIssueTrackLinks msg
+    let f (F.TPlain _) = Nothing
+        f y = Just y
+    let r = catMaybes $ map f $ DList.toList links
+    let commaSep = case r of
+            []  -> Nothing
+            [_] -> Just $ DList.fromList $ [F.TPlain "Issue: "] ++ r
+            _   -> Just $ DList.fromList $ [F.TPlain "Issues: "] ++ (intersperse (F.TPlain ", ") r)
+    return commaSep
+
 type InexactDiffHash = BS.ByteString
 type SubjectLine = Text
 
@@ -362,12 +377,16 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                       let blobInCommitURLFunc = fmap f blobInCommitURL
                           f z True filename = z commitHash' filename
                           f z False filename = z parentCommitHash' filename
+                      let htmlformat = (F.mkHtmlFormat F.HTMLInline F.brightBackground)
+                               { F.fmtFileLinker = blobInCommitURLFunc }
 
+                      maybeIssueTrackLinks <- listIssueTrackLinks commitSubjectLine
                       let htmlOnlyHeader = T.concat $ (intersperse "<br>" extraInfo) ++ ["<br>"]
                           extraInfo = catMaybes [
                                   commitURL
                                 , (Just $ T.concat $ [ "Branches: ",
                                               T.concat (intersperse ", " containedInBranchesList)])
+                                , fmap (F.htmlFormatting htmlformat { F.fmtBlockingEnv = False } ) maybeIssueTrackLinks
                                 , flagsMaybe
                               ] ++ case matchErrors of
                                       Maintainers.MatchErrors errors ->
@@ -387,7 +406,8 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                                           withRepository lgFactory path $ do
                                               FL.tryDiffWithSourceHighlight diff
 
-                              return $ (F.highlightMonospace commitMessageBody)
+                              messageBodyWithLinks <- addIssueTrackLinks commitMessageBody
+                              return $ (DList.singleton $ (F.TForm F.MonospacePar) messageBodyWithLinks)
                                           `DList.append` diffHighlighted
                                           `DList.append` (F.highlightMonospace footer)
 
@@ -412,7 +432,6 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                                              ("Subject", subjectLine)]
                             , mailParts = [[plainPart plain, htmlPart html]]
                             }
-                          htmlformat = (F.mkHtmlFormat F.HTMLInline F.brightBackground) { F.fmtFileLinker = blobInCommitURLFunc }
                           html = TL.fromChunks [ htmlOnlyHeader,
                                                  F.htmlFormatting htmlformat parsedFLists,
                                                  FI.flistToInlineStyleHtml emailFooter]

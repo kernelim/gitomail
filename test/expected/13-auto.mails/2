@@ -123,9 +123,8 @@ style=3D"color: #0c0c0c"> </span><span style=3D"color: #7d1545; font-weight=
 lor: #0c0c0c">n</span><span style=3D"color: #0c0c0c"> * </span><span style=
 =3D"color: #0c0c0c">factorial</span><span style=3D"color: #0c0c0c"> </span>=
 <span style=3D"color: #243c24">(</span><span style=3D"color: #0c0c0c">n</sp=
-an><span style=3D"color: #0c0c0c">-</span><span style=3D"color: #993030">1<=
-/span><span style=3D"color: #243c24">)</span><span style=3D"color: #0c0c0c"=
->
+an><span style=3D"color: #993030">-1</span><span style=3D"color: #243c24">)=
+</span><span style=3D"color: #0c0c0c">
 </span>+<span style=3D"color: #0c0c0c">
 </span>+<span style=3D"color: #4c4e4c">-- Comment
 </span>+<span style=3D"color: #0c0c0c">

@@ -15,25 +15,27 @@ module Gitomail.Config
        , parse
 
        -- Lens
+       , aliasRefMatch
+       , blobInCommitURL
+       , issueTrackMatch
+       , issueTrackURL
+       , commitSubjectLine
+       , commitURL
+       , excludeRefs
+       , filteredDestEMails
+       , fromEMail
+       , hashMap
+       , hashSize
+       , includeRefs
+       , repoName
+       , rootRefs
        , sMTPHostname
+       , sMTPPassword
        , sMTPPort
        , sMTPStartTls
        , sMTPUsername
-       , sMTPPassword
-       , excludeRefs
-       , includeRefs
-       , rootRefs
-       , aliasRefMatch
-       , commitSubjectLine
-       , summarySubjectLine
-       , commitURL
-       , blobInCommitURL
-       , fromEMail
-       , filteredDestEMails
-       , repoName
        , sourceHighlight
-       , hashSize
-       , hashMap
+       , summarySubjectLine
        , testRunId
        )
        where
@@ -75,6 +77,8 @@ fmdString = "filtered_email_destinations"
   X(_includeRefs        , "include_refs"        , Maybe , pass,                  , [Text]        ) \
   X(_rootRefs           , "root_refs"           , a     , defl, defaultRootRefs  , [Text]        ) \
   X(_aliasRefMatch      , "alias_ref_match"     , a     , defl, defaultAliasMatch, Maybe Text    ) \
+  X(_issueTrackMatch      , "issue_track_match"     , Maybe , pass,                  , Text          ) \
+  X(_issueTrackURL        , "issue_track_url"       , Maybe , pass,                  , Text          ) \
   X(_commitSubjectLine  , "commit_subject_line" , a     , defl, "[%r %b %h%n] %s", Text          ) \
   X(_summarySubjectLine , "summary_subject_line", a     , defl, "[%r] %s"        , Text          ) \
   X(_commitURL          , "commit_url"          , Maybe , pass,                  , Text          ) \
