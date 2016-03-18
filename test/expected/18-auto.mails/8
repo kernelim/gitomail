@@ -38,28 +38,34 @@ Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00036ffffffffffffffffffffffffffff=
 fffffff<br>Branches: mergetopic-2, staging<br>Flags: InexactDiffDup<br><pre=
-><div style=3D"background: #f5f5f5; color: #111111"><font size=3D"3"><div><=
-pre line-height: 125%">
-</pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div>
-</div><div>---
+><div style=3D"font-family: monospace; background: #f5f5f5; color: #111111"=
+><font size=3D"3"><div><pre line-height: 125%">
+</pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div style=
+=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace">---
  README&#8203;=2Emd | 1 +
  1 file changed, 1 insertion(+)
-</div><div>
-</div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
->diff --git a/README&#8203;=2Emd b/README&#8203;=2Emd
-</div><div style=3D"background: #a0b8d8; color: #333333">index 116d70631c74=
-&#8203;=2E&#8203;=2E6456a2007c4f 100644
-</div><div style=3D"background: #cccccc; color: #333333">--- a/README&#8203=
-;=2Emd
-</div><div style=3D"background: #dddddd; color: #333333">+++ b/README&#8203=
-;=2Emd
-</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
->@@ -8,3 +8,4 @@ Added content 14
-</div><div> <span style=3D"color: #111111">Added content 15
-</span> <span style=3D"color: #111111">Added content 19
-</span> <span style=3D"color: #111111">Added content 20
-</span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
-e=3D"color: #0c0c0c">Added content 21
+</div><div style=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace; background: #a8c0e0; color: #33=
+3333; font-weight: bold">diff --git a/README&#8203;=2Emd b/README&#8203;=2E=
+md
+</div><div style=3D"font-family: monospace; background: #a0b8d8; color: #33=
+3333">index 116d70631c74&#8203;=2E&#8203;=2E6456a2007c4f 100644
+</div><div style=3D"font-family: monospace; background: #cccccc; color: #33=
+3333">--- a/README&#8203;=2Emd
+</div><div style=3D"font-family: monospace; background: #dddddd; color: #33=
+3333">+++ b/README&#8203;=2Emd
+</div><div style=3D"font-family: monospace; background: #c8e0f8; color: #54=
+5454; font-weight: bold">@@ -8,3 +8,4 @@ Added content 14
+</div><div style=3D"font-family: monospace"> <span style=3D"font-family: mo=
+nospace; color: #111111">Added content 15
+</span> <span style=3D"font-family: monospace; color: #111111">Added conten=
+t 19
+</span> <span style=3D"font-family: monospace; color: #111111">Added conten=
+t 20
+</span></div><div style=3D"font-family: monospace; background: #ceffce; col=
+or: #333333">+<span style=3D"font-family: monospace; color: #0c0c0c">Added =
+content 21
 </span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
 %">
 -- 

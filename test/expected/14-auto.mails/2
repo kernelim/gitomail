@@ -62,127 +62,174 @@ Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00024ffffffffffffffffffffffffffff=
-fffffff<br>Branches: master<br><pre><div style=3D"background: #f5f5f5; colo=
-r: #111111"><font size=3D"3"><div><pre line-height: 125%">
-</pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div>
-</div><div>---
+fffffff<br>Branches: master<br><pre><div style=3D"font-family: monospace; b=
+ackground: #f5f5f5; color: #111111"><font size=3D"3"><div><pre line-height:=
+ 125%">
+</pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div style=
+=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace">---
  test&#8203;=2Ec  | 8 ++++++++
  test&#8203;=2Ehs | 4 ++--
  2 files changed, 10 insertions(+), 2 deletions(-)
-</div><div>
-</div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
->diff --git a/test&#8203;=2Ec b/test&#8203;=2Ec
-</div><div style=3D"background: #a0b8d8; color: #333333">index 12d780e2c4e9=
-&#8203;=2E&#8203;=2E6cc3759e0529 100644
-</div><div style=3D"background: #cccccc; color: #333333">--- a/test&#8203;=
-=2Ec
-</div><div style=3D"background: #dddddd; color: #333333">+++ b/test&#8203;=
-=2Ec
-</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
->@@ -1,3 +1,11 @@
-</div><div style=3D"background: #ceffce; color: #333333">+<span style=3D"co=
-lor: #4c4e4c">/*
-</span>+<span style=3D"color: #4c4e4c"> * Comment test&#8203;=2E
-</span>+<span style=3D"color: #4c4e4c"> */</span><span style=3D"color: #0c0=
-c0c">
-</span>+<span style=3D"color: #0c0c0c">
-</span>+<span style=3D"color: #4c4e4c">/*
-</span>+<span style=3D"color: #4c4e4c"> * Comment * test&#8203;=2E
-</span>+<span style=3D"color: #4c4e4c"> */</span><span style=3D"color: #0c0=
-c0c">
-</span>+<span style=3D"color: #0c0c0c">
-</span></div><div> <span style=3D"color: #a71d5d; font-weight: bold">int</s=
-pan><span style=3D"color: #111111"> </span><span style=3D"color: #501050">m=
-ain</span><span style=3D"color: #111111">(</span><span style=3D"color: #a71=
-d5d; font-weight: bold">int</span><span style=3D"color: #111111"> </span><s=
-pan style=3D"color: #111111">argc</span><span style=3D"color: #111111">, </=
-span><span style=3D"color: #a71d5d; font-weight: bold">char</span><span sty=
-le=3D"color: #111111"> **</span><span style=3D"color: #111111">argv</span><=
-span style=3D"color: #111111">[])
-</span> <span style=3D"color: #111111">{
-</span> <span style=3D"color: #111111">	</span><span style=3D"color: #a71d5=
-d; font-weight: bold">return</span><span style=3D"color: #111111"> </span><=
-span style=3D"color: #cc4040">0</span><span style=3D"color: #111111">;
-</span></div><div style=3D"background: #a8c0e0; color: #333333; font-weight=
-: bold">diff --git a/test&#8203;=2Ehs b/test&#8203;=2Ehs
-</div><div style=3D"background: #a0b8d8; color: #333333">index a1583118223f=
-&#8203;=2E&#8203;=2E8d3b51c2c766 100644
-</div><div style=3D"background: #cccccc; color: #333333">--- a/test&#8203;=
+</div><div style=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace; background: #a8c0e0; color: #33=
+3333; font-weight: bold">diff --git a/test&#8203;=2Ec b/test&#8203;=2Ec
+</div><div style=3D"font-family: monospace; background: #a0b8d8; color: #33=
+3333">index 12d780e2c4e9&#8203;=2E&#8203;=2E6cc3759e0529 100644
+</div><div style=3D"font-family: monospace; background: #cccccc; color: #33=
+3333">--- a/test&#8203;=2Ec
+</div><div style=3D"font-family: monospace; background: #dddddd; color: #33=
+3333">+++ b/test&#8203;=2Ec
+</div><div style=3D"font-family: monospace; background: #c8e0f8; color: #54=
+5454; font-weight: bold">@@ -1,3 +1,11 @@
+</div><div style=3D"font-family: monospace; background: #ceffce; color: #33=
+3333">+<span style=3D"font-family: monospace; color: #4c4e4c">/*
+</span>+<span style=3D"font-family: monospace; color: #4c4e4c"> * Comment t=
+est&#8203;=2E
+</span>+<span style=3D"font-family: monospace; color: #4c4e4c"> */</span><s=
+pan style=3D"font-family: monospace; color: #0c0c0c">
+</span>+<span style=3D"font-family: monospace; color: #0c0c0c">
+</span>+<span style=3D"font-family: monospace; color: #4c4e4c">/*
+</span>+<span style=3D"font-family: monospace; color: #4c4e4c"> * Comment *=
+ test&#8203;=2E
+</span>+<span style=3D"font-family: monospace; color: #4c4e4c"> */</span><s=
+pan style=3D"font-family: monospace; color: #0c0c0c">
+</span>+<span style=3D"font-family: monospace; color: #0c0c0c">
+</span></div><div style=3D"font-family: monospace"> <span style=3D"font-fam=
+ily: monospace; color: #a71d5d; font-weight: bold">int</span><span style=3D=
+"font-family: monospace; color: #111111"> </span><span style=3D"font-family=
+: monospace; color: #501050">main</span><span style=3D"font-family: monospa=
+ce; color: #111111">(</span><span style=3D"font-family: monospace; color: #=
+a71d5d; font-weight: bold">int</span><span style=3D"font-family: monospace;=
+ color: #111111"> </span><span style=3D"font-family: monospace; color: #111=
+111">argc</span><span style=3D"font-family: monospace; color: #111111">, </=
+span><span style=3D"font-family: monospace; color: #a71d5d; font-weight: bo=
+ld">char</span><span style=3D"font-family: monospace; color: #111111"> **</=
+span><span style=3D"font-family: monospace; color: #111111">argv</span><spa=
+n style=3D"font-family: monospace; color: #111111">[])
+</span> <span style=3D"font-family: monospace; color: #111111">{
+</span> <span style=3D"font-family: monospace; color: #111111">	</span><spa=
+n style=3D"font-family: monospace; color: #a71d5d; font-weight: bold">retur=
+n</span><span style=3D"font-family: monospace; color: #111111"> </span><spa=
+n style=3D"font-family: monospace; color: #cc4040">0</span><span style=3D"f=
+ont-family: monospace; color: #111111">;
+</span></div><div style=3D"font-family: monospace; background: #a8c0e0; col=
+or: #333333; font-weight: bold">diff --git a/test&#8203;=2Ehs b/test&#8203;=
 =2Ehs
-</div><div style=3D"background: #dddddd; color: #333333">+++ b/test&#8203;=
-=2Ehs
-</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
->@@ -1,10 +1,10 @@
-</div><div> <span style=3D"color: #a71d5d; font-weight: bold">module</span>=
-<span style=3D"color: #111111"> </span><span style=3D"color: #006693">Main<=
-/span><span style=3D"color: #111111"> </span><span style=3D"color: #a71d5d;=
- font-weight: bold">where</span><span style=3D"color: #111111">
-</span> <span style=3D"color: #111111">
-</span></div><div style=3D"background: #ffcece; color: #333333">-<span styl=
-e=3D"color: #600c60; font-weight: bold">factorial</span><span style=3D"colo=
-r: #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</span><span style=3D"c=
-olor: #0c0c0c"> </span><span style=3D"color: #0c240c">=3D</span><span style=
-=3D"color: #0c0c0c"> </span><span style=3D"color: #7d1545; font-weight: bol=
-d">if</span><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #0=
-c0c0c">n</span><span style=3D"color: #0c0c0c"> &lt; </span><span style=3D"b=
-ackground: #ffa5a5; color: #333333"><span style=3D"color: #8e2c2c">2</span>=
-</span><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #7d1545=
-; font-weight: bold">then</span><span style=3D"color: #0c0c0c"> </span><spa=
-n style=3D"color: #993030">1</span><span style=3D"color: #0c0c0c"> </span><=
-span style=3D"color: #7d1545; font-weight: bold">else</span><span style=3D"=
-color: #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</span><span style=
-=3D"color: #0c0c0c"> * </span><span style=3D"color: #0c0c0c">factorial</spa=
-n><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #243c24">(</=
-span><span style=3D"color: #0c0c0c">n</span><span style=3D"color: #993030">=
--1</span><span style=3D"color: #243c24">)</span><span style=3D"color: #0c0c=
-0c">
-</span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
-e=3D"color: #600c60; font-weight: bold">factorial</span><span style=3D"colo=
-r: #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</span><span style=3D"c=
-olor: #0c0c0c"> </span><span style=3D"color: #0c240c">=3D</span><span style=
-=3D"color: #0c0c0c"> </span><span style=3D"background: #a5ffa5; color: #333=
-333"><span style=3D"color: #741441; font-weight: bold">let</span><span styl=
-e=3D"color: #0b0b0b"> </span><span style=3D"color: #0b0b0b">m</span><span s=
-tyle=3D"color: #0b0b0b"> </span><span style=3D"color: #0b210b">=3D</span><s=
-pan style=3D"color: #0b0b0b"> </span><span style=3D"color: #8e2c2c">2</span=
-><span style=3D"color: #0b0b0b"> </span><span style=3D"color: #741441; font=
--weight: bold">in</span><span style=3D"color: #0b0b0b"> </span></span><span=
- style=3D"color: #7d1545; font-weight: bold">if</span><span style=3D"color:=
- #0c0c0c"> </span><span style=3D"color: #0c0c0c">n</span><span style=3D"col=
-or: #0c0c0c"> &lt; </span><span style=3D"background: #a5ffa5; color: #33333=
-3"><span style=3D"color: #0b0b0b">m</span></span><span style=3D"color: #0c0=
-c0c"> </span><span style=3D"color: #7d1545; font-weight: bold">then</span><=
-span style=3D"color: #0c0c0c"> </span><span style=3D"color: #993030">1</spa=
-n><span style=3D"color: #0c0c0c"> </span><span style=3D"color: #7d1545; fon=
-t-weight: bold">else</span><span style=3D"color: #0c0c0c"> </span><span sty=
-le=3D"color: #0c0c0c">n</span><span style=3D"color: #0c0c0c"> * </span><spa=
-n style=3D"color: #0c0c0c">factorial</span><span style=3D"color: #0c0c0c"> =
-</span><span style=3D"color: #243c24">(</span><span style=3D"color: #0c0c0c=
-">n</span><span style=3D"color: #993030">-1</span><span style=3D"color: #24=
-3c24">)</span><span style=3D"color: #0c0c0c">
-</span></div><div> <span style=3D"color: #111111">
-</span> <span style=3D"color: #666866">-- Comment
-</span> <span style=3D"color: #111111">
-</span> <span style=3D"color: #801080; font-weight: bold">main</span><span =
-style=3D"color: #111111"> </span><span style=3D"color: #106010">::</span><s=
-pan style=3D"color: #111111"> </span><span style=3D"color: #006693">IO</spa=
-n><span style=3D"color: #111111"> </span><span style=3D"color: #305030">()<=
-/span><span style=3D"color: #111111">
-</span> <span style=3D"color: #801080; font-weight: bold">main</span><span =
-style=3D"color: #111111"> </span><span style=3D"color: #103010">=3D</span><=
-span style=3D"color: #111111"> </span><span style=3D"color: #a71d5d; font-w=
-eight: bold">do</span><span style=3D"color: #111111">
-</span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
-e=3D"color: #0c0c0c">    </span><span style=3D"color: #0c0c0c">getLine</spa=
-n><span style=3D"color: #0c0c0c"> &gt;&gt;</span><span style=3D"color: #0c2=
-40c">=3D</span><span style=3D"color: #0c0c0c"> </span><span style=3D"color:=
- #0c0c0c">putStrLn</span><span style=3D"color: #0c0c0c">
-</span></div><div> <span style=3D"color: #111111">    </span><span style=3D=
-"color: #111111">putStrLn</span><span style=3D"color: #111111"> </span><spa=
-n style=3D"color: #183691">&quot;Hello world&quot;</span><span style=3D"col=
-or: #111111">
-</span></div><div style=3D"background: #ffcece; color: #333333">-<span styl=
-e=3D"color: #0c0c0c">
+</div><div style=3D"font-family: monospace; background: #a0b8d8; color: #33=
+3333">index a1583118223f&#8203;=2E&#8203;=2E8d3b51c2c766 100644
+</div><div style=3D"font-family: monospace; background: #cccccc; color: #33=
+3333">--- a/test&#8203;=2Ehs
+</div><div style=3D"font-family: monospace; background: #dddddd; color: #33=
+3333">+++ b/test&#8203;=2Ehs
+</div><div style=3D"font-family: monospace; background: #c8e0f8; color: #54=
+5454; font-weight: bold">@@ -1,10 +1,10 @@
+</div><div style=3D"font-family: monospace"> <span style=3D"font-family: mo=
+nospace; color: #a71d5d; font-weight: bold">module</span><span style=3D"fon=
+t-family: monospace; color: #111111"> </span><span style=3D"font-family: mo=
+nospace; color: #006693">Main</span><span style=3D"font-family: monospace; =
+color: #111111"> </span><span style=3D"font-family: monospace; color: #a71d=
+5d; font-weight: bold">where</span><span style=3D"font-family: monospace; c=
+olor: #111111">
+</span> <span style=3D"font-family: monospace; color: #111111">
+</span></div><div style=3D"font-family: monospace; background: #ffcece; col=
+or: #333333">-<span style=3D"font-family: monospace; color: #600c60; font-w=
+eight: bold">factorial</span><span style=3D"font-family: monospace; color: =
+#0c0c0c"> </span><span style=3D"font-family: monospace; color: #0c0c0c">n</=
+span><span style=3D"font-family: monospace; color: #0c0c0c"> </span><span s=
+tyle=3D"font-family: monospace; color: #0c240c">=3D</span><span style=3D"fo=
+nt-family: monospace; color: #0c0c0c"> </span><span style=3D"font-family: m=
+onospace; color: #7d1545; font-weight: bold">if</span><span style=3D"font-f=
+amily: monospace; color: #0c0c0c"> </span><span style=3D"font-family: monos=
+pace; color: #0c0c0c">n</span><span style=3D"font-family: monospace; color:=
+ #0c0c0c"> &lt; </span><span style=3D"font-family: monospace; background: #=
+ffa5a5; color: #333333"><span style=3D"font-family: monospace; color: #8e2c=
+2c">2</span></span><span style=3D"font-family: monospace; color: #0c0c0c"> =
+</span><span style=3D"font-family: monospace; color: #7d1545; font-weight: =
+bold">then</span><span style=3D"font-family: monospace; color: #0c0c0c"> </=
+span><span style=3D"font-family: monospace; color: #993030">1</span><span s=
+tyle=3D"font-family: monospace; color: #0c0c0c"> </span><span style=3D"font=
+-family: monospace; color: #7d1545; font-weight: bold">else</span><span sty=
+le=3D"font-family: monospace; color: #0c0c0c"> </span><span style=3D"font-f=
+amily: monospace; color: #0c0c0c">n</span><span style=3D"font-family: monos=
+pace; color: #0c0c0c"> * </span><span style=3D"font-family: monospace; colo=
+r: #0c0c0c">factorial</span><span style=3D"font-family: monospace; color: #=
+0c0c0c"> </span><span style=3D"font-family: monospace; color: #243c24">(</s=
+pan><span style=3D"font-family: monospace; color: #0c0c0c">n</span><span st=
+yle=3D"font-family: monospace; color: #993030">-1</span><span style=3D"font=
+-family: monospace; color: #243c24">)</span><span style=3D"font-family: mon=
+ospace; color: #0c0c0c">
+</span></div><div style=3D"font-family: monospace; background: #ceffce; col=
+or: #333333">+<span style=3D"font-family: monospace; color: #600c60; font-w=
+eight: bold">factorial</span><span style=3D"font-family: monospace; color: =
+#0c0c0c"> </span><span style=3D"font-family: monospace; color: #0c0c0c">n</=
+span><span style=3D"font-family: monospace; color: #0c0c0c"> </span><span s=
+tyle=3D"font-family: monospace; color: #0c240c">=3D</span><span style=3D"fo=
+nt-family: monospace; color: #0c0c0c"> </span><span style=3D"font-family: m=
+onospace; background: #a5ffa5; color: #333333"><span style=3D"font-family: =
+monospace; color: #741441; font-weight: bold">let</span><span style=3D"font=
+-family: monospace; color: #0b0b0b"> </span><span style=3D"font-family: mon=
+ospace; color: #0b0b0b">m</span><span style=3D"font-family: monospace; colo=
+r: #0b0b0b"> </span><span style=3D"font-family: monospace; color: #0b210b">=
+=3D</span><span style=3D"font-family: monospace; color: #0b0b0b"> </span><s=
+pan style=3D"font-family: monospace; color: #8e2c2c">2</span><span style=3D=
+"font-family: monospace; color: #0b0b0b"> </span><span style=3D"font-family=
+: monospace; color: #741441; font-weight: bold">in</span><span style=3D"fon=
+t-family: monospace; color: #0b0b0b"> </span></span><span style=3D"font-fam=
+ily: monospace; color: #7d1545; font-weight: bold">if</span><span style=3D"=
+font-family: monospace; color: #0c0c0c"> </span><span style=3D"font-family:=
+ monospace; color: #0c0c0c">n</span><span style=3D"font-family: monospace; =
+color: #0c0c0c"> &lt; </span><span style=3D"font-family: monospace; backgro=
+und: #a5ffa5; color: #333333"><span style=3D"font-family: monospace; color:=
+ #0b0b0b">m</span></span><span style=3D"font-family: monospace; color: #0c0=
+c0c"> </span><span style=3D"font-family: monospace; color: #7d1545; font-we=
+ight: bold">then</span><span style=3D"font-family: monospace; color: #0c0c0=
+c"> </span><span style=3D"font-family: monospace; color: #993030">1</span><=
+span style=3D"font-family: monospace; color: #0c0c0c"> </span><span style=
+=3D"font-family: monospace; color: #7d1545; font-weight: bold">else</span><=
+span style=3D"font-family: monospace; color: #0c0c0c"> </span><span style=
+=3D"font-family: monospace; color: #0c0c0c">n</span><span style=3D"font-fam=
+ily: monospace; color: #0c0c0c"> * </span><span style=3D"font-family: monos=
+pace; color: #0c0c0c">factorial</span><span style=3D"font-family: monospace=
+; color: #0c0c0c"> </span><span style=3D"font-family: monospace; color: #24=
+3c24">(</span><span style=3D"font-family: monospace; color: #0c0c0c">n</spa=
+n><span style=3D"font-family: monospace; color: #993030">-1</span><span sty=
+le=3D"font-family: monospace; color: #243c24">)</span><span style=3D"font-f=
+amily: monospace; color: #0c0c0c">
+</span></div><div style=3D"font-family: monospace"> <span style=3D"font-fam=
+ily: monospace; color: #111111">
+</span> <span style=3D"font-family: monospace; color: #666866">-- Comment
+</span> <span style=3D"font-family: monospace; color: #111111">
+</span> <span style=3D"font-family: monospace; color: #801080; font-weight:=
+ bold">main</span><span style=3D"font-family: monospace; color: #111111"> <=
+/span><span style=3D"font-family: monospace; color: #106010">::</span><span=
+ style=3D"font-family: monospace; color: #111111"> </span><span style=3D"fo=
+nt-family: monospace; color: #006693">IO</span><span style=3D"font-family: =
+monospace; color: #111111"> </span><span style=3D"font-family: monospace; c=
+olor: #305030">()</span><span style=3D"font-family: monospace; color: #1111=
+11">
+</span> <span style=3D"font-family: monospace; color: #801080; font-weight:=
+ bold">main</span><span style=3D"font-family: monospace; color: #111111"> <=
+/span><span style=3D"font-family: monospace; color: #103010">=3D</span><spa=
+n style=3D"font-family: monospace; color: #111111"> </span><span style=3D"f=
+ont-family: monospace; color: #a71d5d; font-weight: bold">do</span><span st=
+yle=3D"font-family: monospace; color: #111111">
+</span></div><div style=3D"font-family: monospace; background: #ceffce; col=
+or: #333333">+<span style=3D"font-family: monospace; color: #0c0c0c">    </=
+span><span style=3D"font-family: monospace; color: #0c0c0c">getLine</span><=
+span style=3D"font-family: monospace; color: #0c0c0c"> &gt;&gt;</span><span=
+ style=3D"font-family: monospace; color: #0c240c">=3D</span><span style=3D"=
+font-family: monospace; color: #0c0c0c"> </span><span style=3D"font-family:=
+ monospace; color: #0c0c0c">putStrLn</span><span style=3D"font-family: mono=
+space; color: #0c0c0c">
+</span></div><div style=3D"font-family: monospace"> <span style=3D"font-fam=
+ily: monospace; color: #111111">    </span><span style=3D"font-family: mono=
+space; color: #111111">putStrLn</span><span style=3D"font-family: monospace=
+; color: #111111"> </span><span style=3D"font-family: monospace; color: #18=
+3691">&quot;Hello world&quot;</span><span style=3D"font-family: monospace; =
+color: #111111">
+</span></div><div style=3D"font-family: monospace; background: #ffcece; col=
+or: #333333">-<span style=3D"font-family: monospace; color: #0c0c0c">
 </span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
 %">
 -- 

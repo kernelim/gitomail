@@ -40,31 +40,36 @@ Content-Transfer-Encoding: quoted-printable
 https://github=2Ecom/gitomail/repo/commit/00009ffffffffffffffffffffffffffff=
 fffffff<br>Branches: master<br>Issue: <a href=3D"https://somefakeproject=2E=
 com/browse/PROJECT-31" style=3D"text-decoration: none">PROJECT-31</a><br><p=
-re><div style=3D"background: #f5f5f5; color: #111111"><font size=3D"3"><div=
-><pre line-height: 125%">
+re><div style=3D"font-family: monospace; background: #f5f5f5; color: #11111=
+1"><font size=3D"3"><div><pre line-height: 125%">
 
 Also referring to [<a href=3D"https://somefakeproject=2Ecom/browse/OTHER-4"=
  style=3D"text-decoration: none">OTHER-4</a>]</pre></div></font><font size=
-=3D"3"><div><pre line-height: 125%"><div>
-</div><div>---
+=3D"3"><div><pre line-height: 125%"><div style=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace">---
  README&#8203;=2Emd | 1 +
  1 file changed, 1 insertion(+)
-</div><div>
-</div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
->diff --git a/README&#8203;=2Emd b/README&#8203;=2Emd
-</div><div style=3D"background: #a0b8d8; color: #333333">index 16f4e2266859=
-&#8203;=2E&#8203;=2E95f3541370e6 100644
-</div><div style=3D"background: #cccccc; color: #333333">--- a/README&#8203=
-;=2Emd
-</div><div style=3D"background: #dddddd; color: #333333">+++ b/README&#8203=
-;=2Emd
-</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
->@@ -2,3 +2,4 @@ Content
-</div><div> <span style=3D"color: #111111">Added content 1
-</span> <span style=3D"color: #111111">Added content 4
-</span> <span style=3D"color: #111111">Added content 5
-</span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
-e=3D"color: #0c0c0c">Added content 8
+</div><div style=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace; background: #a8c0e0; color: #33=
+3333; font-weight: bold">diff --git a/README&#8203;=2Emd b/README&#8203;=2E=
+md
+</div><div style=3D"font-family: monospace; background: #a0b8d8; color: #33=
+3333">index 16f4e2266859&#8203;=2E&#8203;=2E95f3541370e6 100644
+</div><div style=3D"font-family: monospace; background: #cccccc; color: #33=
+3333">--- a/README&#8203;=2Emd
+</div><div style=3D"font-family: monospace; background: #dddddd; color: #33=
+3333">+++ b/README&#8203;=2Emd
+</div><div style=3D"font-family: monospace; background: #c8e0f8; color: #54=
+5454; font-weight: bold">@@ -2,3 +2,4 @@ Content
+</div><div style=3D"font-family: monospace"> <span style=3D"font-family: mo=
+nospace; color: #111111">Added content 1
+</span> <span style=3D"font-family: monospace; color: #111111">Added conten=
+t 4
+</span> <span style=3D"font-family: monospace; color: #111111">Added conten=
+t 5
+</span></div><div style=3D"font-family: monospace; background: #ceffce; col=
+or: #333333">+<span style=3D"font-family: monospace; color: #0c0c0c">Added =
+content 8
 </span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
 %">
 -- 

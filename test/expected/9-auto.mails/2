@@ -46,43 +46,54 @@ Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00021ffffffffffffffffffffffffffff=
-fffffff<br>Branches: user/for/other/feature<br><pre><div style=3D"backgroun=
-d: #f5f5f5; color: #111111"><font size=3D"3"><div><pre line-height: 125%">
-</pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div>
-</div><div>---
+fffffff<br>Branches: user/for/other/feature<br><pre><div style=3D"font-fami=
+ly: monospace; background: #f5f5f5; color: #111111"><font size=3D"3"><div><=
+pre line-height: 125%">
+</pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div style=
+=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace">---
  Maintainers | 1 +
  README&#8203;=2Emd   | 1 +
  2 files changed, 2 insertions(+)
-</div><div>
-</div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
->diff --git a/Maintainers b/Maintainers
-</div><div style=3D"background: #a0b8d8; color: #333333">index cfd0d01c5137=
-&#8203;=2E&#8203;=2E1574d7785ab4 100644
-</div><div style=3D"background: #cccccc; color: #333333">--- a/Maintainers
-</div><div style=3D"background: #dddddd; color: #333333">+++ b/Maintainers
-</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
->@@ -1,2 +1,3 @@
-</div><div> <span style=3D"color: #111111">alias user  Main User &lt;main@g=
-itomail&#8203;=2Ecom&gt;
-</span> <span style=3D"color: #111111">maintainer user
-</span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
-e=3D"color: #0c0c0c">alias other  Other User &lt;other@gitomail&#8203;=2Eco=
-m&gt;
-</span></div><div style=3D"background: #a8c0e0; color: #333333; font-weight=
-: bold">diff --git a/README&#8203;=2Emd b/README&#8203;=2Emd
-</div><div style=3D"background: #a0b8d8; color: #333333">index e6019f41c77f=
-&#8203;=2E&#8203;=2E435bb79035ef 100644
-</div><div style=3D"background: #cccccc; color: #333333">--- a/README&#8203=
-;=2Emd
-</div><div style=3D"background: #dddddd; color: #333333">+++ b/README&#8203=
-;=2Emd
-</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
->@@ -4,3 +4,4 @@ Added content 4
-</div><div> <span style=3D"color: #111111">Added content 5
-</span> <span style=3D"color: #111111">Added content 8
-</span> <span style=3D"color: #111111">Added content 9
-</span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
-e=3D"color: #0c0c0c">Added content 12
+</div><div style=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace; background: #a8c0e0; color: #33=
+3333; font-weight: bold">diff --git a/Maintainers b/Maintainers
+</div><div style=3D"font-family: monospace; background: #a0b8d8; color: #33=
+3333">index cfd0d01c5137&#8203;=2E&#8203;=2E1574d7785ab4 100644
+</div><div style=3D"font-family: monospace; background: #cccccc; color: #33=
+3333">--- a/Maintainers
+</div><div style=3D"font-family: monospace; background: #dddddd; color: #33=
+3333">+++ b/Maintainers
+</div><div style=3D"font-family: monospace; background: #c8e0f8; color: #54=
+5454; font-weight: bold">@@ -1,2 +1,3 @@
+</div><div style=3D"font-family: monospace"> <span style=3D"font-family: mo=
+nospace; color: #111111">alias user  Main User &lt;main@gitomail&#8203;=2Ec=
+om&gt;
+</span> <span style=3D"font-family: monospace; color: #111111">maintainer u=
+ser
+</span></div><div style=3D"font-family: monospace; background: #ceffce; col=
+or: #333333">+<span style=3D"font-family: monospace; color: #0c0c0c">alias =
+other  Other User &lt;other@gitomail&#8203;=2Ecom&gt;
+</span></div><div style=3D"font-family: monospace; background: #a8c0e0; col=
+or: #333333; font-weight: bold">diff --git a/README&#8203;=2Emd b/README&#8=
+203;=2Emd
+</div><div style=3D"font-family: monospace; background: #a0b8d8; color: #33=
+3333">index e6019f41c77f&#8203;=2E&#8203;=2E435bb79035ef 100644
+</div><div style=3D"font-family: monospace; background: #cccccc; color: #33=
+3333">--- a/README&#8203;=2Emd
+</div><div style=3D"font-family: monospace; background: #dddddd; color: #33=
+3333">+++ b/README&#8203;=2Emd
+</div><div style=3D"font-family: monospace; background: #c8e0f8; color: #54=
+5454; font-weight: bold">@@ -4,3 +4,4 @@ Added content 4
+</div><div style=3D"font-family: monospace"> <span style=3D"font-family: mo=
+nospace; color: #111111">Added content 5
+</span> <span style=3D"font-family: monospace; color: #111111">Added conten=
+t 8
+</span> <span style=3D"font-family: monospace; color: #111111">Added conten=
+t 9
+</span></div><div style=3D"font-family: monospace; background: #ceffce; col=
+or: #333333">+<span style=3D"font-family: monospace; color: #0c0c0c">Added =
+content 12
 </span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
 %">
 -- 

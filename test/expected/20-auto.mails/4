@@ -38,28 +38,34 @@ Content-Transfer-Encoding: quoted-printable
 
 https://github=2Ecom/gitomail/repo/commit/00041ffffffffffffffffffffffffffff=
 fffffff<br>Branches: before-master-lexically, z-after-master<br><pre><div s=
-tyle=3D"background: #f5f5f5; color: #111111"><font size=3D"3"><div><pre lin=
-e-height: 125%">
-</pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div>
-</div><div>---
+tyle=3D"font-family: monospace; background: #f5f5f5; color: #111111"><font =
+size=3D"3"><div><pre line-height: 125%">
+</pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div style=
+=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace">---
  Other&#8203;=2Etxt | 1 +
  1 file changed, 1 insertion(+)
-</div><div>
-</div><div style=3D"background: #a8c0e0; color: #333333; font-weight: bold"=
->diff --git a/Other&#8203;=2Etxt b/Other&#8203;=2Etxt
-</div><div style=3D"background: #a0b8d8; color: #333333">index 719532ea7527=
-&#8203;=2E&#8203;=2Ec67c81254f81 100644
-</div><div style=3D"background: #cccccc; color: #333333">--- a/Other&#8203;=
-=2Etxt
-</div><div style=3D"background: #dddddd; color: #333333">+++ b/Other&#8203;=
-=2Etxt
-</div><div style=3D"background: #c8e0f8; color: #545454; font-weight: bold"=
->@@ -2,3 +2,4 @@ ContentAdded content 22
-</div><div> <span style=3D"color: #111111">Added content 23
-</span> <span style=3D"color: #111111">Added content 24
-</span> <span style=3D"color: #111111">Added content 27
-</span></div><div style=3D"background: #ceffce; color: #333333">+<span styl=
-e=3D"color: #0c0c0c">Added content 28
+</div><div style=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace; background: #a8c0e0; color: #33=
+3333; font-weight: bold">diff --git a/Other&#8203;=2Etxt b/Other&#8203;=2Et=
+xt
+</div><div style=3D"font-family: monospace; background: #a0b8d8; color: #33=
+3333">index 719532ea7527&#8203;=2E&#8203;=2Ec67c81254f81 100644
+</div><div style=3D"font-family: monospace; background: #cccccc; color: #33=
+3333">--- a/Other&#8203;=2Etxt
+</div><div style=3D"font-family: monospace; background: #dddddd; color: #33=
+3333">+++ b/Other&#8203;=2Etxt
+</div><div style=3D"font-family: monospace; background: #c8e0f8; color: #54=
+5454; font-weight: bold">@@ -2,3 +2,4 @@ ContentAdded content 22
+</div><div style=3D"font-family: monospace"> <span style=3D"font-family: mo=
+nospace; color: #111111">Added content 23
+</span> <span style=3D"font-family: monospace; color: #111111">Added conten=
+t 24
+</span> <span style=3D"font-family: monospace; color: #111111">Added conten=
+t 27
+</span></div><div style=3D"font-family: monospace; background: #ceffce; col=
+or: #333333">+<span style=3D"font-family: monospace; color: #0c0c0c">Added =
+content 28
 </span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
 %">
 -- 
