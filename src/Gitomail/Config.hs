@@ -1,15 +1,16 @@
-{-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE TemplateHaskell           #-}
-{-# LANGUAGE StandaloneDeriving        #-}
+{-# LANGUAGE CPP                       #-}
 {-# LANGUAGE FlexibleInstances         #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE RankNTypes                #-}
 {-# LANGUAGE RecordWildCards           #-}
-{-# LANGUAGE CPP                       #-}
+{-# LANGUAGE StandaloneDeriving        #-}
+{-# LANGUAGE TemplateHaskell           #-}
 
 module Gitomail.Config
        ((^.||)
        , Config
+       , JIRACC(..)
        , final
        , combine
        , parse
@@ -24,6 +25,7 @@ module Gitomail.Config
        , excludeRefs
        , filteredDestEMails
        , fromEMail
+       , jiraCC
        , hashMap
        , hashSize
        , includeRefs
@@ -43,11 +45,13 @@ module Gitomail.Config
 ------------------------------------------------------------------------------------
 import           Control.Lens               (makeLenses)
 import qualified Control.Lens               as Lens
+import           Control.Lens.Operators     ((&), (^.))
 import           Control.Monad.Catch        (throwM)
 import           Control.Monad.Identity     (runIdentity)
 import           Control.Monad.State.Strict (MonadIO, liftIO)
-import           Control.Lens.Operators     ((&), (^.))
-import           Data.Aeson                 (FromJSON (..), (.!=), (.:?))
+import           Data.Aeson                 (FromJSON (parseJSON), (.:?),
+                                             ToJSON (toJSON), Value (Object),
+                                             object, (.:), (.=), (.!=))
 import           Data.Map                   (Map)
 import           Data.Text                  (Text)
 import qualified Data.Text                  as T
@@ -77,13 +81,14 @@ fmdString = "filtered_email_destinations"
   X(_includeRefs        , "include_refs"        , Maybe , pass,                  , [Text]        ) \
   X(_rootRefs           , "root_refs"           , a     , defl, defaultRootRefs  , [Text]        ) \
   X(_aliasRefMatch      , "alias_ref_match"     , a     , defl, defaultAliasMatch, Maybe Text    ) \
-  X(_issueTrackMatch      , "issue_track_match"     , Maybe , pass,                  , Text          ) \
-  X(_issueTrackURL        , "issue_track_url"       , Maybe , pass,                  , Text          ) \
+  X(_issueTrackMatch    , "issue_track_match"   , Maybe , pass,                  , Text          ) \
+  X(_issueTrackURL      , "issue_track_url"     , Maybe , pass,                  , Text          ) \
   X(_commitSubjectLine  , "commit_subject_line" , a     , defl, "[%r %b %h%n] %s", Text          ) \
   X(_summarySubjectLine , "summary_subject_line", a     , defl, "[%r] %s"        , Text          ) \
   X(_commitURL          , "commit_url"          , Maybe , pass,                  , Text          ) \
   X(_blobInCommitURL    , "blob_in_commit_url"  , Maybe , pass,                  , Text          ) \
   X(_fromEMail          , "from_email"          , Maybe , pass,                  , Text          ) \
+  X(_jiraCC             , "jira_cc"             , Maybe , pass,                  , JIRACC        ) \
   X(_filteredDestEMails , fmdString             , a     , defl, []               , [Text]        ) \
   X(_repoName           , "repo_name"           , Maybe , pass,                  , Text          ) \
   X(_sourceHighlight    , "source_highlight"    , a     , defl, True             , Bool          ) \
@@ -93,6 +98,29 @@ fmdString = "filtered_email_destinations"
 
 #define X1(_name, s, f, p, v, t)  ,_name :: f (t)
 data ConfigA a = Config { __unused :: () FIELDS(X1) }
+
+data JIRACC = JIRACC
+    { jiraFields :: [Text]
+    , jiraURL    :: Text
+    , jiraCreds  :: Text
+    } deriving Show
+
+instance ToJSON JIRACC where
+    toJSON (JIRACC fields url creds) =
+        object
+          [ "fields"      .== fields
+          , "url"         .== url
+          , "http_user"   .== creds
+          ]
+     where (.==) = (Data.Aeson..=)
+
+instance FromJSON JIRACC where
+    parseJSON (Object o) =
+        JIRACC <$> o .: "fields"
+               <*> o .: "url"
+               <*> o .: "http_creds"
+    parseJSON v = error $ "JIRACC parse: " ++ (show v)
+
 
 type Config = ConfigA Id
 

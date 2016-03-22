@@ -41,7 +41,9 @@ import qualified Data.ByteString.Base16      as Base16
 import qualified Data.ByteString.Char8       as BS8
 import qualified Data.ByteString.Lazy        as BL
 import qualified Data.DList                  as DList
-import           Data.List                   (intersperse, (\\))
+import           Data.Either                 (rights)
+import           Data.List                   (intersperse, (\\),
+                                              union)
 import qualified Data.Map                    as Map
 import           Data.Maybe                  (catMaybes, fromMaybe)
 import qualified Data.Set                    as Set
@@ -164,17 +166,22 @@ checkInexactDiffHashInDB db inexactDiffHash = do
 addIssueTrackLinks :: (MonadGitomail m) => Text -> m F.FList
 addIssueTrackLinks msg = parseIssueTrackMentions F.TPlain (\a b -> F.TForm (F.Link a) b) msg
 
-listIssueTrackLinks :: (MonadGitomail m) => Text -> m (Maybe F.FList)
+listIssueTrackLinks :: (MonadGitomail m) => Text -> m (Maybe F.FList, [Issue])
 listIssueTrackLinks msg = do
     links <- addIssueTrackLinks msg
     let f (F.TPlain _) = Nothing
         f y = Just y
-    let r = catMaybes $ map f $ DList.toList links
-    let commaSep = case r of
+    let l = catMaybes $ map f $ DList.toList links
+
+    let g (Left x) = Just x
+        g (Right _) = Nothing
+    parse <- parseIssueTrackMentions Left (\_ b -> Right $ g $ head $ DList.toList b) msg
+    let commaSep = case l of
             []  -> Nothing
-            [_] -> Just $ DList.fromList $ [F.TPlain "Issue: "] ++ r
-            _   -> Just $ DList.fromList $ [F.TPlain "Issues: "] ++ (intersperse (F.TPlain ", ") r)
-    return commaSep
+            [_] -> Just $ DList.fromList $ [F.TPlain "Issue: "] ++ l
+            _   -> Just $ DList.fromList $ [F.TPlain "L: "] ++ (intersperse (F.TPlain ", ") l)
+
+    return (commaSep, catMaybes $ rights $ DList.toList parse)
 
 type InexactDiffHash = BS.ByteString
 type SubjectLine = Text
@@ -337,8 +344,12 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                           (_:_) -> Just $ safeDecode $ BS8.concat $ ["Flags: "] ++ (intersperse ", " flags)
                     where flags = catMaybes [diffInexactMatches]
 
+            (maybeIssueTrackLinks, issues) <- listIssueTrackLinks commitSubjectLine
             (toListE, ccList) <- do
-                  (extraCc, extraTo) <- getExtraCCTo
+                  (extraCc', extraTo) <- getExtraCCTo
+                  issuesCc <- fmap Set.unions $ forM issues getJiraCcByIssue
+                  let extraCc = extraCc' `union` Set.toList issuesCc
+
                   maintainerM <- case fsMaintainer of
                       Nothing -> return Nothing
                       Just e -> getEMail e
@@ -380,7 +391,6 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                       let htmlformat = (F.mkHtmlFormat F.HTMLInline F.brightBackground)
                                { F.fmtFileLinker = blobInCommitURLFunc }
 
-                      maybeIssueTrackLinks <- listIssueTrackLinks commitSubjectLine
                       let htmlOnlyHeader = T.concat $ (intersperse "<br>" extraInfo) ++ ["<br>"]
                           extraInfo = catMaybes [
                                   commitURL

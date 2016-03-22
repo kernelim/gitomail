@@ -52,6 +52,7 @@ runCmd = do
             O.AutoMailerSetRef ref text    -> autoMailerSetRef ref text
 
             -- Debug
+            O.JiraCCByIssue issue          -> showCcByIssue issue
             O.ForgetHash                   -> forgetHash
             O.ShowAutoMailerRefs           -> showAutoMailerRefs
             O.ParseMaintainerFile filepath -> do

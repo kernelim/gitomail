@@ -15,6 +15,7 @@ module Gitomail.Gitomail
   ( MonadGitomail
   , ParameterNeeded(..)
   , InvalidCommandOutput(..)
+  , Issue
   , parseIssueTrackMentions
   , compilePatterns
   , getCommitURL
@@ -38,29 +39,38 @@ module Gitomail.Gitomail
   , sortedRefList
   , opts
   , withDB
+  , getJiraCcByIssue
+  , showCcByIssue
   ) where
 
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted    as E
 import           Control.Lens.Operators      ((^.), (&), (<+=), (.=))
 import           Control.Lens                (makeLenses, use, Lens)
-import           Control.Monad               (forM,)
+import           Control.Concurrent.MVar     (newMVar, modifyMVar, MVar)
+import           Control.Monad               (forM)
 import           Control.Monad.Catch         (MonadMask)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (StateT, gets, MonadState)
 import           Control.Monad.Trans.Control (MonadBaseControl)
+import qualified Data.Aeson                  as Aeson
 import qualified Data.ByteString.Char8       as BS8
 import qualified Data.DList                  as DList
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
+import qualified Data.Text.Encoding          as T
 import           Data.Maybe                  (fromMaybe, catMaybes)
-import qualified Data.Map                    as Map
+import           Data.Set                    (Set)
+import qualified Data.Set                    as Set
+import qualified Data.Map.Strict             as Map
 import           Data.Typeable               (Typeable)
 import           Data.Version                (showVersion)
+import qualified Data.Vector                 as V
 import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
 import           Data.UnixTime               (getUnixTime, UnixTime(..))
 import           Data.List                   (groupBy, sortOn, sort)
+import qualified Data.HashMap.Strict         as HMS
 import           System.FilePath             ((</>), takeBaseName)
 import           System.Directory            (canonicalizePath, doesFileExist,
                                               getCurrentDirectory, setCurrentDirectory)
@@ -75,6 +85,7 @@ import           Git                         (withRepository)
 import qualified Git                         as Git
 import           Git.Libgit2                 (lgFactory)
 import           Data.Time.LocalTime         (zonedTimeToUTC)
+import           Network.HTTP.Conduit
 ----
 import           Paths_gitomail              (version)
 import qualified Gitomail.Config             as CFG
@@ -97,6 +108,7 @@ type GitRefList = [(O.GitRef, GIT.CommitHash)]
 data Gitomail = Gitomail {
     opts                :: O.Opts
   , _fakeMessageId      :: Int
+  , _jiraCcByIssues     :: MVar (Map.Map Text (Set Address))
   , _sortedRefList      :: Maybe (FilePath, [GitRefList])
   , __loadFiles         :: Maybe (O.GitRef, (GIT.Tree (Maybe BS8.ByteString)))
   , __parseFiles        :: Maybe (O.GitRef, (GIT.Tree (Maybe Maintainers.Unit)))
@@ -127,7 +139,8 @@ instance Show InvalidCommandOutput where
 
 getGitomail :: O.Opts -> IO (Gitomail)
 getGitomail opts = do
-    return $ Gitomail opts 0 Nothing Nothing Nothing Nothing Nothing
+    ref <- newMVar Map.empty
+    return $ Gitomail opts 0 ref Nothing Nothing Nothing Nothing Nothing
                              Nothing Nothing Nothing Nothing
 
 cacheInStateBySomething :: (MonadState c m, Eq b)
@@ -328,6 +341,68 @@ getTopAliases gitRef = do
                    _ -> []
     m <- mapM f (map snd defs)
     return $ Map.fromList $ catMaybes m
+
+type Issue = Text
+
+data UnexpectedJSON = UnexpectedJSON String String deriving (Typeable)
+instance E.Exception UnexpectedJSON
+instance Show UnexpectedJSON where
+    show (UnexpectedJSON expected msgstr) = "UnexpectedJSON: expected " ++ expected ++ " in " ++ msgstr
+
+getJiraCcByIssue :: (MonadGitomail m) => Issue -> m (Set Address)
+getJiraCcByIssue issueName = do
+    config <- getConfig
+    case config ^. CFG.jiraCC of
+        Nothing -> return Set.empty
+        Just CFG.JIRACC{..} -> do
+            let accessServer =
+                  fmap Set.fromList $
+                     do let (username, password) = T.breakOn ":" jiraCreds
+                        let bsUsername = T.encodeUtf8 username
+                        let bsPassword = T.encodeUtf8  $ T.drop 1 password
+                        let url = T.replace "%s" issueName jiraURL
+                        let contentType = ("Content-Type","application/json")
+                        putStrLn $ "Fetching JIRA info for issue " ++ T.unpack issueName
+                        request <- fmap (applyBasicAuth bsUsername bsPassword) $
+                                            parseUrl $ T.unpack url
+                        manager <- newManager tlsManagerSettings
+                        res <- httpLbs request { requestHeaders = contentType:(requestHeaders request) } manager
+                        v <- case Aeson.decode $ responseBody res :: Maybe Aeson.Value of
+                            Just (Aeson.Object x) -> return x
+                            x -> E.throw $ UnexpectedJSON "object" $ show x
+
+                        v2 <- case HMS.lookup "fields" v of
+                            Just (Aeson.Object x) -> return x
+                            x -> E.throw $ UnexpectedJSON "'fields'" $ show x
+
+                        fmap concat $ forM jiraFields $ \fieldName -> do
+                            case HMS.lookup fieldName v2 of
+                                Just (Aeson.Array elems) -> do
+                                    fmap catMaybes $ forM (V.toList elems) $ \case
+                                        (Aeson.Object v3) ->
+                                            case (HMS.lookup "emailAddress" v3
+                                                 ,HMS.lookup "displayName" v3) of
+                                                (Just (Aeson.String email),
+                                                 Just (Aeson.String name)) ->
+                                                    return $ Just $ Address (Just name) email
+                                                _ -> return Nothing
+                                        _ -> return Nothing
+                                _ -> return []
+
+            cache <- use jiraCcByIssues
+            liftIO $ modifyMVar cache $ \m -> do
+                case Map.lookup issueName m of
+                    Just s -> return (m, s)
+                    Nothing -> do
+                        let err (e :: E.SomeException) = do
+                                putStrLn $ "Warning: could not get JIRA issue details: " ++ show e
+                                return Set.empty
+                        res <- E.catch accessServer err
+                        return $ (Map.insert issueName res m, res)
+
+showCcByIssue :: (MonadGitomail m) => String -> m ()
+showCcByIssue issueName = do
+    getJiraCcByIssue (T.pack issueName) >>= (liftIO . print)
 
 githashRepr :: (MonadGitomail m) => GIT.CommitHash -> m Text
 githashRepr githash = do

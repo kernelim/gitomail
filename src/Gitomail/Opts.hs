@@ -50,6 +50,7 @@ data Command
     | ForgetHash
     | ParseMaintainerFile FilePath
     | ParseConfigFile FilePath
+    | JiraCCByIssue String
     | EvalConfigs
     | Misc
     deriving (Show)
@@ -106,14 +107,15 @@ optsParse = Opts
            <> command "debug" debugCommands
            ))
     where
-        oneArgFile ctr = info (ctr <$> (argument str (metavar "GITREP")))
+        oneArg ctr = info (ctr <$> (argument str (metavar "ARG")))
 
         debugCommands = info (subparser (
-                  command "parse-maintainers-file" (oneArgFile ParseMaintainerFile (progDesc ""))
-               <> command "parse-config-file"      (oneArgFile ParseConfigFile     (progDesc ""))
+                  command "parse-maintainers-file" (oneArg     ParseMaintainerFile (progDesc ""))
+               <> command "parse-config-file"      (oneArg     ParseConfigFile     (progDesc ""))
                <> command "eval-configs"           (info (pure EvalConfigs)        (progDesc ""))
                <> command "show-auto-mailer-refs"  (info (pure ShowAutoMailerRefs) (progDesc ""))
                <> command "forget-hash"            (info (pure ForgetHash)         (progDesc ""))
+               <> command "jira-cc-by-issue"       (oneArg     JiraCCByIssue       (progDesc ""))
                <> command "misc"                   (info (pure Misc)               (progDesc ""))
             )) (progDesc "Various debugging commands")
 
