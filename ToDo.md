@@ -10,7 +10,7 @@
 * Fixme: Commits that only remove files are skipped (no maintainers).
 * Prepare Github, Bitbucket and Gitolite presets for easier integartion.
     * Gitolite integration will be able to tell Gitomail which user did the push.
-* Add lots of documetation.
+* Add lots of documentation.
 * Use the git executable for rev-parsing for '-v'.
 * Formatting of the ASCII E-Mail should be improved.
 * Verify that the ASCII version of the E-Mail can still be imported as a patch.
