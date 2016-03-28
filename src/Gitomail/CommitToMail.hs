@@ -227,10 +227,12 @@ getCommitInfo cmk db ref commitHash maybeNr = do
     (authorName, commitSubjectLine, authorEMail, parentHashesStr) <- do
         let keys = intersperse commitHash
                        ["%aN", "%s", "%ae", "%P"]
-        commitData <- fmap removeTrailingNewLine $ gitCmd ["show", commitHash, T.concat $ "--pretty=":keys, "-s"]
+        let params = ["show", commitHash, T.concat $ "--pretty=":keys, "-s"]
+        commitData <- fmap removeTrailingNewLine $ gitCmd params
         case T.splitOn commitHash commitData of
             [a,b,c,d] -> return (a,b,c,d)
-            _ -> E.throw $ InvalidCommandOutput "TODO"
+            _ -> E.throw $ InvalidCommandOutput
+                   $ "Unexpected Git output (params: " ++ show params ++ ", output: " ++ show commitData ++ ")"
 
     let returnCommitInfo eitherContent =
             return $ CommitInfo authorName commitSubjectLine eitherContent
