@@ -402,11 +402,15 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                                 , flagsMaybe
                               ] ++ case matchErrors of
                                       Maintainers.MatchErrors errors ->
-                                          flip map (Set.toList errors) $ \((path, line), alias) -> T.concat [
+                                          flip map (Set.toList errors) $ \((path, line), err) -> T.concat [
                                               "Warning: " ,
                                               safeDecode path, case path of {"" -> "" ; _ -> "/" }, "Maintainers",
                                               ":", T.pack $ show line, ": ",
-                                                  "invalid alias: ", safeDecode alias]
+                                                  case err of
+                                                      Maintainers.InvalidAlias alias -> T.concat ["invalid alias - ", safeDecode alias]
+                                                      Maintainers.OverlappingAlias alias prevEmail ->
+                                                          T.concat ["overlapping alias - ", safeDecode alias, ", previous E-Mail was ",
+                                                                    safeDecode prevEmail]]
 
                       parsedFLists <- case cmk of
                           CommitMailFull -> do

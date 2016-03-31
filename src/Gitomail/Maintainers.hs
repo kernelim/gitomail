@@ -10,6 +10,7 @@ module Gitomail.Maintainers
   , Unit(..)
   , DefInFile
   , MatchErrors(..)
+  , MatchError(..)
   , assignDefinitionFiles
   , compilePatterns
   , fileName
@@ -159,9 +160,12 @@ getEffectiveDefs :: Monad m => GIT.Tree AssignedFileStatus -> m (Set Location)
 getEffectiveDefs tree = GIT.foldTree Set.empty f tree
   where f _ s content = return $ Set.union (fileStatusToDefSet content) s
 
-type InvalidAliases = Set (Location, BS8.ByteString)
+data MatchError
+    = InvalidAlias BS8.ByteString
+    | OverlappingAlias BS8.ByteString BS8.ByteString
+    deriving (Eq, Ord)
 
-data MatchErrors = MatchErrors InvalidAliases
+data MatchErrors = MatchErrors (Set (Location, MatchError))
 
 matchFiles :: (MonadIO m, Monad m) =>
                GIT.Tree [(BS8.ByteString, [DefInFile])] -> m (GIT.Tree AssignedFileStatus,
@@ -175,10 +179,14 @@ matchFiles tree =
                  matcher = Glob.matchWith match_options
                  empty_fs = AssignedFileStatus Nothing [] []
                  path = joinPath $ reverse $ map BS8.unpack pathcomps
+                 err location thing = modifyIORef' invalidsI $ Set.insert (location, thing)
                  root = do
-                    aliases <- join Map.empty $ \m (_, def) ->
+                    aliases <- join Map.empty $ \m (location, def) ->
                       case def of
-                        Alias name email -> return $ Map.insert name email m -- TODO: handle dups
+                        Alias name email -> do
+                            maybeF (Map.lookup name m)
+                                  (return ()) (\prevEMail -> err location $ OverlappingAlias name prevEMail)
+                            return $ Map.insert name email m
                         _ -> return m
                     join empty_fs $ \fs (location, def) ->
                       case def of
@@ -186,8 +194,7 @@ matchFiles tree =
                           if matcher pattern path
                               then maybeF
                                    (Map.lookup alias aliases)
-                                   (do modifyIORef' invalidsI $ Set.insert (location, alias)
-                                       return fs)
+                                   ((err location $ InvalidAlias alias) >> return fs)
                                       $ \email -> return $ mappend fs (case assignt of
                                                     Maintainer -> empty_fs { fsMaintainer = Just (location, email) }
                                                     Observer -> empty_fs { fsObservers = [(location, email)] }
