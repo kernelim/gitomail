@@ -58,14 +58,14 @@ type Path = BS.ByteString
 
 parse :: BL.ByteString -> Either Error Unit
 parse s =
-  case runAlex s $ happyParser of
-    Right x -> Right x
-    Left ('l':'e':'x':xs) ->
-      Left (Error 0 0 xs) -- TODO
-    Left ('s':'h':'o':'w':'-':'e':'r':'r':'o':'r':':':' ':xs) ->
-      let (line, column, e) = (read xs :: (Int, Int, String))
-       in Left (Error line column e)
-    Left xs -> Left (Error 0 0 xs)
+    case runAlex s $ happyParser of
+        Right x -> Right x
+        Left ('l':'e':'x':xs) ->
+          Left (Error 0 0 xs) -- TODO
+        Left ('s':'h':'o':'w':'-':'e':'r':'r':'o':'r':':':' ':xs) ->
+          let (line, column, e) = (read xs :: (Int, Int, String))
+           in Left (Error line column e)
+        Left xs -> Left (Error 0 0 xs)
 
 data FailedMaintainersParse = FailedMaintainersParse String deriving (Typeable)
 instance E.Exception FailedMaintainersParse
@@ -76,7 +76,8 @@ parseFiles :: Monad m => GIT.Tree (Maybe Path) -> m (GIT.Tree (Maybe Unit))
 parseFiles tree = GIT.mapTreeMaybeM f tree
     where f _pathcomps content = do
             case parse (BL.fromChunks [content]) of
-                Left _err -> E.throw $ FailedMaintainersParse "TODO"
+                Left (Error line col str) ->
+                    E.throw $ FailedMaintainersParse $ show line ++ ":" ++ show col ++ ":" ++ str
                 Right unit -> return unit
 
 data Assign = Observer | Maintainer | Reviewer
