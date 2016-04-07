@@ -8,6 +8,8 @@
 * Add in-reply-to from the commit mails to the summary E-Mails.
 * Implement manual E-Mail sending similar to the old git-send-email.
 * Fixme: Commits that only remove files are skipped (no maintainers).
+* Fixme: Pushing a partial rebase of a branch only reports about the modified
+  commits.
 * Prepare Github, Bitbucket and Gitolite presets for easier integartion.
     * Gitolite integration will be able to tell Gitomail which user did the push.
 * Add lots of documentation.
