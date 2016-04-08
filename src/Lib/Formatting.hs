@@ -26,6 +26,7 @@ data Format
     | MonospacePar
     | Monospace
     | Underline
+    | LineThrough
     | Dark
     | List
     | ListItem

@@ -39,6 +39,8 @@ flistToInlineStyleHtml = root
           html End   _ Monospace      = "</span></font>"
           html Start _ Underline      = "<div style=\"text-decoration: underline\">"
           html End   _ Underline      = "</div>"
+          html Start _ LineThrough    = "<div style=\"text-decoration: line-through\">"
+          html End   _ LineThrough    = "</div>"
           html Start _ Emphesis       = "<div style=\"font-weight: bold\">"
           html End   _ Emphesis       = "</div>"
           html Start _ List           = "<ul>"
