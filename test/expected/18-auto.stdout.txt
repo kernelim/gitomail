@@ -1,24 +1,24 @@
 Relating commits to refs
 Ref heads/master: creating summaries
 Ref heads/master: creating E-Mails
-  Formatting 00031fffffffffffffffffffffffffffffffffff
   Formatting 00032fffffffffffffffffffffffffffffffffff
   Formatting 00033fffffffffffffffffffffffffffffffffff
+  Formatting 00034fffffffffffffffffffffffffffffffffff
 Ref heads/mergetopic-2: creating summaries
 Ref heads/mergetopic-2: creating E-Mails
-  Formatting 00034fffffffffffffffffffffffffffffffffff
   Formatting 00035fffffffffffffffffffffffffffffffffff
   Formatting 00036fffffffffffffffffffffffffffffffffff
+  Formatting 00037fffffffffffffffffffffffffffffffffff
 Ref heads/staging: creating summaries
 Ref heads/staging: creating E-Mails
-  Formatting 00037fffffffffffffffffffffffffffffffffff
+  Formatting 00038fffffffffffffffffffffffffffffffffff
 Sending all E-Mails
 Sending E-Mails!
-  Writing $TEMP/1 - '[repo] master branch added 3 commits: 00027ffff..00033ffff'
-  Writing $TEMP/2 - '[repo master 00031ffff, #1] Updating Other.txt [22]'
-  Writing $TEMP/3 - '[repo master 00032ffff, #2] Updating Other.txt [23]'
-  Writing $TEMP/4 - '[repo master 00033ffff, #3] Updating Other.txt [24]'
-  Writing $TEMP/5 - '[repo] mergetopic-2 branch *rebased* having 3 commits total: 00030ffff...00036ffff'
-  Writing $TEMP/6 - '[repo mergetopic-2 00034ffff, #1] Updating README.md [19]'
-  Writing $TEMP/7 - '[repo mergetopic-2 00035ffff, #2] Updating README.md [20]'
-  Writing $TEMP/8 - '[repo mergetopic-2 00036ffff, #3] Updating README.md [21]'
+  Writing $TEMP/1 - '[repo] master branch added 3 commits: 00028ffff..00034ffff'
+  Writing $TEMP/2 - '[repo master 00032ffff, #1] Updating Other.txt [22]'
+  Writing $TEMP/3 - '[repo master 00033ffff, #2] Updating Other.txt [23]'
+  Writing $TEMP/4 - '[repo master 00034ffff, #3] Updating Other.txt [24]'
+  Writing $TEMP/5 - '[repo] mergetopic-2 branch *rebased* having 3 commits total: 00031ffff...00037ffff'
+  Writing $TEMP/6 - '[repo mergetopic-2 00035ffff, #1] Updating README.md [19]'
+  Writing $TEMP/7 - '[repo mergetopic-2 00036ffff, #2] Updating README.md [20]'
+  Writing $TEMP/8 - '[repo mergetopic-2 00037ffff, #3] Updating README.md [21]'

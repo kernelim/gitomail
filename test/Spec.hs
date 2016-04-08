@@ -228,9 +228,12 @@ tests tempDir = do
             git' ["commit", "-m", msg']
             gitDerandomizeHashHEAD
 
-        fileAppend msg' file i = do
+        fileAppend' file i = do
             appendFile' (T.unpack file) $ "Added content " +@ showT (i :: Int) +@ "\n"
             git' [add, file]
+
+        fileAppend msg' file i = do
+            fileAppend' file i
             commit $ "Updating " +@ file +@ " [" +@ showT i +@ "]" +@ msg'
 
         takeFile fromFile toFile = do
@@ -338,6 +341,17 @@ tests tempDir = do
     gitomailC "5-auto" automailer
 
     --  -> topic2[<master>]: **
+
+    msg "Partial rebase of a topic branch"
+    ---------------------------------------------------------
+
+    do beforeAmendHash <- gitRevParse "HEAD"
+       fileAppend' other 50
+       git' ["commit", "--amend", "-a", "-m", "amended commit"]
+       gitDerandomizeHash "HEAD"
+       gitomailC "23-auto" automailer
+       gitP ["reset", "--hard", beforeAmendHash]
+       gitomailC "24-auto" automailer
 
     msg "Verifying numbering after added commits to topic branch"
     ---------------------------------------------------------

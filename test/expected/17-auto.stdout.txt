@@ -1,12 +1,12 @@
 Relating commits to refs
 Ref heads/mergetopic-2: creating summaries
 Ref heads/mergetopic-2: creating E-Mails
-  Formatting 00028fffffffffffffffffffffffffffffffffff
   Formatting 00029fffffffffffffffffffffffffffffffffff
   Formatting 00030fffffffffffffffffffffffffffffffffff
+  Formatting 00031fffffffffffffffffffffffffffffffffff
 Sending all E-Mails
 Sending E-Mails!
   Writing $TEMP/1 - '[repo] mergetopic-2 branch is new with 3 commits'
-  Writing $TEMP/2 - '[repo mergetopic-2 00028ffff, #1] Updating README.md [19]'
-  Writing $TEMP/3 - '[repo mergetopic-2 00029ffff, #2] Updating README.md [20]'
-  Writing $TEMP/4 - '[repo mergetopic-2 00030ffff, #3] Updating README.md [21]'
+  Writing $TEMP/2 - '[repo mergetopic-2 00029ffff, #1] Updating README.md [19]'
+  Writing $TEMP/3 - '[repo mergetopic-2 00030ffff, #2] Updating README.md [20]'
+  Writing $TEMP/4 - '[repo mergetopic-2 00031ffff, #3] Updating README.md [21]'

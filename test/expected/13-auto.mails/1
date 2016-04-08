@@ -1,8 +1,8 @@
 From: <bot@gitomail.com>
 To: =?utf-8?Q?Main_User?= <main@gitomail.com>
-Message-Id: <0000000000-0000011-0002-gitomail-bot@gitomail.com>
+Message-Id: <0000000000-0000013-0002-gitomail-bot@gitomail.com>
 X-Mailer: gitomail 0.0.0
-Subject: [repo] master branch added 1 commit: 00010ffff..00023ffff
+Subject: [repo] master branch added 1 commit: 00010ffff..00024ffff
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
 
@@ -12,7 +12,7 @@ Content-Transfer-Encoding: quoted-printable
 
 
 Content
-Main User 00023ffff #1 Adding
+Main User 00024ffff #1 Adding
 
 Sent by Gitomail 
 
@@ -25,8 +25,8 @@ xt-decoration: underline">
 Content
 </div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
-a href=3D"https://github=2Ecom/gitomail/repo/commit/00023ffffffffffffffffff=
-fffffffffffffffff" style=3D"text-decoration: none">00023ffff </a></span></f=
+a href=3D"https://github=2Ecom/gitomail/repo/commit/00024ffffffffffffffffff=
+fffffffffffffffff" style=3D"text-decoration: none">00024ffff </a></span></f=
 ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#1 </div></td><=
 td colspan=3D"1"><div style=3D"font-weight: bold">Adding
 </div></td></tr>

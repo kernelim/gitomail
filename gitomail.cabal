@@ -44,6 +44,7 @@ executable gitomail
                      , HaskellNet
                      , HaskellNet-SSL
                      , aeson                >= 0.8.0.2
+                     , ansi-terminal >= 0.6.2.3
                      , array
                      , base                 >= 4.7    &&  < 5.0
                      , base16-bytestring    >= 0.1.1.6
@@ -75,6 +76,7 @@ executable gitomail
                      , regex-tdfa           >= 1.2.1
                      , regex-tdfa-text
                      , tagged               >= 0.8.1
+                     , temporary >= 1.2.0.4
                      , text
                      , time >= 1.5.0.1
                      , transformers         >= 0.4.2.0
@@ -111,7 +113,7 @@ test-suite gitomail-test
                      , process-extras
                      , regex-tdfa           >= 1.2.1
                      , regex-tdfa-text
-                     , temporary >= 1.2.0.3
+                     , temporary >= 1.2.0.4
                      , text
                      , time >= 1.5.0.1
                      , transformers         >= 0.4.2.0

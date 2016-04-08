@@ -3,16 +3,16 @@ Ref heads/topic1-1: creating summaries
 Ref heads/topic1-1: creating E-Mails
   Skipping old commit 00011fffffffffffffffffffffffffffffffffff
   Skipping old commit 00012fffffffffffffffffffffffffffffffffff
-  Skipping old commit 00013fffffffffffffffffffffffffffffffffff
   Skipping old commit 00014fffffffffffffffffffffffffffffffffff
   Skipping old commit 00015fffffffffffffffffffffffffffffffffff
   Skipping old commit 00016fffffffffffffffffffffffffffffffffff
   Skipping old commit 00017fffffffffffffffffffffffffffffffffff
   Skipping old commit 00018fffffffffffffffffffffffffffffffffff
-  Formatting 00019fffffffffffffffffffffffffffffffffff
+  Skipping old commit 00019fffffffffffffffffffffffffffffffffff
   Formatting 00020fffffffffffffffffffffffffffffffffff
+  Formatting 00021fffffffffffffffffffffffffffffffffff
 Sending all E-Mails
 Sending E-Mails!
-  Writing $TEMP/1 - '[repo] topic1-1 branch added 2 commits (having 10 commits total): 00018ffff..00020ffff'
-  Writing $TEMP/2 - '[repo topic1-1 00019ffff, #9] Updating Other.txt [17]'
-  Writing $TEMP/3 - '[repo topic1-1 00020ffff, #10] Updating Other.txt [18]'
+  Writing $TEMP/1 - '[repo] topic1-1 branch added 2 commits (having 10 commits total): 00019ffff..00021ffff'
+  Writing $TEMP/2 - '[repo topic1-1 00020ffff, #9] Updating Other.txt [17]'
+  Writing $TEMP/3 - '[repo topic1-1 00021ffff, #10] Updating Other.txt [18]'
