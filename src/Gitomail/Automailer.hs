@@ -388,32 +388,36 @@ autoMailer = do
                 branchPointsI <- newIORef Set.empty
                 let iterF world startCommitHash checkBranchPoints = do
                       seenI <- newIORef HMS.empty
+                      seenListI <- newIORef []
                       let iter = GIT.iterateHistoryUntil () $ \() commit parents -> do
                              seen <- readIORef seenI
                              if not (commit `HMS.member` world) && not (commit `HMS.member` seen)
-                                 then do writeIORef seenI $ HMS.insert commit (refname, parents) seen
+                                 then do writeIORef seenI     $ HMS.insert commit (refname, parents) seen
+                                         modifyIORef' seenListI $ ((:) commit)
                                          when initTracking $ markSeen asyncOp commit
                                          return ((), parents)
                                  else do when checkBranchPoints $
                                              modifyIORef' branchPointsI (Set.insert commit)
                                          return ((), [])
                       _ <- iter repoPath startCommitHash
-                      readIORef seenI
+                      lst <- readIORef seenListI
+                      set <- readIORef seenI
+                      return (lst, set)
 
                 world <- readIORef worldI
-                cur <- iterF world topCommitHash True
+                (cur, curSet) <- iterF world topCommitHash True
                 result <- case maybeRefInRepo of
                     Just r -> do
                         branchPoints <- readIORef branchPointsI
                         let refInfo = (refname, r, topCommitHash, branchPoints)
                          in case r of
-                              NewRef -> return $ Just (refInfo, HMS.keys $ cur, Nothing)
+                              NewRef -> return $ Just (refInfo, cur, Nothing)
                               (ModifiedRef oldHash) -> do
-                                  old <- iterF world oldHash False
-                                  return $ Just (refInfo, HMS.keys $ cur, Just (oldHash, HMS.keys $ old))
+                                  (old, _) <- iterF world oldHash False
+                                  return $ Just (refInfo, cur, Just (oldHash, old))
                     Nothing ->
                         return Nothing
-                writeIORef worldI $ HMS.union world cur
+                writeIORef worldI $ HMS.union world curSet
                 return result
 
         let commitSet startList = do
