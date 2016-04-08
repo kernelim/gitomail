@@ -1,8 +1,8 @@
 From: <bot@gitomail.com>
 To: =?utf-8?Q?Main_User?= <main@gitomail.com>
-Message-Id: <0000000000-0000006-0003-gitomail-bot@gitomail.com>
+Message-Id: <0000000000-0000006-0005-gitomail-bot@gitomail.com>
 X-Mailer: gitomail 0.0.0
-Subject: [repo] topic2 branch *rebased* having 1 commit total: 00012ffff...00013ffff
+Subject: [repo] topic2 branch *rebased* having 2 commits total: 00012ffff...00013ffff
 MIME-Version: 1.0
 Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
 
@@ -12,7 +12,13 @@ Content-Transfer-Encoding: quoted-printable
 
 
 Content
-Main User 00013ffff #1 amended commit
+Main User 00013ffff #2 amended commit
+
+Removed content
+Main User 00012ffff  Updating Other=2Etxt [7]
+
+Previously pushed
+Main User 00011ffff #1 Updating Other=2Etxt [6]
 
 Branch points
 Main User 00010ffff (master branch) Updating README=2Emd [9] [PROJECT-31]
@@ -30,10 +36,28 @@ Content
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
 a href=3D"https://github=2Ecom/gitomail/repo/commit/00013ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00013ffff </a></span></f=
-ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#1 </div></td><=
+ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">#2 </div></td><=
 td colspan=3D"1"><div style=3D"font-weight: bold">amended commit
 </div></td></tr><tr><td colspan=3D"5"><div style=3D"text-decoration: underl=
 ine">
+Removed content
+</div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
+<td colspan=3D"1"><div style=3D"text-decoration: line-through"><font size=
+=3D"3"><span style=3D"font-family: monospace"><a href=3D"https://github=2Ec=
+om/gitomail/repo/commit/00012fffffffffffffffffffffffffffffffffff" style=3D"=
+text-decoration: none">00012ffff </a></span></font></div></td><td colspan=
+=3D"1"> </td><td colspan=3D"1"><div style=3D"text-decoration: line-through"=
+>Updating Other&#8203;=2Etxt [7]
+</div></td></tr><tr><td colspan=3D"5"><div style=3D"text-decoration: underl=
+ine">
+Previously pushed
+</div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
+<td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
+a href=3D"https://github=2Ecom/gitomail/repo/commit/00011ffffffffffffffffff=
+fffffffffffffffff" style=3D"text-decoration: none">00011ffff </a></span></f=
+ont></td><td colspan=3D"1">#1 </td><td colspan=3D"1">Updating Other&#8203;=
+=2Etxt [6]
+</td></tr><tr><td colspan=3D"5"><div style=3D"text-decoration: underline">
 Branch points
 </div></td></tr><tr><td width=3D"10"></td><td colspan=3D"1">Main User </td>=
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=

@@ -68,6 +68,7 @@ instance Show UnexpectedGitState where
 data CommitSummaryType
     = CSTBranchPoint O.GitRef
     | CSTNew
+    | CSTRemoved
     | CSTExisting
       deriving Show
 
@@ -88,7 +89,7 @@ data RefFFMod
 
 data BranchDetails
     = BranchAddedCommits [GIT.CommitHash] [GIT.CommitHash]
-    | BranchRebased      [GIT.CommitHash] [GIT.CommitHash]
+    | BranchRebased      [GIT.CommitHash] [GIT.CommitHash] [GIT.CommitHash]
     | BranchNew          [GIT.CommitHash]
       deriving Show
 
@@ -176,6 +177,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
         True -> do
             commitsSeenI <- newIORef Set.empty
             newCommitsI <- newIORef []
+            removedCommitsI <- newIORef []
             belowOrEqOldRefI <- newIORef []
             branchPointsI <- newIORef []
             numberingI <- newIORef (1 :: Int)
@@ -193,10 +195,12 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
                                         -> modifyIORef' branchPointsI ((Just refName, Nothing, siCommitHash) :)
                        CSTExisting      -> do nr <- getNr
                                               modifyIORef' belowOrEqOldRefI ((Nothing, Just nr, siCommitHash) :)
+                       CSTRemoved       -> do modifyIORef' removedCommitsI ((Nothing, Nothing, siCommitHash) :)
                        CSTNew           -> do nr <- getNr
                                               modifyIORef' newCommitsI ((Nothing, Just nr, siCommitHash) :)
 
             newCommits <- readIORef newCommitsI
+            removedCommits <- readIORef removedCommitsI
             belowOrEqOldRef <- readIORef belowOrEqOldRefI
             branchPoints <- readIORef branchPointsI
 
@@ -226,16 +230,17 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
             githashtoNumberI <- newIORef Map.empty
             (flist, mails) <- do
                 let commitLists = [
-                        ("Content"          , newCommits,       True)
-                      , ("Previously pushed", belowOrEqOldRef,  True)
-                      , ("Branch points"    , branchPoints,     False)
+                        ("Content"          , newCommits,       True,  id)
+                      , ("Removed content"  , removedCommits,   True,  F.mkFormS F.LineThrough)
+                      , ("Previously pushed", belowOrEqOldRef,  True,  id)
+                      , ("Branch points"    , branchPoints,     False, id)
                       ]
                 let insert sI x = modifyIORef' sI (`DList.snoc` x)
 
                 flistI <- newIORef DList.empty
                 mailsI <- newIORef DList.empty
 
-                forM_ commitLists $ \(name, list, includeCCTo) -> do
+                forM_ commitLists $ \(name, list, includeCCTo, textMod) -> do
                    emptySoFarI <- newIORef True
                    forM_ list $ \(maybeRefName, maybeNr, commitHash) -> do
                        ci@CommitInfo{..} <- getCommitInfo CommitMailSummary db ref commitHash maybeNr
@@ -268,7 +273,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
                        insert flistRowI $ F.TForm (F.TableCellPad 10) (F.mkPlain "")
 
                        insert flistRowI $ F.TForm col $ F.mkPlain $ ciAuthorName +@ " "
-                       insert flistRowI $ F.TForm col $ F.mkFormS F.Monospace $ linkToWeb $ F.mkPlain $ githash +@ " "
+                       insert flistRowI $ F.TForm col $ textMod $ F.mkFormS F.Monospace $ linkToWeb $ F.mkPlain $ githash +@ " "
 
                        field <- case maybeNr of
                            Just nr -> do
@@ -290,7 +295,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
                                if bold then F.mkFormS F.Emphesis f else f
                        insert flistRowI $ F.TForm col $ maybeBold $ F.mkPlain field
                        commitSubject <- addIssueTrackLinks $ ciCommitSubject +@ "\n"
-                       insert flistRowI $ F.TForm col $ maybeBold $ commitSubject
+                       insert flistRowI $ F.TForm col $ textMod $ maybeBold $ commitSubject
 
                        flistRow <- readIORef flistRowI
                        insert flistI $ F.TForm row flistRow
@@ -425,6 +430,7 @@ autoMailer = do
                 resListI <- newIORef []
                 setI <- newIORef $ Set.empty
                 setTempI <- newIORef $ Set.empty
+                world <- readIORef worldI
                 let loop = do
                         list <- readIORef listI
                         case list of
@@ -434,12 +440,13 @@ autoMailer = do
                                 loop
                             [] -> return ()
                     visit n = do -- Tarjan's algorithm
-                        set <- readIORef setI
-                        setTemp <- readIORef setTempI
-                        when (not (n `Set.member` set) && not (n `Set.member` setTemp)) $ do
+                        b <- do
+                            set <- readIORef setI
+                            setTemp <- readIORef setTempI
+                            return $ (not (n `Set.member` set) && not (n `Set.member` setTemp))
+                        when b $ do
                             modifyIORef' setTempI $ Set.insert n
 
-                            world <- readIORef worldI
                             case HMS.lookup n world of
                                 Just (_, parents) -> forM_ parents visit
                                 Nothing -> return ()
@@ -470,13 +477,13 @@ autoMailer = do
                     let added = osFromCur `osDiff` osFromOld
                         (commitSetFromCur, _) = osFromCur
                         isFast = oldHash `Set.member` commitSetFromCur
+                        existing = osFromOld `osIntersection` commitsFromOld
                     case isFast of
                         True -> do
-                            let existing = osFromOld `osIntersection` commitsFromOld
                             return $ (refInfo, BranchAddedCommits (snd added) (snd existing))
                         False -> do
                             let removed = osFromOld `osDiff` osFromCur
-                            return $ (refInfo, BranchRebased (snd added) (snd removed))
+                            return $ (refInfo, BranchRebased (snd added) (snd removed) (snd existing))
                 Nothing -> do
                     let content = osFromCur `osIntersection` commitsFromCur
                     return $ (refInfo, BranchNew (snd content))
@@ -495,7 +502,7 @@ autoMailer = do
                         (numbersMap, summaryMailInfo) <- makeSummaryEMail db (refName, topCommitHash) refmod refInRepo
                             (commitsBranchPoints ++ commits)
                         return (numbersMap, summaryMailInfo, commits)
-                    ourCommmits oid =
+                    ourCommit oid =
                         case HMS.lookup oid world of
                             Just (otherRefName, _) -> otherRefName == refName
                             Nothing -> False
@@ -504,30 +511,39 @@ autoMailer = do
                             Just (_, []) -> Just oid
                             _ -> Nothing
                     noRoots oids = catMaybes $ map roots oids
+
                     commitsBranchPoints =
                            catMaybes $ map (\oid -> g oid (HMS.lookup oid world)) (Set.toList branchPoints)
                         where g oid (Just (ref, _)) = if ref /= refName
                                                           then Just $ SummaryInfo oid (CSTBranchPoint ref)
                                                           else Nothing
                               g _    Nothing        = Nothing
+                    commitsExisting existing =
+                       let ourExisting = reverse $ filter ourCommit existing
+                        in case noRoots ourExisting of
+                                      [] -> map (\oid -> SummaryInfo oid CSTExisting) ourExisting
+                                      (_:_) -> []
+                    commitsRemoved removed = reverse $ map (\oid -> SummaryInfo oid CSTRemoved) $ removed
+                    commitsNew added = reverse $ map (\oid -> SummaryInfo oid CSTNew) $
+                                             filter ourCommit added
 
                 (numbersMap, summaryMailInfo, commits) <- case branchChange of
                     BranchAddedCommits added existing -> do
                         logDebug $ putStrLn $ "ref: added - " ++ T.unpack refName ++ " "
                             ++ (show $ length added) ++ " commits, " ++ (show $ length existing) ++ " existing"
-                        let ourExisting = reverse $ filter ourCommmits existing
-                            commitsBefore = case noRoots ourExisting of
-                                                [] -> map (\oid -> SummaryInfo oid CSTExisting) ourExisting
-                                                (_:_) -> []
-                            commitsAfter = reverse $ map (\oid -> SummaryInfo oid CSTNew) $
-                                             filter ourCommmits added
-                        f RefFFModFast $ commitsBefore ++ commitsAfter
-                    BranchRebased added removed -> do
+                        f RefFFModFast $ commitsExisting existing ++ commitsNew added
+                    BranchRebased added removed existing -> do
                         logDebug $ putStrLn $ "ref: rebase - " ++ T.unpack refName ++ " "
                             ++ (show $ length added) ++ " commits, " ++ (show $ length removed) ++ " removed"
-                        let commitsAfter = reverse $ map (\oid -> SummaryInfo oid CSTNew) $
-                                             filter ourCommmits added
-                        f RefFFModNoFast $ commitsAfter
+                        let filteredExisting = filter ourCommit existing
+                            filteredAdded = filter ourCommit added
+                            commits =
+                                case (filteredExisting, filteredAdded) of
+                                    (_, []) -> []
+                                    ([], _) -> commitsNew added
+                                    _  -> commitsExisting filteredExisting
+                                             ++ commitsRemoved removed ++ commitsNew added
+                        f RefFFModNoFast $ commits
                     BranchNew content -> do
                         logDebug $ putStrLn $ "ref: new - " ++ T.unpack refName ++ " "
                             ++ (show $ length content) ++ " commits, "
