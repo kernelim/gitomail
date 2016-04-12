@@ -25,6 +25,9 @@
   the old refs (we shall perhaps use Git itself for this).
 * FixMe: gitBranchesContainingCommit is way too slow. We only need to build the 
   reversed DAGs once, instead of executing 'git branch --contains' each time.
+* Support hinting about whether to pass '-w' to the Git diff generation, via
+  explict hints in commit message. The ASCII version of the E-MAil should not be 
+  affected perhaps, so that it could still apply as a valid diff?
 * Occasionally GMail's SMTP interaction throws an exception:
   `HandshakeFailed (Error_Packet_unexpected "Alert [(AlertLevel_Fatal,BadRecordMac)]" " expected: change cipher")`
 
