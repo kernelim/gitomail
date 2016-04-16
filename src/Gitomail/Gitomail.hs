@@ -15,6 +15,7 @@ module Gitomail.Gitomail
   ( MonadGitomail
   , ParameterNeeded(..)
   , InvalidCommandOutput(..)
+  , GitRefList
   , Issue
   , parseIssueTrackMentions
   , compilePatterns
