@@ -17,7 +17,6 @@
 
 module Gitomail.Automailer
     ( autoMailer
-    , autoMailerSetRef
     , showAutoMailerRefs
     , forgetHash
     , UnexpectedGitState(..)
@@ -26,7 +25,7 @@ module Gitomail.Automailer
 ------------------------------------------------------------------------------------
 import qualified Control.Exception.Lifted   as E
 import           Control.Lens.Operators     ((&), (^.))
-import           Control.Monad              (forM, forM_, when)
+import           Control.Monad              (forM, forM_, when, void)
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
 import           Control.Monad.State.Strict (gets)
 import qualified Data.ByteString.Char8      as BS8
@@ -35,7 +34,7 @@ import           Data.Foldable              (toList)
 import qualified Data.HashMap.Strict        as HMS
 import           Data.List                  (nub, (\\))
 import qualified Data.Map                   as Map
-import           Data.Maybe                 (catMaybes, fromMaybe)
+import           Data.Maybe                 (catMaybes)
 import qualified Data.Set                   as Set
 import           Data.Text                  (Text)
 import qualified Data.Text                  as T
@@ -55,6 +54,7 @@ import qualified Gitomail.Opts              as O
 import qualified Lib.Formatting             as F
 import qualified Lib.Git                    as GIT
 import qualified Lib.InlineFormatting       as F
+import qualified Lib.Map                    as Map
 import           Lib.LiftedPrelude
 import           Lib.Monad                  (whenM)
 import           Lib.Text                   ((+@))
@@ -124,42 +124,6 @@ forgetHash = do
                     Just _ -> do DB.delete db DB.defaultWriteOptions k
                                  putStrLn "Sucesss"
         Nothing -> putStrLn "Hash not specified"
-
-refsMapDBKey :: BS8.ByteString
-refsMapDBKey = "refs-map"
-
-readRefsMap :: (MonadIO m) => DB -> m (Maybe (Map.Map O.GitRef GIT.CommitHash))
-readRefsMap db = do
-    -- FIXME: sensitive to how hackage git does 'read' / 'show'. We should newtype.
-    mRefs <- DB.get db DB.defaultReadOptions refsMapDBKey
-    case mRefs of
-        Nothing -> return Nothing
-        Just oldRefs ->
-            return $ Just ((read . BS8.unpack) oldRefs)
-
-writeRefsMap :: (MonadIO m) => O.Opts -> DB -> (Map.Map O.GitRef GIT.CommitHash) -> m ()
-writeRefsMap opts db refMap = do
-    when (not (opts ^. O.dryRun)) $ do
-        DB.put db (DB.defaultWriteOptions {DB.sync = True })
-            refsMapDBKey (BS8.pack $ show refMap)
-
-autoMailerSetRef :: MonadGitomail m => O.GitRef -> GIT.CommitHash -> m ()
-autoMailerSetRef gitref hash = do
-    opts <- gets opts
-    withDB $ \db -> do
-        mRefs <- readRefsMap db
-        case mRefs of
-            Nothing -> return ()
-            Just refs -> do
-                let prev = (Map.lookup gitref refs)
-                putStrLn $ "Current map: " ++ show refs
-                putStrLn $ "Prev value: " ++ show prev
-                case hash of
-                    "-" -> return ()
-                    _ -> do
-                        let modified = Map.insert gitref hash refs
-                        putStrLn $ "Now set to value: " ++ show hash
-                        writeRefsMap opts db modified
 
 addIssueTrackLinks :: (MonadGitomail m) => Text -> m F.FList
 addIssueTrackLinks msg = parseIssueTrackMentions F.TPlain (\a b -> F.TForm (F.Link a) b) msg
@@ -345,33 +309,37 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
 autoMailer :: (MonadGitomail m) => m ()
 autoMailer = do
     repoPath <- getRepositoryPath
-    refsByPriority <- getSortedRefs
+    (refsByPriority, prevRefs) <- getSortedRefs
     opts <- gets opts
 
     let logDebug = when (opts ^. O.verbose)
-        refsMap = Map.fromList $ concat refsByPriority
+    let refsMap = Map.fromList $ concat refsByPriority
+    let prevRefsMap = Map.fromList prevRefs
 
     withDB $ \db -> do
-        mOldRefs <- readRefsMap db
-        let initTracking = (mOldRefs == Nothing)
-        when initTracking $ do
-            putStrLn "Initial save of ref map. Will start tracking refs from now (this may take awhile)"
-
-        let oldRefsMap = fromMaybe refsMap mOldRefs
-        updatedRefsI <- newIORef oldRefsMap
+        (initTracking, oldRefsMap) <- if (prevRefs == [])
+            then do putStrLn "Initial save of ref map. Will start tracking refs from now (this may take awhile)"
+                    return (True, refsMap)
+            else return (False, prevRefsMap)
 
         let putDB opt k v =
                 when (not (opts ^. O.dryRun)) $ do
                     DB.put db opt k v
-            syncOp = True
-            asyncOp = False
-            markSeen sync siCommitHash =
+        let syncOp = True
+        let asyncOp = False
+        let refNamePrefixed refName = T.concat ["refs/gitomail/", refName]
+        let updateRefCmd (refName, siCommitHash) =
+                gitCmdIO repoPath ["update-ref", refNamePrefixed refName, siCommitHash]
+        let removeRefCmd refName =
+                gitCmdIO repoPath ["update-ref", "-d", refNamePrefixed refName]
+        let rememberChangedRefs = do
+                let md = Map.describeDifferences prevRefsMap refsMap
+                forM_ (Map.toList $ Map.newValues md) updateRefCmd
+                forM_ (Map.keys $ Map.inFirst md) removeRefCmd
+        let markSeen sync siCommitHash =
                 putDB (DB.defaultWriteOptions {DB.sync = sync })
                    (commitSeenKey (T.encodeUtf8 siCommitHash))
                    "true"
-            updateRefsMap = do
-                x <- readIORef updatedRefsI
-                writeRefsMap opts db x
 
         refStat <- fmap concat $ forM refsByPriority $ \refList -> do
             forM refList $ \(refname, commitHash) -> do
@@ -488,10 +456,10 @@ autoMailer = do
                     let content = osFromCur `osIntersection` commitsFromCur
                     return $ (refInfo, BranchNew (snd content))
 
-        mailsI <- newIORef []
-        markedForSendingI <- newIORef Set.empty
-
-        when (not initTracking) $ do
+        let
+          normalOperation = do
+            mailsI <- newIORef []
+            markedForSendingI <- newIORef Set.empty
 
             forM_ branchChanges $ \(refInfo, branchChange) -> do
                 let (refName, refInRepo, topCommitHash, branchPoints) = refInfo
@@ -569,9 +537,8 @@ autoMailer = do
                                               let mailinfoAndAction = (action, cciMail)
                                                   action = do
                                                       markSeen syncOp siCommitHash
-                                                      modifyIORef' updatedRefsI $ Map.insert refName siCommitHash
-                                                      updateRefsMap
                                                       putInexactDiffHashInDB db cciInexactDiffHash
+                                                      void $ updateRefCmd (refName, siCommitHash)
                                               modifyIORef' mailsI ((:) mailinfoAndAction)
                                           _ -> return ()
                        | otherwise -> putStrLn $ "  Skipping old commit " ++ (T.unpack shownCommitHash)
@@ -582,16 +549,18 @@ autoMailer = do
                 putStrLn $ "Sending all E-Mails"
             sendMails mails
 
-        writeIORef updatedRefsI refsMap
+        when (not initTracking) $
+            normalOperation
 
-        finalRefs <- readIORef updatedRefsI
-        when (Just finalRefs /= mOldRefs || initTracking) $ do
-            writeRefsMap opts db finalRefs
+        rememberChangedRefs
 
 showAutoMailerRefs :: (MonadGitomail m) => m ()
 showAutoMailerRefs = do
-    refs <- getSortedRefs
+    (refs, prevRefMap) <- getSortedRefs
+    let p lst = forM_ lst $ \(ref, hash) -> do
+                   putStrLn $ concat $ [T.unpack hash, " ", T.unpack ref]
     forM_ refs $ \lst -> do
         putStrLn "--"
-        forM_ lst $ \(ref, hash) -> do
-            putStrLn $ concat $ [T.unpack hash, " ", T.unpack ref]
+        p lst
+    putStrLn "--"
+    p prevRefMap

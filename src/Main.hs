@@ -49,7 +49,6 @@ runCmd = do
             O.SendOne                      -> sendOne
             O.ShowOne                      -> showOne
             O.AutoMailer                   -> autoMailer
-            O.AutoMailerSetRef ref text    -> autoMailerSetRef ref text
 
             -- Debug
             O.JiraCCByIssue issue          -> showCcByIssue issue

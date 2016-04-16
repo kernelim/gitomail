@@ -20,9 +20,6 @@
 * Rethink handling of empty commits (currently no mails are sent).
 * Rethink handling of invalid/redundant Maintainers data. Provide a command line
   option for it to be used in project's build time.
-* If 'git prune' takes place we might be refering to commits that are no
-  longer resolvable in the DB. Consider a different approach for tracking
-  the old refs (we shall perhaps use Git itself for this).
 * FixMe: gitBranchesContainingCommit is way too slow. We only need to build the 
   reversed DAGs once, instead of executing 'git branch --contains' each time.
 * Support hinting about whether to pass '-w' to the Git diff generation, via

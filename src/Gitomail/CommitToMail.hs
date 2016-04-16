@@ -137,7 +137,7 @@ sendMailSession f = do
 gitBranchesContainingCommit :: (MonadGitomail m) => Text -> m [Text]
 gitBranchesContainingCommit ref = do
     containedInBranches <- gitCmd ["branch", "--contains", ref]
-    sortedRefs <- fmap (map fst . concat) $ getSortedRefs
+    sortedRefs <- fmap (map fst . concat . fst) $ getSortedRefs
 
     let gitBranchWhitespaceRemoval = T.filter (\x -> (not . (elem x)) (" *" :: [Char]))
         branches = Set.fromList $ map ("heads/" +@)

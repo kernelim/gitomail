@@ -33,6 +33,7 @@ module Gitomail.Gitomail
   , getSortedRefs
   , genExtraEMailHeaders
   , gitCmd
+  , gitCmdIO
   , githashRepr
   , mapCommitHash
   , matchFiles
@@ -55,6 +56,7 @@ import           Control.Monad.State.Strict  (StateT, gets, MonadState)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Control.Monad.Trans.Either  (runEitherT, right, left)
 import qualified Data.Aeson                  as Aeson
+import           Data.Either                 (partitionEithers)
 import qualified Data.ByteString.Char8       as BS8
 import qualified Data.DList                  as DList
 import           Data.Text                   (Text)
@@ -111,7 +113,7 @@ data Gitomail = Gitomail {
     opts                :: O.Opts
   , _fakeMessageId      :: Int
   , _jiraCcByIssues     :: MVar (Map.Map Text (Set Address))
-  , _sortedRefList      :: Maybe (FilePath, [GitRefList])
+  , _sortedRefList      :: Maybe (FilePath, ([GitRefList], GitRefList))
   , __loadFiles         :: Maybe (O.GitRef, (GIT.Tree (Maybe BS8.ByteString)))
   , __parseFiles        :: Maybe (O.GitRef, (GIT.Tree (Maybe Maintainers.Unit)))
   , __compilePatterns   :: Maybe (O.GitRef, (GIT.Tree (Maybe [Maintainers.DefInFile])))
@@ -312,10 +314,14 @@ withDB f = do
     let options = DB.defaultOptions { DB.createIfMissing = True , DB.errorIfExists = False }
     DB.withDB gitomailDbPath options f
 
+gitCmdIO :: MonadIO m => String -> [Text] -> m Text
+gitCmdIO repoPath params = do
+    readProcess "git" (["--git-dir", T.pack repoPath] ++ params)
+
 gitCmd :: (MonadGitomail m) => [Text] -> m Text
 gitCmd params = do
     repoPath <- getRepositoryPath
-    readProcess "git" (["--git-dir", T.pack repoPath] ++ params)
+    gitCmdIO repoPath params
 
 getRefsMatcher :: (MonadGitomail m) => m (Text -> Bool)
 getRefsMatcher = do
@@ -472,23 +478,27 @@ getRefScoreFunc = do
     let scoreRef ref = fromMaybe 0 $ lookup True $ zip (rootRefs <*> [ref]) [1..(length rootRefsTexts)]
     return scoreRef
 
-getRefState :: (MonadGitomail m) => m GitRefList
+getRefState :: (MonadGitomail m) => m (GitRefList, GitRefList)
 getRefState = do
     refsLines <- fmap T.lines $ gitCmd ["show-ref", "--dereference"]
-    fmap catMaybes $ lSeqForM refsLines $ \line -> do
+    fmap (partitionEithers . catMaybes) $ lSeqForM refsLines $ \line -> do
         let op = runEitherT $ do
               case line =~ ("^([a-f0-9]+) refs/(tags/[^^]+)([\\^]{})?$" :: Text) of
-                  [[_, hash, name, "^{}"]] -> left $ (name, hash)
+                  [[_, hash, name, "^{}"]] -> left $ Left (name, hash)
                   _                        -> right ()
 
               case line =~ ("^([a-f0-9]+) refs/(heads/.*)$" :: Text) of
-                  [[_, hash, name]]        -> left $ (name, hash)
+                  [[_, hash, name]]        -> left $ Left (name, hash)
+                  _                        -> right ()
+
+              case line =~ ("^([a-f0-9]+) refs/gitomail/(.*)$" :: Text) of
+                  [[_, hash, name]]        -> left $ Right (name, hash)
                   _                        -> right ()
 
         op >>= return . maybeFromLeft
 
-sortRefsByPriority :: (MonadGitomail m) => GitRefList -> m [GitRefList]
-sortRefsByPriority reflist = do
+sortRefsByPriority :: (MonadGitomail m) => (GitRefList, GitRefList) -> m ([GitRefList], GitRefList)
+sortRefsByPriority (reflist, prevRefs) = do
     refsMatcher <- getRefsMatcher
     refScore <- getRefScoreFunc
     path <- getRepositoryPath
@@ -512,9 +522,9 @@ sortRefsByPriority reflist = do
                     else return Nothing
     let g = groupBy (\x y -> fst x == fst y) $ sortOn ((0 -) . fst) byScores
         h = map (sort . map snd) g
-    return $ map (map (\(_, a, b) -> (a, b))) h
+    return $ (map (map (\(_, a, b) -> (a, b))) h, prevRefs)
 
-getSortedRefs :: (MonadGitomail m) => m [GitRefList]
+getSortedRefs :: (MonadGitomail m) => m ([GitRefList], GitRefList)
 getSortedRefs = cacheByRepoPathname sortedRefList (getRefState >>= sortRefsByPriority)
 
 parseIssueTrackMentions :: MonadGitomail m =>

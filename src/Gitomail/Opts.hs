@@ -26,12 +26,12 @@ module Gitomail.Opts
 import           Control.Lens        (makeLenses)
 import           Data.Text           (Text)
 import qualified Data.Text           as T
+
 import           Options.Applicative (many, short, long, Mod, OptionFields,
                                       Parser, strOption, switch, help, (<>),
                                       optional, subparser, command, info,
                                       argument, str, metavar, progDesc,
                                       ParserInfo, helper, idm, (<**>))
-import           Options.Applicative.Types (ReadM)
 ------------------------------------------------------------------------------------
 
 type RepPath = FilePath
@@ -45,7 +45,6 @@ data Command
     | SendOne
     | ShowOne
     | AutoMailer
-    | AutoMailerSetRef GitRef Text
     | ShowAutoMailerRefs
     | ForgetHash
     | ParseMaintainerFile FilePath
@@ -57,9 +56,6 @@ data Command
 
 textOption :: Mod OptionFields String -> Parser Text
 textOption = (fmap T.pack) . strOption
-
-textParam :: ReadM Text
-textParam = fmap T.pack str
 
 data Opts = Opts
     { _verbose             :: Bool
@@ -103,7 +99,6 @@ optsParse = Opts
            <> command "show-one" showOneRef
            <> command "send-one" sendOneRef
            <> command "auto-mailer" autoMailer
-           <> command "auto-mailer-set-ref" autoMailerSetRef
            <> command "debug" debugCommands
            ))
     where
@@ -133,9 +128,6 @@ optsParse = Opts
 
         autoMailer = info (pure AutoMailer)
             (progDesc "Automatically send mail for new commits (read the docs first!)")
-
-        autoMailerSetRef = info (AutoMailerSetRef <$> (argument textParam (metavar "REF")) <*> (argument textParam (metavar "HASH")))
-            (progDesc "Set the tracked ref to something else (for fine control of detected commit hashes between runs)")
 
 opts :: ParserInfo Opts
 opts = info (optsParse <**> helper) idm
