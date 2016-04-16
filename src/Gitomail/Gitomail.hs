@@ -53,6 +53,7 @@ import           Control.Monad.Catch         (MonadMask)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (StateT, gets, MonadState)
 import           Control.Monad.Trans.Control (MonadBaseControl)
+import           Control.Monad.Trans.Either  (runEitherT, right, left)
 import qualified Data.Aeson                  as Aeson
 import qualified Data.ByteString.Char8       as BS8
 import qualified Data.DList                  as DList
@@ -97,6 +98,7 @@ import           Lib.EMail                   (parseEMail', InvalidEMail(..))
 import qualified Lib.Formatting              as F
 import qualified Lib.Git                     as GIT
 import           Lib.Monad                   (lSeqForM)
+import           Lib.Maybe                   (maybeFromLeft)
 import           Lib.Text                    ((+@), showT, leadingZeros,
                                               safeDecode)
 import           Lib.Process                 (readProcess, readProcess'')
@@ -472,16 +474,18 @@ getRefScoreFunc = do
 
 getRefState :: (MonadGitomail m) => m GitRefList
 getRefState = do
-    refsLines <- fmap T.lines $ gitCmd ["show-ref", "--heads", "--tags", "--dereference"]
+    refsLines <- fmap T.lines $ gitCmd ["show-ref", "--dereference"]
     fmap catMaybes $ lSeqForM refsLines $ \line -> do
-        let invalid f =
-               E.throw $ InvalidCommandOutput ("git show-ref returned: " ++ show f)
-        case line =~ ("^([a-f0-9]+) refs/(tags/[^^]+)([\\^]{})?$" :: Text) of
-            [[_, _, _, ""]] -> return Nothing
-            [[_, hash, name, "^{}"]] -> return $ Just (name, hash)
-            x1 -> case line =~ ("^([a-f0-9]+) refs/(heads/.*)$" :: Text) of
-                [[_, hash, name]] -> return $ Just (name, hash)
-                x2 -> invalid (line, x1, x2)
+        let op = runEitherT $ do
+              case line =~ ("^([a-f0-9]+) refs/(tags/[^^]+)([\\^]{})?$" :: Text) of
+                  [[_, hash, name, "^{}"]] -> left $ (name, hash)
+                  _                        -> right ()
+
+              case line =~ ("^([a-f0-9]+) refs/(heads/.*)$" :: Text) of
+                  [[_, hash, name]]        -> left $ (name, hash)
+                  _                        -> right ()
+
+        op >>= return . maybeFromLeft
 
 sortRefsByPriority :: (MonadGitomail m) => GitRefList -> m [GitRefList]
 sortRefsByPriority reflist = do
