@@ -53,7 +53,7 @@ import qualified Control.Exception.Lifted    as E
 import           Control.Lens.Operators      ((^.), (&), (<+=), (.=))
 import           Control.Lens                (makeLenses, use, Lens)
 import           Control.Concurrent.MVar     (newMVar, modifyMVar, MVar)
-import           Control.Monad               (forM, when)
+import           Control.Monad               (forM, when, forM_)
 import           Control.Monad.Catch         (MonadMask)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (StateT, gets, MonadState)
@@ -540,17 +540,19 @@ data RefMod
 type RefCommits = [((Text, RefMod, GIT.CommitHash, Set.Set GIT.CommitHash),
                     [GIT.CommitHash], Maybe (GIT.CommitHash, [GIT.CommitHash]))]
 type CommitWorld = HMS.HashMap GIT.CommitHash (O.GitRef, [GIT.CommitHash])
+type CommitRevWorld = HMS.HashMap GIT.CommitHash [GIT.CommitHash]
 
 relateCommits :: (MonadGitomail m)
       => [GitRefList]
       -> Map.Map Text GIT.CommitHash
-      -> m (RefCommits, CommitWorld)
+      -> m (RefCommits, CommitWorld, CommitRevWorld)
 relateCommits refsByPriority oldRefsMap = do
     opts <- gets opts
     let logDebug = when (opts ^. O.verbose)
 
     repoPath <- getRepositoryPath
     worldI <- newIORef HMS.empty
+    revWorldI <- newIORef HMS.empty
 
     refStat <- fmap concat $ forM refsByPriority $ \refList -> do
         forM refList $ \(refname, commitHash) -> do
@@ -574,6 +576,13 @@ relateCommits refsByPriority oldRefsMap = do
                          if not (commit `HMS.member` world) && not (commit `HMS.member` seen)
                              then do writeIORef seenI     $ HMS.insert commit (refname, parents) seen
                                      modifyIORef' seenListI $ ((:) commit)
+                                     forM_ parents $ \parent -> do
+                                         revWorld <- readIORef revWorldI
+                                         let xs = case HMS.lookup parent revWorld of
+                                                      Nothing -> []
+                                                      Just xs' -> xs'
+                                         writeIORef revWorldI $ HMS.insert parent (commit:xs) revWorld
+
                                      return ((), parents)
                              else do when checkBranchPoints $
                                          modifyIORef' branchPointsI (Set.insert commit)
@@ -601,7 +610,8 @@ relateCommits refsByPriority oldRefsMap = do
             return result
 
     world <- readIORef worldI
-    return (refCommits, world)
+    revWorld <- readIORef revWorldI
+    return (refCommits, world, revWorld)
 
 parseIssueTrackMentions :: MonadGitomail m =>
                             (Text -> a) -> (Text -> DList.DList a -> a) -> Text -> m (DList.DList a)

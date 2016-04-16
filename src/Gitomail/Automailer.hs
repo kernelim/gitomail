@@ -338,7 +338,7 @@ autoMailer = do
 
         putStrLn "Relating commits to refs"
 
-        (refCommits, world) <- relateCommits refsByPriority oldRefsMap
+        (refCommits, world, _) <- relateCommits refsByPriority oldRefsMap
         when initTracking $ do
             forM_ (HMS.keys world) $ markSeen asyncOp
 
