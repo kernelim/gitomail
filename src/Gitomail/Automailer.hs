@@ -503,11 +503,16 @@ autoMailer = do
 
 showAutoMailerRefs :: (MonadGitomail m) => m ()
 showAutoMailerRefs = do
-    (refs, prevRefMap) <- getSortedRefs
-    let p lst = forM_ lst $ \(ref, hash) -> do
+    (refsByPriority, prevRefs) <- getSortedRefs
+
+    let printRefs lst = forM_ lst $ \(ref, hash) -> do
                    putStrLn $ concat $ [T.unpack hash, " ", T.unpack ref]
-    forM_ refs $ \lst -> do
+
+    forM_ refsByPriority $ \lst -> do
         putStrLn "--"
-        p lst
+        printRefs lst
     putStrLn "--"
-    p prevRefMap
+    printRefs prevRefs
+
+    putStrLn "Relating commits...."
+    void $ relateCommits refsByPriority (Map.fromList prevRefs)
