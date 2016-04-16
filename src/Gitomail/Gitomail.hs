@@ -34,6 +34,7 @@ module Gitomail.Gitomail
   , getVersion
   , getTopAliases
   , getSortedRefs
+  , getBranchesContainingCommit
   , genExtraEMailHeaders
   , gitCmd
   , gitCmdIO
@@ -113,11 +114,13 @@ import           Lib.Regex                   (matchWhole, splitByCaptures)
 ------------------------------------------------------------------------------------
 
 type GitRefList = [(O.GitRef, GIT.CommitHash)]
+type CommitRevWorld = HMS.HashMap GIT.CommitHash [GIT.CommitHash]
 
 data Gitomail = Gitomail {
     opts                :: O.Opts
   , _fakeMessageId      :: Int
   , _jiraCcByIssues     :: MVar (Map.Map Text (Set Address))
+  , _revCommits         :: Maybe (FilePath, CommitRevWorld)
   , _sortedRefList      :: Maybe (FilePath, ([GitRefList], GitRefList))
   , __loadFiles         :: Maybe (O.GitRef, (GIT.Tree (Maybe BS8.ByteString)))
   , __parseFiles        :: Maybe (O.GitRef, (GIT.Tree (Maybe Maintainers.Unit)))
@@ -150,7 +153,7 @@ getGitomail :: O.Opts -> IO (Gitomail)
 getGitomail opts = do
     ref <- newMVar Map.empty
     return $ Gitomail opts 0 ref Nothing Nothing Nothing Nothing Nothing
-                             Nothing Nothing Nothing Nothing
+                             Nothing Nothing Nothing Nothing Nothing
 
 cacheInStateBySomething :: (MonadState c m, Eq b)
                        => (Lens c c (Maybe (b, a)) (Maybe (b, a)))
@@ -540,7 +543,6 @@ data RefMod
 type RefCommits = [((Text, RefMod, GIT.CommitHash, Set.Set GIT.CommitHash),
                     [GIT.CommitHash], Maybe (GIT.CommitHash, [GIT.CommitHash]))]
 type CommitWorld = HMS.HashMap GIT.CommitHash (O.GitRef, [GIT.CommitHash])
-type CommitRevWorld = HMS.HashMap GIT.CommitHash [GIT.CommitHash]
 
 relateCommits :: (MonadGitomail m)
       => [GitRefList]
@@ -612,6 +614,61 @@ relateCommits refsByPriority oldRefsMap = do
     world <- readIORef worldI
     revWorld <- readIORef revWorldI
     return (refCommits, world, revWorld)
+
+getRevCommits :: (MonadGitomail m) => m CommitRevWorld
+getRevCommits = cacheByRepoPathname revCommits root
+    where
+       root = do (refsByPriority, prevRefs) <- getSortedRefs
+                 (_, _, revCommits') <- relateCommits refsByPriority (Map.fromList prevRefs)
+                 return revCommits'
+
+getBranchesContainingCommit :: (MonadGitomail m) => GIT.CommitHash -> m [O.GitRef]
+getBranchesContainingCommit commitHash = do
+    revCommits' <- getRevCommits
+    sortedRefs <- fmap (concat . fst) $ getSortedRefs
+
+    let revSortedRefs = Map.fromListWith (flip (++)) $ map (\(x, y) -> (y, [x])) sortedRefs
+
+    seenI <- newIORef HMS.empty
+    seenRefsI <- newIORef []
+    checkCommitsI <- newIORef [commitHash]
+
+    let next' = do check <- readIORef checkCommitsI
+                   if not $ null check
+                       then do writeIORef checkCommitsI $ tail check
+                               return $ Just $ head check
+                       else return $ Nothing
+        firstTime commit =do
+            seen <- fmap (HMS.member commit) $ readIORef seenI
+            if not seen
+                then do modifyIORef' seenI $ (HMS.insert commit ())
+                        return True
+                else return False
+        loop =
+            next' >>= \case
+                Nothing -> return ()
+                Just commit -> do
+                    b <- firstTime commit
+                    when b $ do
+                        case Map.lookup commit revSortedRefs of
+                            Just refs ->
+                                modifyIORef' seenRefsI $ (\x -> map (\t -> (t, commit)) refs ++ x)
+                            Nothing -> return ()
+
+                        case HMS.lookup commit revCommits' of
+                            Just children ->
+                                modifyIORef' checkCommitsI $ (\x -> children ++ x)
+                            Nothing -> return ()
+                    loop
+    loop
+
+    result <- readIORef seenRefsI >>= \seenRefs ->
+             sortRefsByPriority (seenRefs, [])
+
+    let refs = map fst $ concat $ fst result
+        matchingBranches = map (T.drop 1 . T.dropWhile (/= '/')) refs
+
+    return matchingBranches
 
 parseIssueTrackMentions :: MonadGitomail m =>
                             (Text -> a) -> (Text -> DList.DList a -> a) -> Text -> m (DList.DList a)

@@ -47,6 +47,7 @@ data Command
     | AutoMailer
     | ShowAutoMailerRefs
     | ForgetHash
+    | BranchesContaining String
     | ParseMaintainerFile FilePath
     | ParseConfigFile FilePath
     | JiraCCByIssue String
@@ -111,6 +112,7 @@ optsParse = Opts
                <> command "show-auto-mailer-refs"  (info (pure ShowAutoMailerRefs) (progDesc ""))
                <> command "forget-hash"            (info (pure ForgetHash)         (progDesc ""))
                <> command "jira-cc-by-issue"       (oneArg     JiraCCByIssue       (progDesc ""))
+               <> command "branches-containing"    (oneArg     BranchesContaining  (progDesc ""))
                <> command "misc"                   (info (pure Misc)               (progDesc ""))
             )) (progDesc "Various debugging commands")
 

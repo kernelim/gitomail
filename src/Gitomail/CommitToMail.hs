@@ -90,8 +90,7 @@ import qualified Lib.InlineFormatting        as FI
 import qualified Lib.Formatting              as FI
 import           Lib.LiftedPrelude
 import           Lib.Regex                   (matchWhole)
-import           Lib.Text                    (removeTrailingNewLine, safeDecode,
-                                              (+@))
+import           Lib.Text                    (removeTrailingNewLine, safeDecode)
 ------------------------------------------------------------------------------------
 
 data InvalidDiff = InvalidDiff String deriving (Typeable)
@@ -133,19 +132,6 @@ sendMailSession f = do
                   if authSucceed
                       then f (Just conn)
                       else E.throw $ SMTPFail "Authentication failed."
-
-gitBranchesContainingCommit :: (MonadGitomail m) => Text -> m [Text]
-gitBranchesContainingCommit ref = do
-    containedInBranches <- gitCmd ["branch", "--contains", ref]
-    sortedRefs <- fmap (map fst . concat . fst) $ getSortedRefs
-
-    let gitBranchWhitespaceRemoval = T.filter (\x -> (not . (elem x)) (" *" :: [Char]))
-        branches = Set.fromList $ map ("heads/" +@)
-               $ containedInBranches & gitBranchWhitespaceRemoval & T.lines
-        matchingRefs = filter (`Set.member` branches) sortedRefs
-        matchingBranches = map (T.drop (T.length "heads/")) $ matchingRefs
-
-    return matchingBranches
 
 inexactDiffWasSentStrDBKey :: InexactDiffHash -> BS8.ByteString
 inexactDiffWasSentStrDBKey diff = BS8.concat [ "inexact-diff-sent-",  diff ]
@@ -301,7 +287,7 @@ getCommitInfo cmk db ref commitHash maybeNr = do
             let affectedPathsSet = affectedPaths & T.encodeUtf8 & BS8.lines & Set.fromList
 
             containedInBranchesList <- case cmk of
-                CommitMailFull -> gitBranchesContainingCommit commitHash
+                CommitMailFull -> getBranchesContainingCommit commitHash
                 CommitMailSummary -> return []
 
             let ccOrToResults = map d ((commitMessageBody =~ ccRegEx :: [[Text]]))

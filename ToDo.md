@@ -20,8 +20,6 @@
 * Rethink handling of empty commits (currently no mails are sent).
 * Rethink handling of invalid/redundant Maintainers data. Provide a command line
   option for it to be used in project's build time.
-* FixMe: gitBranchesContainingCommit is way too slow. We only need to build the 
-  reversed DAGs once, instead of executing 'git branch --contains' each time.
 * Support hinting about whether to pass '-w' to the Git diff generation, via
   explict hints in commit message. The ASCII version of the E-MAil should not be 
   affected perhaps, so that it could still apply as a valid diff?

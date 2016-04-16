@@ -54,6 +54,9 @@ runCmd = do
             O.JiraCCByIssue issue          -> showCcByIssue issue
             O.ForgetHash                   -> forgetHash
             O.ShowAutoMailerRefs           -> showAutoMailerRefs
+            O.BranchesContaining commitHash -> do
+                refs <- getBranchesContainingCommit $ T.pack commitHash
+                print refs
             O.ParseMaintainerFile filepath -> do
                 content <- liftIO $ BL.readFile filepath
                 print (Maintainers.parse content)
