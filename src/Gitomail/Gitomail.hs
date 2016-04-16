@@ -10,12 +10,14 @@
 {-# LANGUAGE RankNTypes                #-}
 {-# LANGUAGE RecordWildCards           #-}
 {-# LANGUAGE ScopedTypeVariables       #-}
+{-# LANGUAGE NoImplicitPrelude         #-}
 
 module Gitomail.Gitomail
   ( MonadGitomail
   , ParameterNeeded(..)
   , InvalidCommandOutput(..)
   , GitRefList
+  , RefMod(..)
   , Issue
   , parseIssueTrackMentions
   , compilePatterns
@@ -43,6 +45,7 @@ module Gitomail.Gitomail
   , withDB
   , getJiraCcByIssue
   , showCcByIssue
+  , relateCommits
   ) where
 
 ------------------------------------------------------------------------------------
@@ -50,7 +53,7 @@ import qualified Control.Exception.Lifted    as E
 import           Control.Lens.Operators      ((^.), (&), (<+=), (.=))
 import           Control.Lens                (makeLenses, use, Lens)
 import           Control.Concurrent.MVar     (newMVar, modifyMVar, MVar)
-import           Control.Monad               (forM)
+import           Control.Monad               (forM, when)
 import           Control.Monad.Catch         (MonadMask)
 import           Control.Monad.IO.Class      (MonadIO, liftIO)
 import           Control.Monad.State.Strict  (StateT, gets, MonadState)
@@ -100,6 +103,7 @@ import qualified Gitomail.Version            as V
 import           Lib.EMail                   (parseEMail', InvalidEMail(..))
 import qualified Lib.Formatting              as F
 import qualified Lib.Git                     as GIT
+import           Lib.LiftedPrelude
 import           Lib.Monad                   (lSeqForM)
 import           Lib.Maybe                   (maybeFromLeft)
 import           Lib.Text                    ((+@), showT, leadingZeros,
@@ -527,6 +531,77 @@ sortRefsByPriority (reflist, prevRefs) = do
 
 getSortedRefs :: (MonadGitomail m) => m ([GitRefList], GitRefList)
 getSortedRefs = cacheByRepoPathname sortedRefList (getRefState >>= sortRefsByPriority)
+
+data RefMod
+    = NewRef
+    | ModifiedRef GIT.CommitHash
+      deriving Show
+
+type RefCommits = [((Text, RefMod, GIT.CommitHash, Set.Set GIT.CommitHash),
+                    [GIT.CommitHash], Maybe (GIT.CommitHash, [GIT.CommitHash]))]
+type CommitWorld = HMS.HashMap GIT.CommitHash (O.GitRef, [GIT.CommitHash])
+
+relateCommits :: (MonadGitomail m)
+      => [GitRefList]
+      -> Map.Map Text GIT.CommitHash
+      -> m (RefCommits, CommitWorld)
+relateCommits refsByPriority oldRefsMap = do
+    opts <- gets opts
+    let logDebug = when (opts ^. O.verbose)
+
+    repoPath <- getRepositoryPath
+    worldI <- newIORef HMS.empty
+
+    refStat <- fmap concat $ forM refsByPriority $ \refList -> do
+        forM refList $ \(refname, commitHash) -> do
+            case Map.lookup refname oldRefsMap of
+                Nothing -> return $ (refname, commitHash, Just $ NewRef)
+                Just oldCommitHash -> do -- Changed branch
+                    if oldCommitHash /= commitHash
+                      then return $ (refname, commitHash, Just $ ModifiedRef oldCommitHash)
+                      else return $ (refname, commitHash, Nothing)
+
+    refCommits <- fmap catMaybes $ do
+        forM refStat $ \(refname, topCommitHash, maybeRefInRepo) -> do
+            logDebug $ putStrLn $ "ref: " ++ T.unpack refname ++ " "
+                          ++ T.unpack topCommitHash ++ " " ++ show maybeRefInRepo
+            branchPointsI <- newIORef Set.empty
+            let iterF world startCommitHash checkBranchPoints = do
+                  seenI <- newIORef HMS.empty
+                  seenListI <- newIORef []
+                  let iter = GIT.iterateHistoryUntil () $ \() commit parents -> do
+                         seen <- readIORef seenI
+                         if not (commit `HMS.member` world) && not (commit `HMS.member` seen)
+                             then do writeIORef seenI     $ HMS.insert commit (refname, parents) seen
+                                     modifyIORef' seenListI $ ((:) commit)
+                                     return ((), parents)
+                             else do when checkBranchPoints $
+                                         modifyIORef' branchPointsI (Set.insert commit)
+                                     return ((), [])
+                  _ <- iter repoPath startCommitHash
+                  lst <- readIORef seenListI
+                  set <- readIORef seenI
+                  return (lst, set)
+
+            world <- readIORef worldI
+            (cur, curSet) <- iterF world topCommitHash True
+            result <- case maybeRefInRepo of
+                Just r -> do
+                    branchPoints <- readIORef branchPointsI
+                    let refInfo = (refname, r, topCommitHash, branchPoints)
+                     in case r of
+                          NewRef -> return $ Just (refInfo, cur, Nothing)
+                          (ModifiedRef oldHash) -> do
+                              (old, _) <- iterF world oldHash False
+                              return $ Just (refInfo, cur, Just (oldHash, old))
+                Nothing ->
+                    return Nothing
+
+            writeIORef worldI $ HMS.union world curSet
+            return result
+
+    world <- readIORef worldI
+    return (refCommits, world)
 
 parseIssueTrackMentions :: MonadGitomail m =>
                             (Text -> a) -> (Text -> DList.DList a -> a) -> Text -> m (DList.DList a)
