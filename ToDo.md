@@ -13,6 +13,8 @@
 * Add lots of documentation.
   * A Github monitoring mirror must use a recent-enough Git client that can keep
     the `refs/gitomail/*` intact after fetching.
+  * When mirror *from* a Gitomail enabled repository, it would be nice to ignore
+    the `refs/gitomail/*`.
   * Explain why it is not possible to use the information provided by the update-hook
     in order to decipher relationship between branches.
 * Use the git executable for rev-parsing for '-v'.
