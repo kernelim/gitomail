@@ -207,8 +207,9 @@ getCommitInfo :: (MonadGitomail m)
                      -> m CommitInfo
 getCommitInfo cmk db ref commitHash maybeNr = do
     opts <- gets opts
-    when (opts ^. O.verbose) $ do
-        putStrLn $ "makeOne: ref: " ++ show ref ++ " hash: " ++ show commitHash
+    let debug s = when (opts ^. O.verbose) $ do
+                      liftIO $ T.putStrLn $ T.concat ["getCommitInfo: ", T.pack s ]
+    debug $ "ref: " ++ show ref ++ " hash: " ++ show commitHash
 
     (authorName, commitSubjectLine, authorEMail, parentHashesStr) <- do
         let keys = intersperse commitHash
@@ -243,7 +244,10 @@ getCommitInfo cmk db ref commitHash maybeNr = do
         Right ("", _) -> returnCommitInfo $ Left $ "Empty commit: " ++ (show commitHash)
         Right (patch, maybeParentHash) -> do
             config <- getConfig
+
+            debug $ "matching Maintainers files"
             (matched, matchErrors) <- matchFiles commitHash
+            debug $ "done matching"
 
             (commitMessageBody, diff, footer') <-
                  case (TI.indices "\n\n" patch,
@@ -301,6 +305,8 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                     Left v -> do putStrLn $ "warning: ignored matched regex:" ++ (show v)
                                  return Nothing
                     Right (_, name, email) -> return $ Just $ Address name email
+
+            debug $ "iterating maintainers"
 
             maintainerInfo <- iterateFilesWithMaintainers matched $ \path i ->
                 return $
@@ -362,6 +368,8 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                               (Left $ "skipped - no destination for commit '" ++ T.unpack subjectLine ++ " '", [])
                           (_                 , [],   x:xs) -> (Right (x:xs), [])
                           (_                 , _,   _)    -> (Right toList, ccList)
+
+            debug $ "done handling recipients"
 
             case toListE of
                 Left s -> returnCommitInfo $ Left s
