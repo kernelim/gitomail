@@ -13,6 +13,7 @@ module Lib.Git
   ( lsFiles
   , Tree(..)
   , TreeMap
+  , LsFilesFilter(..)
   , mapTreeM
   , mapTreeMaybeM
   , foldTree
@@ -121,21 +122,21 @@ readBlob path blobIndex = do
     withRepository lgFactory path $ do
         Git.parseObjOid blobIndex >>= catBlob
 
+data LsFilesFilter
+    = LffReadBlob
+    | LffListBlob
+    | LffIgnore
+
 lsFiles
   :: (MonadIO m, MonadMask m, MonadBaseControl IO m)
      => FilePath
      -> Git.RefName
-     -> (Git.TreeFilePath -> Bool)
+     -> (Git.TreeFilePath -> LsFilesFilter)
      -> Maybe BS8.ByteString
      -> m (Either String (Tree (Maybe BS8.ByteString)))
-lsFiles path revstr blob_filter dir_value = do
+lsFiles path revstr blobFilter dir_value = do
     withRepository lgFactory path $ do
         let
-            blobReader fp blob_id = do
-                if blob_filter fp
-                    then fmap Just $ catBlob blob_id
-                    else return Nothing
-
             root treeoid = do
                 entriesI <- lookupTree treeoid >>= listTreeEntries >>= newIORef
 
@@ -153,8 +154,13 @@ lsFiles path revstr blob_filter dir_value = do
                                         writeIORef entriesI tail'
                                         case entry of
                                             Git.BlobEntry blob_id _ -> do
-                                                x <- blobReader fp blob_id
-                                                append ref $ (bfp, File x)
+                                                case blobFilter fp of
+                                                    LffReadBlob -> do
+                                                        z <- catBlob blob_id
+                                                        append ref $ (bfp, File (Just z))
+                                                    LffListBlob -> do
+                                                        append ref $ (bfp, File Nothing)
+                                                    LffIgnore -> return ()
                                             Git.TreeEntry _ -> do
                                                 subref <- newIORef []
                                                 loop (BS8.concat [fp, "/"]) subref

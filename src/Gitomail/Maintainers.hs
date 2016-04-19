@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE FlexibleInstances         #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE NoImplicitPrelude         #-}
 {-# LANGUAGE OverloadedStrings         #-}
 
 module Gitomail.Maintainers
@@ -215,14 +216,27 @@ instance Show FailedReadingRepo where
     show (FailedReadingRepo msgstr) = "FailedReadingRepo: " ++ msgstr
 
 loadFiles :: (MonadIO m, MonadMask m, MonadBaseControl IO m)
-             => FilePath -> GIT.RefName -> m (GIT.Tree (Maybe BS8.ByteString))
-loadFiles path revstr = do
+             => FilePath -> Maybe [BS8.ByteString] -> GIT.RefName -> m (GIT.Tree (Maybe BS8.ByteString))
+loadFiles path mfilter revstr = do
+    let maintainerFiles pathname =
+            case BS8.breakEnd (== '/') pathname of
+                ("", _) -> [fileName]
+                (subdir, _) -> BS8.concat [subdir, fileName]:
+                        (maintainerFiles $ BS8.take (BS8.length pathname -1) subdir)
+    let allowedFiles = fmap (Set.fromList . concat . map (\x -> x:(maintainerFiles x))) mfilter
     let filenameInPath = BS8.concat ["/", fileName]
-        baseFilter name = do
-            if name == fileName
-                then True
-                else filenameInPath `BS.isSuffixOf` name
+    let baseFilter name =
+            case allowedFiles of
+                Nothing -> readOrList
+                Just x -> case name `Set.member` x of
+                              False -> GIT.LffIgnore
+                              True -> readOrList
+         where readOrList = if name == fileName  ||  filenameInPath `BS.isSuffixOf` name
+                               then GIT.LffReadBlob
+                               else GIT.LffListBlob
+
     r <- GIT.lsFiles path revstr baseFilter Nothing
     case r of
         Left err -> E.throw $ FailedReadingRepo err
         Right rx -> return rx
+

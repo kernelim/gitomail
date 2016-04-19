@@ -115,6 +115,7 @@ import           Lib.Regex                   (matchWhole, splitByCaptures)
 
 type GitRefList = [(O.GitRef, GIT.CommitHash)]
 type CommitRevWorld = HMS.HashMap GIT.CommitHash [GIT.CommitHash]
+type RefMFilter = (O.GitRef, Maybe [BS8.ByteString])
 
 data Gitomail = Gitomail {
     opts                :: O.Opts
@@ -122,10 +123,10 @@ data Gitomail = Gitomail {
   , _jiraCcByIssues     :: MVar (Map.Map Text (Set Address))
   , _revCommits         :: Maybe (FilePath, CommitRevWorld)
   , _sortedRefList      :: Maybe (FilePath, ([GitRefList], GitRefList))
-  , __loadFiles         :: Maybe (O.GitRef, (GIT.Tree (Maybe BS8.ByteString)))
-  , __parseFiles        :: Maybe (O.GitRef, (GIT.Tree (Maybe Maintainers.Unit)))
-  , __compilePatterns   :: Maybe (O.GitRef, (GIT.Tree (Maybe [Maintainers.DefInFile])))
-  , __matchFiles        :: Maybe (O.GitRef, ((GIT.Tree Maintainers.AssignedFileStatus, Maintainers.MatchErrors)))
+  , __loadFiles         :: Maybe (RefMFilter, (GIT.Tree (Maybe BS8.ByteString)))
+  , __parseFiles        :: Maybe (RefMFilter, (GIT.Tree (Maybe Maintainers.Unit)))
+  , __compilePatterns   :: Maybe (RefMFilter, (GIT.Tree (Maybe [Maintainers.DefInFile])))
+  , __matchFiles        :: Maybe (RefMFilter, ((GIT.Tree Maintainers.AssignedFileStatus, Maintainers.MatchErrors)))
   , __getExtraCCTo      :: Maybe ((), ([Address], [Address]))
   , __getRepositoryPath :: Maybe ((), FilePath)
   , __getConfig         :: Maybe ((), CFG.Config)
@@ -183,28 +184,28 @@ cacheByRepoPathname accessor act = do
 class (MonadIO m, MonadState Gitomail m, MonadBaseControl IO m, MonadMask m) => MonadGitomail m where
 instance (MonadIO m, MonadBaseControl IO m, MonadMask m) => MonadGitomail (StateT Gitomail m) where
 
-loadFiles :: (MonadGitomail m) => O.GitRef -> m (GIT.Tree (Maybe BS8.ByteString))
-loadFiles gitref = do
+loadFiles :: (MonadGitomail m) => RefMFilter -> m (GIT.Tree (Maybe BS8.ByteString))
+loadFiles refmfilter@(gitref, maybeFilter) = do
     repoPath <- getRepositoryPath
-    let act = Maintainers.loadFiles repoPath gitref
-    cacheInStateBySomething _loadFiles act gitref
+    let act = Maintainers.loadFiles repoPath maybeFilter gitref
+    cacheInStateBySomething _loadFiles act refmfilter
 
-parseFiles :: (MonadGitomail m) => O.GitRef -> m (GIT.Tree (Maybe Maintainers.Unit))
-parseFiles gitref = do
-    let act = loadFiles gitref >>= Maintainers.parseFiles
-    cacheInStateBySomething _parseFiles act gitref
+parseFiles :: (MonadGitomail m) => RefMFilter -> m (GIT.Tree (Maybe Maintainers.Unit))
+parseFiles refmfilter = do
+    let act = loadFiles refmfilter >>= Maintainers.parseFiles
+    cacheInStateBySomething _parseFiles act refmfilter
 
-compilePatterns :: (MonadGitomail m) => O.GitRef -> m (GIT.Tree (Maybe [(Int, Maintainers.Definition)]))
-compilePatterns gitref = do
-    let act = parseFiles gitref >>= Maintainers.compilePatterns
-    cacheInStateBySomething _compilePatterns act gitref
+compilePatterns :: (MonadGitomail m) => RefMFilter -> m (GIT.Tree (Maybe [(Int, Maintainers.Definition)]))
+compilePatterns refmfilter = do
+    let act = parseFiles refmfilter >>= Maintainers.compilePatterns
+    cacheInStateBySomething _compilePatterns act refmfilter
 
-matchFiles   :: (MonadGitomail m) => O.GitRef -> m (GIT.Tree Maintainers.AssignedFileStatus,
+matchFiles   :: (MonadGitomail m) => RefMFilter -> m (GIT.Tree Maintainers.AssignedFileStatus,
                                                     Maintainers.MatchErrors)
-matchFiles gitref = do
-    let act = do patterns <- compilePatterns gitref
+matchFiles refmfilter = do
+    let act = do patterns <- compilePatterns refmfilter
                  Maintainers.matchFiles (Maintainers.assignDefinitionFiles patterns)
-    cacheInStateBySomething _matchFiles act gitref
+    cacheInStateBySomething _matchFiles act refmfilter
 
 getRepositoryPath :: (MonadGitomail m) => m FilePath
 getRepositoryPath = cacheInStateBySomething _getRepositoryPath act ()
@@ -344,9 +345,9 @@ getRefsMatcher = do
     let onlyRefs x = and [excludeRefs x, includeRefs x]
     return onlyRefs
 
-getTopAliases :: (MonadGitomail m) => O.GitRef -> m (Map.Map Text Address)
-getTopAliases gitRef = do
-    patternsCompiled <- compilePatterns gitRef
+getTopAliases :: (MonadGitomail m) => RefMFilter -> m (Map.Map Text Address)
+getTopAliases refMFilter = do
+    patternsCompiled <- compilePatterns refMFilter
     let f (Maintainers.Alias name email) = do
             case parseEMail' $ safeDecode email of
                 Left _        -> return Nothing

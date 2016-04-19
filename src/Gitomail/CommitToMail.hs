@@ -244,11 +244,6 @@ getCommitInfo cmk db ref commitHash maybeNr = do
         Right ("", _) -> returnCommitInfo $ Left $ "Empty commit: " ++ (show commitHash)
         Right (patch, maybeParentHash) -> do
             config <- getConfig
-
-            debug $ "matching Maintainers files"
-            (matched, matchErrors) <- matchFiles commitHash
-            debug $ "done matching"
-
             (commitMessageBody, diff, footer') <-
                  case (TI.indices "\n\n" patch,
                        TI.indices "\ndiff " patch,
@@ -287,8 +282,8 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                     True -> return $ (Just "InexactDiffDup", not b)
                     False -> return $ (Nothing, not b)
 
-            affectedPaths <- gitCmd ["show", commitHash, "--pretty=format:", "--name-only"]
-            let affectedPathsSet = affectedPaths & T.encodeUtf8 & BS8.lines & Set.fromList
+            affectedPathsStr <- gitCmd ["show", commitHash, "--pretty=format:", "--name-only"]
+            let affectedPaths = affectedPathsStr & T.encodeUtf8 & BS8.lines
 
             containedInBranchesList <- case cmk of
                 CommitMailFull -> getBranchesContainingCommit commitHash
@@ -307,12 +302,12 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                     Right (_, name, email) -> return $ Just $ Address name email
 
             debug $ "iterating maintainers"
+            let refmfilter = (commitHash, Just affectedPaths)
+            (matched, matchErrors) <- matchFiles refmfilter
+            debug $ "done matching"
 
-            maintainerInfo <- iterateFilesWithMaintainers matched $ \path i ->
-                return $
-                   if path `Set.member` affectedPathsSet
-                      then GIT.treeVal i
-                      else mempty
+            maintainerInfo <- iterateFilesWithMaintainers matched $ \_ i ->
+                return $ GIT.treeVal i
 
             repoName <- getRepoName
             shortHash <- mapCommitHash commitHash >>= githashRepr
@@ -352,7 +347,7 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                   aliasTo <- case config ^.|| CFG.aliasRefMatch of
                       Nothing -> return []
                       Just aliasRefRegex -> do
-                          aliasMap <- getTopAliases commitHash
+                          aliasMap <- getTopAliases refmfilter
                           fmap catMaybes $ forM (Map.toList aliasMap) $ \(name, email) -> do
                               if matchWhole (aliasRefRegex & T.replace "%a" name) ref
                                  then return (Just email)
