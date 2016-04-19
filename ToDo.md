@@ -31,6 +31,17 @@
   affected perhaps, so that it could still apply as a valid diff?
 * Occasionally GMail's SMTP interaction throws an exception:
   `HandshakeFailed (Error_Packet_unexpected "Alert [(AlertLevel_Fatal,BadRecordMac)]" " expected: change cipher")`
+* FixMe: some SMTP servers (notabily GMail's) take measures against programs
+  that send too many mails in a short time. Specially Gitomail's TCP connection
+  is thrown during send:
+
+     gitomail: <socket: 42>: hPutBuf: illegal operation (handle is closed)
+
+  It should be configurable.
+
+  For GMail, looks like the default for a safe throttle would be one E-Mail every 5 seconds
+  At one instance it tried to send more than 105 E-Mails, and got thrown away for 5 minutes.
+  
 
 ## Nice to have
 
