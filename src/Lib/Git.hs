@@ -1,13 +1,13 @@
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE DeriveFunctor        #-}
-{-# LANGUAGE LambdaCase           #-}
-{-# LANGUAGE FlexibleContexts     #-}
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE KindSignatures            #-}
+{-# LANGUAGE DeriveFunctor             #-}
+{-# LANGUAGE LambdaCase                #-}
+{-# LANGUAGE FlexibleContexts          #-}
+{-# LANGUAGE FlexibleInstances         #-}
+{-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables       #-}
 {-# LANGUAGE NoImplicitPrelude         #-}
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs                     #-}
 
 module Lib.Git
   ( lsFiles

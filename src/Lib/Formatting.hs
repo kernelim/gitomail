@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -6,19 +7,24 @@ module Lib.Formatting
        mkPlain, mkForm, mkFormS, flistToText, fshow) where
 
 ------------------------------------------------------------------------------------
-import           Data.DList    (DList)
-import qualified Data.DList    as DList
-import           Data.Foldable (toList)
-import           Data.Text     (Text)
-import qualified Data.Text     as T
+import           Control.DeepSeq (NFData (..))
+import           Control.DeepSeq.Generics    (genericRnf)
+import           Data.DList      (DList)
+import qualified Data.DList      as DList
+import           Data.Foldable   (toList)
+import           Data.Text       (Text)
+import qualified Data.Text       as T
+import           GHC.Generics    (Generic)
 ----
-import           Lib.Text      ((+@))
+import           Lib.Text        ((+@))
 ------------------------------------------------------------------------------------
 
 data Element
     = Ignore
     | FreeForm !Text
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Generic)
+
+instance NFData Element where rnf = genericRnf
 
 data Format
     = Mark
@@ -37,14 +43,18 @@ data Format
     | Link Text
     | Footer
     | Style Element
-      deriving (Show, Eq, Ord)
+      deriving (Show, Eq, Ord, Generic)
+
+instance NFData Format where rnf = genericRnf
 
 type FList = DList Fragment
 
 data Fragment
     = TPlain {-# UNPACK #-} !Text
     | TForm  !Format FList
-      deriving (Show, Eq, Ord)
+      deriving (Show, Eq, Ord, Generic)
+
+instance NFData Fragment where rnf = genericRnf
 
 class FShow a where
     fshow' :: a -> [Text]

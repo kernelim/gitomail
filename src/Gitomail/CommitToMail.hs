@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE FlexibleInstances         #-}
@@ -12,6 +13,8 @@
 {-# LANGUAGE RecordWildCards           #-}
 {-# LANGUAGE ScopedTypeVariables       #-}
 {-# LANGUAGE TypeSynonymInstances      #-}
+{-# LANGUAGE StandaloneDeriving        #-}
+{-# OPTIONS_GHC -fno-warn-orphans      #-}
 
 module Gitomail.CommitToMail (
     InvalidCommandOutput(..),
@@ -30,6 +33,8 @@ module Gitomail.CommitToMail (
     ) where
 
 ------------------------------------------------------------------------------------
+import           Control.DeepSeq             (NFData (..), force)
+import           Control.DeepSeq.Generics    (genericRnf)
 import qualified Control.Exception.Lifted    as E
 import           Control.Lens.Operators      ((&), (^.))
 import           Control.Monad               (forM, forM_, when)
@@ -42,8 +47,7 @@ import qualified Data.ByteString.Char8       as BS8
 import qualified Data.ByteString.Lazy        as BL
 import qualified Data.DList                  as DList
 import           Data.Either                 (rights)
-import           Data.List                   (intersperse, (\\),
-                                              union)
+import           Data.List                   (intersperse, union, (\\))
 import qualified Data.Map                    as Map
 import           Data.Maybe                  (catMaybes, fromMaybe)
 import qualified Data.Set                    as Set
@@ -58,8 +62,9 @@ import           Database.LevelDB.Base       (DB)
 import qualified Database.LevelDB.Base       as DB
 import qualified Fancydiff.Formatting        as F
 import qualified Fancydiff.HTMLFormatting    as F
-import qualified Fancydiff.Themes            as F
 import qualified Fancydiff.Lib               as FL
+import qualified Fancydiff.Themes            as F
+import           GHC.Generics                (Generic)
 import           Git                         (withRepository)
 import           Git.Libgit2                 (lgFactory)
 import           Network.HaskellNet.Auth     (AuthType (PLAIN))
@@ -71,8 +76,8 @@ import           Network.HaskellNet.SMTP.SSL (SMTPConnection,
                                               doSMTPSSLWithSettings,
                                               doSMTPSTARTTLSWithSettings)
 import           Network.Mail.Mime           (Address (..), Mail (..), htmlPart,
-                                              plainPart, renderAddress,
-                                              renderMail')
+                                              plainPart, renderAddress, Part (..),
+                                              renderMail', Encoding (..))
 import           System.FilePath             ((</>))
 import           Text.Regex.TDFA             ((=~))
 import           Text.Regex.TDFA.Text        ()
@@ -85,9 +90,9 @@ import qualified Gitomail.Opts               as O
 import           Gitomail.WhoMaintains
 import           Lib.EMail                   (InvalidEMail, emailRegEx,
                                               parseEMail)
+import qualified Lib.Formatting              as FI
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as FI
-import qualified Lib.Formatting              as FI
 import           Lib.LiftedPrelude
 import           Lib.Regex                   (matchWhole)
 import           Lib.Text                    (removeTrailingNewLine, safeDecode)
@@ -172,24 +177,41 @@ listIssueTrackLinks msg = do
 type InexactDiffHash = BS.ByteString
 type SubjectLine = Text
 
+deriving instance Generic Address
+instance NFData Address where rnf = genericRnf
+
+deriving instance Generic Encoding
+instance NFData Encoding where rnf = genericRnf
+
+deriving instance Generic Part
+instance NFData Part where rnf = genericRnf
+
+deriving instance Generic Mail
+instance NFData Mail where rnf = genericRnf
+
 data MailInfo = MailInfo {
         miMail    :: Mail
       , miSubject :: SubjectLine
-    }
+    } deriving Generic
+instance NFData MailInfo where rnf = genericRnf
 
 data CommitContentInfo = CommitContentInfo {
-        cciInexactDiffHash    :: InexactDiffHash
-      , cciInexactDiffHashNew :: Bool
-      , cciFormatted1         :: F.FList
-      , cciFormatted2         :: FI.FList
-      , cciMail               :: MailInfo
-    }
+        cciInexactDiffHash    :: !InexactDiffHash
+      , cciInexactDiffHashNew :: !Bool
+      , cciFormatted1         :: !F.FList
+      , cciFormatted2         :: !FI.FList
+      , cciMail               :: !MailInfo
+    } deriving Generic
+
+instance NFData CommitContentInfo where rnf = genericRnf
 
 data CommitInfo = CommitInfo {
-        ciAuthorName    :: Text
-      , ciCommitSubject :: Text
-      , ciContent       :: Either String CommitContentInfo
-    }
+        ciAuthorName    :: !Text
+      , ciCommitSubject :: !Text
+      , ciContent       :: !(Either String CommitContentInfo)
+    } deriving Generic
+
+instance NFData CommitInfo where rnf = genericRnf
 
 ciToMaybeMailInfo :: CommitInfo -> Maybe MailInfo
 ciToMaybeMailInfo (CommitInfo _ _ (Right (CommitContentInfo _ _ _ _ mi))) = Just mi
@@ -283,7 +305,8 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                     False -> return $ (Nothing, not b)
 
             affectedPathsStr <- gitCmd ["show", commitHash, "--pretty=format:", "--name-only"]
-            let affectedPaths = affectedPathsStr & T.encodeUtf8 & BS8.lines
+            let affectedPathsList = affectedPathsStr & T.encodeUtf8 & BS8.lines
+            let affectedPathsSet = affectedPathsList & Set.fromList
 
             containedInBranchesList <- case cmk of
                 CommitMailFull -> getBranchesContainingCommit commitHash
@@ -302,12 +325,15 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                     Right (_, name, email) -> return $ Just $ Address name email
 
             debug $ "iterating maintainers"
-            let refmfilter = (commitHash, Just affectedPaths)
+            let refmfilter = (commitHash, Just affectedPathsList)
             (matched, matchErrors) <- matchFiles refmfilter
             debug $ "done matching"
 
-            maintainerInfo <- iterateFilesWithMaintainers matched $ \_ i ->
-                return $ GIT.treeVal i
+            maintainerInfo <- iterateFilesWithMaintainers matched $ \path i ->
+                return $
+                    if path `Set.member` affectedPathsSet
+                       then GIT.treeVal i
+                       else mempty
 
             repoName <- getRepoName
             shortHash <- mapCommitHash commitHash >>= githashRepr
@@ -447,7 +473,7 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                           mailInfo = MailInfo mail subjectLine
                           contentInfo = CommitContentInfo diffInexactHash miInexactDiffHashNew parsedFLists emailFooter mailInfo
 
-                      returnCommitInfo $ Right contentInfo
+                      returnCommitInfo $ force $ Right contentInfo
 
 
 sendMails :: (MonadGitomail m) => [(IO (), MailInfo)] -> m ()

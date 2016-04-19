@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns              #-}
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE FlexibleInstances         #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
@@ -85,8 +86,8 @@ data Assign = Observer | Maintainer | Reviewer
   deriving (Eq, Show)
 
 data Definition
-  = Alias AliasName EMail
-  | Assign Assign AliasName Glob.Pattern
+  = Alias !AliasName !EMail
+  | Assign !Assign !AliasName !Glob.Pattern
   deriving (Eq, Show)
 
 type DefInFile = (Int, Definition)
@@ -174,7 +175,7 @@ matchFiles :: (MonadIO m, Monad m) =>
                                                               MatchErrors)
 matchFiles tree =
     do invalidsI <- newIORef $ Set.fromList []
-       let f pathcomps content =
+       let f !pathcomps !content =
                root
              where
                  match_options = Glob.matchDefault { Glob.matchDotsImplicitly = True }

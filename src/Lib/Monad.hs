@@ -1,4 +1,5 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE BangPatterns              #-}
 
 module Lib.Monad
     ( mapWithKeyM
@@ -26,17 +27,17 @@ import           Data.Foldable                 (toList)
 ------------------------------------------------------------------------------------
 
 mapWithKeyM :: (Ord k, Functor m, Monad m) => (k -> a -> m b) -> Map k a -> m (Map k b)
-mapWithKeyM f m = fmap Map.fromList $
-   lSeqForM (Map.toList m) $ \(k, a) -> do
+mapWithKeyM !f !m = fmap Map.fromList $
+   lSeqForM (Map.toList m) $ \(!k, !a) -> do
        i <- f k a
        return (k, i)
 
 foldSubJoinT21toT12M :: Monad m => [(t1, [(t2, t)])] -> a -> (a -> ((t1, t2), t) -> m a) -> m a
 foldSubJoinT21toT12M lst s f' = foldM l2 s lst
   where
-    l2 s2 (t1, t2t) = foldM l3 s2 t2t
+    l2 !s2 (!t1, !t2t) = foldM l3 s2 t2t
       where
-        l3 s3 (t2, t) = f' s3 ((t1, t2), t)
+        l3 !s3 (!t2, !t) = f' s3 ((t1, t2), t)
 
 mapMM_ :: (Monad m, Foldable t) => m (t a) -> (a -> m b) -> m ()
 mapMM_ a b = a >>= (mapM_ b)
