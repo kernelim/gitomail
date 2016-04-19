@@ -217,7 +217,12 @@ instance Show FailedReadingRepo where
 loadFiles :: (MonadIO m, MonadMask m, MonadBaseControl IO m)
              => FilePath -> GIT.RefName -> m (GIT.Tree (Maybe BS8.ByteString))
 loadFiles path revstr = do
-    r <- GIT.lsFiles path revstr (== fileName) Nothing
+    let filenameInPath = BS8.concat ["/", fileName]
+        baseFilter name = do
+            if name == fileName
+                then True
+                else filenameInPath `BS.isSuffixOf` name
+    r <- GIT.lsFiles path revstr baseFilter Nothing
     case r of
         Left err -> E.throw $ FailedReadingRepo err
         Right rx -> return rx

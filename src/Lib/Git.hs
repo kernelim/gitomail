@@ -1,5 +1,4 @@
 {-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE DeriveFunctor        #-}
 {-# LANGUAGE LambdaCase           #-}
 {-# LANGUAGE FlexibleContexts     #-}
@@ -28,7 +27,7 @@ module Lib.Git
   ) where
 
 ------------------------------------------------------------------------------------
-import           Control.Monad             (forM_, when, forM)
+import           Control.Monad             (forM_, forM)
 import           Control.Monad.IO.Class    (liftIO)
 import           Control.Monad.Catch        (MonadMask)
 import           Control.Monad.Trans       (lift)
@@ -132,32 +131,46 @@ lsFiles
 lsFiles path revstr blob_filter dir_value = do
     withRepository lgFactory path $ do
         let
-            blob_reader fp blob_id = do
+            blobReader fp blob_id = do
                 if blob_filter fp
                     then fmap Just $ catBlob blob_id
                     else return Nothing
-            func treeoid = do
-                tree <- lookupTree treeoid
-                entries <- listTreeEntries tree
+
+            root treeoid = do
+                entriesI <- lookupTree treeoid >>= listTreeEntries >>= newIORef
+
+                let
+                    append r x = modifyIORef' r ((:) x)
+                    loop subpath ref = do
+                        entries <- readIORef entriesI
+                        case entries of
+                            [] -> return ()
+                            ((fp, entry):tail') -> do
+                                let (_, bfp) = BS8.breakEnd (=='/') fp
+                                case subpath `BS8.isPrefixOf` fp of
+                                    False -> return ()
+                                    True -> do
+                                        writeIORef entriesI tail'
+                                        case entry of
+                                            Git.BlobEntry blob_id _ -> do
+                                                x <- blobReader fp blob_id
+                                                append ref $ (bfp, File x)
+                                            Git.TreeEntry _ -> do
+                                                subref <- newIORef []
+                                                loop (BS8.concat [fp, "/"]) subref
+                                                n <- fmap (Map.fromList) $ liftIO $ readIORef subref
+                                                append ref $ (bfp, Node dir_value n)
+                                            _ -> return ()
+                                        loop subpath ref
                 r <- newIORef []
-                let append x = modifyIORef' r ((:) x)
-                forM_ entries $ \(fp, entry) -> do
-                    when (not ('/' `BS8.elem` fp)) $ do
-                        case entry of
-                          Git.TreeEntry sub_treeoid -> do
-                              lst <- func sub_treeoid
-                              append $ (fp, Node dir_value lst)
-                          Git.BlobEntry blob_id _ -> do
-                              x <- blob_reader fp blob_id
-                              append $ (fp, File x)
-                          _ -> return ()
+                loop "" r
                 fmap (Map.fromList) $ liftIO $ readIORef r
 
         runEitherT $ do
             i <- loadAnyRevStr revstr
             case i of
                 Git.CommitObj commit ->
-                    fmap (Node dir_value) $ lift $ func (commitTree commit)
+                    fmap (Node dir_value) $ lift $ root $ commitTree commit
                 _ -> left $ "Could not resolve tree"
 
 
