@@ -4,14 +4,14 @@
 
 Gitomail's automatic E-Mail generation for Git provides the following:
 
-* E-Mails containing pretty HTML colored commit diffs with source code syntax highlighting 
+* E-Mails containing pretty HTML colored commit diffs with source code syntax highlighting
   in combination with the old-time plaintext, readable under text-based E-Mail readers.
-* Optional JIRA integration - E-Mails can be CC'ed to people being refered from the JIRA issues 
-  mentioned in the commit messages (on user-specified kinds of issue fields). 
+* Optional JIRA integration - E-Mails can be CC'ed to people being refered from the JIRA issues
+  mentioned in the commit messages (on user-specified kinds of issue fields).
   Hyperlinks to JIRA issues from the commit messages are done too.
-* Optional maintainership tracking per directory or file, meaning that per-commit `To:` and `Cc:` 
+* Optional maintainership tracking per directory or file, meaning that per-commit `To:` and `Cc:`
   destinations correspond to user-specified maintainership information over the files being affected.
-* Summary of Ref changes, with differentiation over rebase and fast-forward, along with base-branch 
+* Summary of Ref changes, with differentiation over rebase and fast-forward, along with base-branch
   detection so that the summary properly describes the content of the branches.
 
 [ToDo](ToDo.md)
