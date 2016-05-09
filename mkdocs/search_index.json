@@ -1,0 +1,14 @@
+{
+    "docs": [
+        {
+            "location": "/README/", 
+            "text": "TBD", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/ChangeLog/", 
+            "text": "TBD", 
+            "title": "Changelog"
+        }
+    ]
+}
