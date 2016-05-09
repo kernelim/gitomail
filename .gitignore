@@ -1,8 +1,8 @@
 /.cabal-sandbox/
 /cabal.sandbox.config
+/docenv/
+/_site/
 /dist/
 \#*\#
 .\#*
 .stack-work/
-
-

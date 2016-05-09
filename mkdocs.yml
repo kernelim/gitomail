@@ -4,10 +4,11 @@ site_author: Dan Aloni
 repo_url: https://github.com/kernelim/gitomail/tree/master/doc
 copyright: Copyright (c) 2015-2016, Dan Aloni
 docs_dir: doc
+site_dir: _site
 theme: readthedocs
 
 pages:
-- Home: README.md
+- Home: index.md
 - Changelog: ChangeLog.md
 
 markdown_extensions:
