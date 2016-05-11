@@ -12,7 +12,7 @@ pages:
 - Changelog: ChangeLog.md
 - Documentation:
   - Installation: install.md
-  - Configration: config.md
+  - Configuration: config.md
   - Execution: execution.md
   - Recommended GMail filters: gmail.md
 

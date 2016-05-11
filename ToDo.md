@@ -37,15 +37,15 @@
   * Explain why it is not possible to use the information provided by the update-hook
     in order to decipher relationship between branches.
 * Revise command line usage for non-automailer modes.
-* Verify that the ASCII version of the E-Mail can still be imported as a patch.
+* Verify that the Plain Text version of the E-Mail can still be imported as a patch.
 * Revise submodule support - currently we regarding them as simple files.
 * Rethink handling of empty commits (currently no mails are sent).
 * Improve Maintainer data parsing, so a command can be exported to be used in
   build time.
 * Support hinting about whether to pass '-w' to the Git diff generation, via
-  explict hints in commit message. The ASCII version of the Email should not be
+  explict hints in commit message. The Plain Text version of the Email should not be
   affected perhaps, so that it could still apply as a valid diff?
-* Formatting of the ASCII E-Mail should be improved.
+* Formatting of the Plain Text E-Mail should be improved.
 * Cleanups and refactoring.
 
 ## Nice to have
