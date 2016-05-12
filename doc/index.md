@@ -2,6 +2,8 @@
 
 Gitomail is a tool for generating pretty inline-HTML EMails for [Git](https://git-scm.com/) commits, with a sending capability to proper recipients.
 
+This page provides a short introduction to Gitomail's main features.
+
 ## First, some history
 
 Many years before [Git](https://git-scm.com/) became popular or existed, people were using mailing lists in order to collaborate on code changes. The unified diff format, now popularized, as used as a diff format in the Plain Text-formatted E-Mails. A text-based console EMail program such as [mutt](http://www.mutt.org/) presented the user a convinent way to handle these diffs and import them into their source trees.
