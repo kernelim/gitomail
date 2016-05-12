@@ -16,7 +16,7 @@ Below is a fake example of such an email, based on a commit in the PostgreSQL pr
 
 With the advant of sites like [Github](https://github.com), email became under-used for reviewing changes, and in the Webmail era, emails containing diffs may appear somewhat arcane to developers of today.
 
-## Diffs in the age of WebMail
+## Diffs in the age of Webmail
 
 Nowadays, the Plain Text version of the email message seems outdated. This is where Gitomail comes into the picture.
 
