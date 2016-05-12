@@ -66,7 +66,7 @@
                 
                     <li><a class="toctree-l4" href="#diffs-in-the-age-of-webmail">Diffs in the age of WebMail</a></li>
                 
-                    <li><a class="toctree-l4" href="#inline-reply-friendliness">Inline-reply friendliness</a></li>
+                    <li><a class="toctree-l4" href="#inline-reply-friendliness">Inline reply friendliness</a></li>
                 
                     <li><a class="toctree-l4" href="#branch-change-summaries">Branch change summaries</a></li>
                 
@@ -158,21 +158,21 @@
             <div class="section">
               
                 <h1 id="gitomail">Gitomail<a class="headerlink" href="#gitomail" title="Permanent link">&para;</a></h1>
-<p>Gitomail is a tool for generating pretty inline-HTML EMails for <a href="https://git-scm.com/">Git</a> commits, with a sending capability to proper recipients.</p>
+<p>Gitomail is a tool for generating pretty inline-HTML emails for <a href="https://git-scm.com/">Git</a> commits, with a sending capability to proper recipients.</p>
 <p>This page provides a short introduction to Gitomail's main features.</p>
 <h2 id="first-some-history">First, some history<a class="headerlink" href="#first-some-history" title="Permanent link">&para;</a></h2>
-<p>Many years before <a href="https://git-scm.com/">Git</a> became popular or existed, people were using mailing lists in order to collaborate on code changes. The unified diff format, now popularized, as used as a diff format in the Plain Text-formatted E-Mails. A text-based console EMail program such as <a href="http://www.mutt.org/">mutt</a> presented the user a convinent way to handle these diffs and import them into their source trees.</p>
-<p>Below is a fake example of such an E-Mail, based on a commit in the PostgreSQL project:</p>
+<p>Many years before <a href="https://git-scm.com/">Git</a> became popular or existed, people were using mailing lists in order to collaborate on code changes. The unified diff format, now popularized, as used as a diff format in the Plain Text-formatted emails. A text-based console email program such as <a href="http://www.mutt.org/">mutt</a> presented the user a convinent way to handle these diffs and import them into their source trees.</p>
+<p>Below is a fake example of such an email, based on a commit in the PostgreSQL project:</p>
 <p><img src="example1.png" width="672" align="center">
-<strong>(shown here above, a screenshot from an old EMail reader)</strong></p>
-<p>With the advant of sites like <a href="https://github.com">Github</a>, EMail became under-used for reviewing changes, and in the Webmail era, E-Mails containing diffs may appear somewhat arcane to developers of today.</p>
+<strong>(shown here above, a screenshot from an old email reader)</strong></p>
+<p>With the advant of sites like <a href="https://github.com">Github</a>, email became under-used for reviewing changes, and in the Webmail era, emails containing diffs may appear somewhat arcane to developers of today.</p>
 <h2 id="diffs-in-the-age-of-webmail">Diffs in the age of WebMail<a class="headerlink" href="#diffs-in-the-age-of-webmail" title="Permanent link">&para;</a></h2>
-<p>Nowadays, the Plain Text version of the EMail message seems outdated. This is where Gitomail comes into the picture.</p>
-<p>For example, the E-Mail from above, when sent by Gitomail, can appear like the following:</p>
+<p>Nowadays, the Plain Text version of the email message seems outdated. This is where Gitomail comes into the picture.</p>
+<p>For example, the email from above, when sent by Gitomail, can appear like the following:</p>
 <p><img alt="example" src="./example2.png" /></p>
-<p>Combined with full syntax highlighting, the HTML part of the EMail makes this appearance possible.</p>
-<h2 id="inline-reply-friendliness">Inline-reply friendliness<a class="headerlink" href="#inline-reply-friendliness" title="Permanent link">&para;</a></h2>
-<p>Similarly to Plain Text E-Mails, it's possible to reply to code in-line:</p>
+<p>Combined with full syntax highlighting, the HTML part of the email makes this appearance possible.</p>
+<h2 id="inline-reply-friendliness">Inline reply friendliness<a class="headerlink" href="#inline-reply-friendliness" title="Permanent link">&para;</a></h2>
+<p>Similarly to Plain Text emails, it's possible to reply to changes inline:</p>
 <p><img alt="example" src="./example5.png" /></p>
 <h2 id="branch-change-summaries">Branch change summaries<a class="headerlink" href="#branch-change-summaries" title="Permanent link">&para;</a></h2>
 <p>Gitomail tracks changes to branches, and can describe what changed, dealing properly with fast-forward and rebases. It's possible to specify how branches relate to each so that summaries make sense.</p>
@@ -181,14 +181,14 @@
 <h3 id="rebase-example">Rebase example<a class="headerlink" href="#rebase-example" title="Permanent link">&para;</a></h3>
 <p><img alt="example" src="./example4.png" /></p>
 <h2 id="automatic-recipients-and-code-maintainership">Automatic recipients and code maintainership<a class="headerlink" href="#automatic-recipients-and-code-maintainership" title="Permanent link">&para;</a></h2>
-<p>Of course, it is not enough to formatt the EMails. We would also like to designate their recipients, preferrably in an automated way.</p>
+<p>Of course, it is not enough to formatt the emails. We would also like to designate their recipients, preferrably in an automated way.</p>
 <p>Inspired by a very wonderful script in the Linux kernel source tree named <a href="https://github.com/torvalds/linux/blob/master/scripts/get_maintainer.pl">get_maintainers.pl</a>, Gitomail supports its own <code>Maintainers</code> file format, which can specify rules to match people to certain files or directories.</p>
 <pre><code class="python">maintainer dan file.*
 maintainer jack Makefile
 reviewer mailinglist
 </code></pre>
 
-<p>Using a very minimal specification language, and formatted similarly to <code>.gitignore</code>, these <code>Maintainers</code> files can optionally spread across the source tree, assigning code to maintainers. It's especially useful for single repositories bearing multiple maintainers of code. These files are then used to automatically set the destination address of EMails to the rightful maintainers, based on the code changed in the commit, effectively working very similar to <a href="https://github.com/torvalds/linux/blob/master/scripts/get_maintainer.pl">get_maintainers.pl</a>.</p>
+<p>Using a very minimal specification language, and formatted similarly to <code>.gitignore</code>, these <code>Maintainers</code> files can optionally spread across the source tree, assigning code to maintainers. It's especially useful for single repositories bearing multiple maintainers of code. These files are then used to automatically set the destination address of emails to the rightful maintainers, based on the code changed in the commit, effectively working very similar to <a href="https://github.com/torvalds/linux/blob/master/scripts/get_maintainer.pl">get_maintainers.pl</a>.</p>
               
             </div>
           </div>
@@ -238,5 +238,5 @@ reviewer mailinglist
 
 <!--
 MkDocs version : 0.15.3
-Build Date UTC : 2016-05-12 06:44:56.124521
+Build Date UTC : 2016-05-12 06:59:09.594476
 -->
