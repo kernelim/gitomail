@@ -52,8 +52,18 @@
         }, 
         {
             "location": "/install/", 
-            "text": "TBD", 
+            "text": "Install from precompiled binaries\n\n\nBinary RPMs for some Linux environments are provided:\n\n\n\n\nFedora\n : Available at \nCopr\n\n\nCentOS\n : Available at \nCopr\n\n\n\n\nOr, build and install from source\n\n\nAlternatively, it's possible to build Gitomail from source.\n\n\n\n\ninstall the \nStack tool\n.\n\n\nUsing \nstack\n, perform build and install:\n\n\n\n\ngit clone \nhttps://github.com/kernelim/gitomail\n\ncd gitomail\nstack install\n\n\n\n\nThe binary should be available as \n~/.local/bin/gitomail\n.", 
             "title": "Installation"
+        }, 
+        {
+            "location": "/install/#install-from-precompiled-binaries", 
+            "text": "Binary RPMs for some Linux environments are provided:   Fedora  : Available at  Copr  CentOS  : Available at  Copr", 
+            "title": "Install from precompiled binaries"
+        }, 
+        {
+            "location": "/install/#or-build-and-install-from-source", 
+            "text": "Alternatively, it's possible to build Gitomail from source.   install the  Stack tool .  Using  stack , perform build and install:   git clone  https://github.com/kernelim/gitomail \ncd gitomail\nstack install  The binary should be available as  ~/.local/bin/gitomail .", 
+            "title": "Or, build and install from source"
         }, 
         {
             "location": "/config/", 

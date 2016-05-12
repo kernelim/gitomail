@@ -79,6 +79,12 @@
         
             <ul>
             
+                <li class="toctree-l3"><a href="#install-from-precompiled-binaries">Install from precompiled binaries</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#or-build-and-install-from-source">Or, build and install from source</a></li>
+                
+            
             </ul>
         
     </li>
@@ -148,7 +154,24 @@
           <div role="main">
             <div class="section">
               
-                <p>TBD</p>
+                <h2 id="install-from-precompiled-binaries">Install from precompiled binaries<a class="headerlink" href="#install-from-precompiled-binaries" title="Permanent link">&para;</a></h2>
+<p>Binary RPMs for some Linux environments are provided:</p>
+<ul>
+<li><strong>Fedora</strong> : Available at <a href="https://copr.fedorainfracloud.org/coprs/alonid/gitomail/">Copr</a></li>
+<li><strong>CentOS</strong> : Available at <a href="https://copr.fedorainfracloud.org/coprs/alonid/gitomail/">Copr</a></li>
+</ul>
+<h2 id="or-build-and-install-from-source">Or, build and install from source<a class="headerlink" href="#or-build-and-install-from-source" title="Permanent link">&para;</a></h2>
+<p>Alternatively, it's possible to build Gitomail from source.</p>
+<ol>
+<li>install the <a href="http://docs.haskellstack.org">Stack tool</a>.</li>
+<li>Using <code>stack</code>, perform build and install:</li>
+</ol>
+<pre><code class="shell">git clone &quot;https://github.com/kernelim/gitomail&quot;
+cd gitomail
+stack install
+</code></pre>
+
+<p>The binary should be available as <code>~/.local/bin/gitomail</code>.</p>
               
             </div>
           </div>
