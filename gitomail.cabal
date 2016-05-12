@@ -1,6 +1,6 @@
 name:                gitomail
 version:             0.8.16
-synopsis:            Gitomail - Automatic Email generation for Git
+synopsis:            Gitomail - Automatic email generation for Git
 homepage:            http://github.com/kernelim/gitomail
 license:             Apache-2.0
 license-file:        LICENSE
@@ -27,7 +27,7 @@ executable gitomail
                    , Gitomail.Version
                    , Gitomail.WhoMaintains
                    , Lib.DList
-                   , Lib.EMail
+                   , Lib.Email
                    , Lib.Git
                    , Lib.Formatting
                    , Lib.InlineFormatting

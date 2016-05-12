@@ -12,8 +12,8 @@
 
   It should be configurable.
 
-  For GMail, looks like the default for a safe throttle would be one Email every 5 seconds
-  At one instance it tried to send more than 105 Emails, and got thrown away for 5 minutes.
+  For GMail, looks like the default for a safe throttle would be one email every 5 seconds
+  At one instance it tried to send more than 105 emails, and got thrown away for 5 minutes.
 
 ## Possible features and other ToDo's
 
@@ -23,10 +23,10 @@
     * Provide a template for it, pointers to GMail filtering and such.
     * To track who we have already sent a welcome message - need a different DB for that.
 * Handle LevelDB corruptions more gracefully.
-* Add in-reply-to from the commit mails to the summary Emails.
+* Add in-reply-to from the commit mails to the summary emails.
 * Prepare Github and Bitbucket presets for easier integartion.
 * Gitolite integration should be able to tell which user did the push, and
-  have that user in the 'From' Email field. However if the hook is running
+  have that user in the 'From' email field. However if the hook is running
   asynchronously it may not catch the push prefectly. We can solve it partially
   by matching the ref changes from the push to the detected branch changes.
 * Add lots of documentation.
@@ -37,15 +37,15 @@
   * Explain why it is not possible to use the information provided by the update-hook
     in order to decipher relationship between branches.
 * Revise command line usage for non-automailer modes.
-* Verify that the Plain Text version of the Email can still be imported as a patch.
+* Verify that the Plain Text version of the email can still be imported as a patch.
 * Revise submodule support - currently we regarding them as simple files.
 * Rethink handling of empty commits (currently no mails are sent).
 * Improve Maintainer data parsing, so a command can be exported to be used in
   build time.
 * Support hinting about whether to pass '-w' to the Git diff generation, via
-  explict hints in commit message. The Plain Text version of the Email should not be
+  explict hints in commit message. The Plain Text version of the email should not be
   affected perhaps, so that it could still apply as a valid diff?
-* Formatting of the Plain Text Email should be improved.
+* Formatting of the Plain Text email should be improved.
 * Cleanups and refactoring.
 
 ## Nice to have

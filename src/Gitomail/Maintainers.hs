@@ -45,7 +45,7 @@ import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Control.Monad.State       (MonadIO)
 ----
 import           Gitomail.Maintainers.Parser (happyParser)
-import           Gitomail.Maintainers.Base   (AliasName, EMail, Unit (..), runAlex)
+import           Gitomail.Maintainers.Base   (AliasName, Email, Unit (..), runAlex)
 import qualified Gitomail.Maintainers.Base   as MB
 import qualified Lib.Git                   as GIT
 import           Lib.Maybe                 (maybeF)
@@ -86,7 +86,7 @@ data Assign = Observer | Maintainer | Reviewer
   deriving (Eq, Show)
 
 data Definition
-  = Alias !AliasName !EMail
+  = Alias !AliasName !Email
   | Assign !Assign !AliasName !Glob.Pattern
   deriving (Eq, Show)
 
@@ -126,11 +126,11 @@ assignDefinitionFiles tree = r [] [] tree
         r _ p2 (GIT.File _) = GIT.File p2
 
 type Location = (Path, Int)
-type DefEMail = (Location, EMail)
+type DefEmail = (Location, Email)
 data AssignedFileStatus = AssignedFileStatus
-    { fsMaintainer :: !(Maybe DefEMail)
-    , fsObservers  :: ![DefEMail]
-    , fsReviewers  :: ![DefEMail]
+    { fsMaintainer :: !(Maybe DefEmail)
+    , fsObservers  :: ![DefEmail]
+    , fsReviewers  :: ![DefEmail]
     } deriving Show
 
 instance Monoid AssignedFileStatus where
@@ -188,7 +188,7 @@ matchFiles tree =
                       case def of
                         Alias name email -> do
                             maybeF (Map.lookup name m)
-                                  (return ()) (\prevEMail -> err location $ OverlappingAlias name prevEMail)
+                                  (return ()) (\prevEmail -> err location $ OverlappingAlias name prevEmail)
                             return $ Map.insert name email m
                         _ -> return m
                     join empty_fs $ \fs (location, def) ->

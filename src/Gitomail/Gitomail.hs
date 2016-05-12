@@ -26,7 +26,7 @@ module Gitomail.Gitomail
   , getConfig
   , getExtraCCTo
   , getFooter
-  , getFromEMail
+  , getFromEmail
   , getGitomail
   , getRefsMatcher
   , getRepoName
@@ -35,7 +35,7 @@ module Gitomail.Gitomail
   , getTopAliases
   , getSortedRefs
   , getBranchesContainingCommit
-  , genExtraEMailHeaders
+  , genExtraEmailHeaders
   , gitCmd
   , gitCmdIO
   , githashRepr
@@ -101,7 +101,7 @@ import           Gitomail.Config             ((^.||))
 import qualified Gitomail.Maintainers        as Maintainers
 import qualified Gitomail.Opts               as O
 import qualified Gitomail.Version            as V
-import           Lib.EMail                   (parseEMail', InvalidEMail(..))
+import           Lib.Email                   (parseEmail', InvalidEmail(..))
 import qualified Lib.Formatting              as F
 import qualified Lib.Git                     as GIT
 import           Lib.LiftedPrelude
@@ -130,7 +130,7 @@ data Gitomail = Gitomail {
   , __getExtraCCTo      :: Maybe ((), ([Address], [Address]))
   , __getRepositoryPath :: Maybe ((), FilePath)
   , __getConfig         :: Maybe ((), CFG.Config)
-  , __getFromEMail      :: Maybe ((), Address)
+  , __getFromEmail      :: Maybe ((), Address)
   }
 
 makeLenses ''Gitomail
@@ -252,17 +252,17 @@ getConfig         = cacheInStateBySomething _getConfig act ()
                     []    -> (E.throw $ ParameterNeeded $ BS8.unpack "config paths")
                     paths -> fmap CFG.final $ fmap (foldl1 CFG.combine) $ forM paths $ CFG.parse
 
-getFromEMail      :: (MonadGitomail m) => m Address
-getFromEMail      = do
-        cacheInStateBySomething _getFromEMail act ()
+getFromEmail      :: (MonadGitomail m) => m Address
+getFromEmail      = do
+        cacheInStateBySomething _getFromEmail act ()
     where
         act = do
           config <- getConfig
-          case config ^. CFG.fromEMail of
+          case config ^. CFG.fromEmail of
               Nothing  -> E.throw $ ParameterNeeded $ BS8.unpack "from_email"
-              Just fromEMail ->
-                  case parseEMail' fromEMail of
-                      Left r -> E.throw $ InvalidEMail $ "from_email: " ++ r
+              Just fromEmail ->
+                  case parseEmail' fromEmail of
+                      Left r -> E.throw $ InvalidEmail $ "from_email: " ++ r
                       Right r -> return r
 
 getExtraCCTo      :: (MonadGitomail m) => m ([Address], [Address])
@@ -272,8 +272,8 @@ getExtraCCTo      = do
         act = do
             opts <- gets opts
             [cc, to] <- forM [(O.extraCC, "CC"), (O.extraTo, "To")] $ \(getter, name) -> do
-                forM (map parseEMail' (opts ^. getter)) $ \case
-                         Left r -> E.throw $ InvalidEMail $ name ++ ": " ++  r
+                forM (map parseEmail' (opts ^. getter)) $ \case
+                         Left r -> E.throw $ InvalidEmail $ name ++ ": " ++  r
                          Right r -> return r
             return (cc, to)
 
@@ -349,7 +349,7 @@ getTopAliases :: (MonadGitomail m) => RefMFilter -> m (Map.Map Text Address)
 getTopAliases refMFilter = do
     patternsCompiled <- compilePatterns refMFilter
     let f (Maintainers.Alias name email) = do
-            case parseEMail' $ safeDecode email of
+            case parseEmail' $ safeDecode email of
                 Left _        -> return Nothing
                 Right address -> return $ Just (safeDecode name, address)
         f _ = return Nothing
@@ -456,8 +456,8 @@ randomNumbers count g = randomBytes count g
         where
             (value, nextG) = next g'
 
-genExtraEMailHeaders :: (MonadGitomail m) => Address -> m [(BS8.ByteString, Text)]
-genExtraEMailHeaders (Address _ email) = do
+genExtraEmailHeaders :: (MonadGitomail m) => Address -> m [(BS8.ByteString, Text)]
+genExtraEmailHeaders (Address _ email) = do
     config <- getConfig
 
     let v = case config ^. CFG.hashMap of

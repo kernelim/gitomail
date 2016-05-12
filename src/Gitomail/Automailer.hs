@@ -123,14 +123,14 @@ forgetHash = do
 addIssueTrackLinks :: (MonadGitomail m) => Text -> m F.FList
 addIssueTrackLinks msg = parseIssueTrackMentions F.TPlain (\a b -> F.TForm (F.Link a) b) msg
 
-makeSummaryEMail :: (MonadGitomail m)
+makeSummaryEmail :: (MonadGitomail m)
                   => DB
                   -> (Text, GIT.CommitHash)
                   -> RefFFMod
                   -> RefMod
                   -> [SummaryInfo]
                   -> m (Map.Map GIT.CommitHash Int, Either String MailInfo)
-makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
+makeSummaryEmail db (ref, topCommit) refMod isNewRef commits = do
     config <- getConfig
     case length commits >= 1 of
         True -> do
@@ -268,7 +268,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
 
             (cc, to) <- getExtraCCTo
 
-            emailAddress <- getFromEMail
+            emailAddress <- getFromEmail
             let toAddresses = nub $ to ++ (concat $ map mailTo mails)
                 ccAddresses = nub $ cc ++ (concat $ map mailCc mails)
                 (toAddresses', ccAddresses') =
@@ -277,10 +277,10 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
 
             repoName <- getRepoName
             githashToNumber <- readIORef githashtoNumberI
-            extraHeaders <- genExtraEMailHeaders emailAddress
+            extraHeaders <- genExtraEmailHeaders emailAddress
 
             case toAddresses of
-                [] -> return (githashToNumber, Left "No Email destination for summary")
+                [] -> return (githashToNumber, Left "No email destination for summary")
                 _ -> do
                     let subjectLine =
                             config ^.|| CFG.summarySubjectLine
@@ -414,7 +414,7 @@ autoMailer = do
                 liftIO $T.putStrLn $ "Ref " +@ refName +@ ": creating summaries"
 
                 let f refmod commits = do
-                        (numbersMap, summaryMailInfo) <- makeSummaryEMail db (refName, topCommitHash) refmod refInRepo
+                        (numbersMap, summaryMailInfo) <- makeSummaryEmail db (refName, topCommitHash) refmod refInRepo
                             (commitsBranchPoints ++ commits)
                         return (numbersMap, summaryMailInfo, commits)
                     ourCommit oid =
@@ -469,7 +469,7 @@ autoMailer = do
                     Right mailInfo -> modifyIORef' mailsI ((:) (return (), mailInfo))
                     Left _ -> return ()
 
-                liftIO $ T.putStrLn $ "Ref " +@ refName +@ ": creating Emails"
+                liftIO $ T.putStrLn $ "Ref " +@ refName +@ ": creating emails"
 
                 forM_ commits $ \SummaryInfo {..} -> do
                     isNew <- commitHashIsNew db siCommitHash
@@ -493,7 +493,7 @@ autoMailer = do
 
             mails <- fmap reverse $ readIORef mailsI
             when (length mails /= 0) $ do
-                putStrLn $ "Sending all Emails"
+                putStrLn $ "Sending all emails"
             sendMails mails
 
         when (not initTracking) $

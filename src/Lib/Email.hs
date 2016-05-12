@@ -3,7 +3,7 @@
 {-# LANGUAGE StandaloneDeriving   #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Lib.EMail (emailRegEx, parseEMail, parseEMail', InvalidEMail(..)) where
+module Lib.Email (emailRegEx, parseEmail, parseEmail', InvalidEmail(..)) where
 
 ------------------------------------------------------------------------------------
 import           Network.Mail.Mime           (Address (..))
@@ -15,16 +15,16 @@ import           Text.Regex.TDFA             ((=~))
 import           Text.Regex.TDFA.Text        ()
 ------------------------------------------------------------------------------------
 
-data InvalidEMail = InvalidEMail String deriving (Typeable)
-instance E.Exception InvalidEMail
-instance Show InvalidEMail where
-    show (InvalidEMail msgstr) = "InvalidEMail: " ++ msgstr
+data InvalidEmail = InvalidEmail String deriving (Typeable)
+instance E.Exception InvalidEmail
+instance Show InvalidEmail where
+    show (InvalidEmail msgstr) = "InvalidEmail: " ++ msgstr
 
 emailRegEx :: Text
 emailRegEx = "((([^\n]*) )<([^@\n]+@[^\n>]+)>|([^@\n]+@[^\n>]+))"
 
-parseEMail' :: Text -> Either String Address
-parseEMail' e = do
+parseEmail' :: Text -> Either String Address
+parseEmail' e = do
     let parse = map d (e  =~ emailRegEx :: [[Text]])
         d [_ , _, _, name, email, ""] = Right $ Address (Just name) email
         d [_ , _, _, "", "", email]   = Right $ Address Nothing email
@@ -36,10 +36,10 @@ parseEMail' e = do
         []        -> Left "no regex matches"
         _         -> Left "too many regex matches"
 
-parseEMail :: Monad m => Text -> m Address
-parseEMail e = do
-    case parseEMail' e of
+parseEmail :: Monad m => Text -> m Address
+parseEmail e = do
+    case parseEmail' e of
         Right r -> return r
-        Left r  -> E.throw $ InvalidEMail $ T.unpack e ++ ", " ++ show r
+        Left r  -> E.throw $ InvalidEmail $ T.unpack e ++ ", " ++ show r
 
 deriving instance Ord Address

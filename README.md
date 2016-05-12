@@ -2,11 +2,11 @@
 
 [![Build Status](https://travis-ci.org/kernelim/gitomail.svg?branch=master)](https://travis-ci.org/kernelim/gitomail)
 
-Gitomail's automatic Email generation for Git provides the following:
+Gitomail's automatic email generation for Git provides the following:
 
-* Emails containing pretty HTML colored commit diffs with source code syntax highlighting
-  in combination with the old-time plaintext, readable under text-based Email readers.
-* Optional JIRA integration - Emails can be CC'ed to people being refered from the JIRA issues
+* emails containing pretty HTML colored commit diffs with source code syntax highlighting
+  in combination with the old-time plaintext, readable under text-based email readers.
+* Optional JIRA integration - emails can be CC'ed to people being refered from the JIRA issues
   mentioned in the commit messages (on user-specified kinds of issue fields).
   Hyperlinks to JIRA issues from the commit messages are done too.
 * Optional maintainership tracking per directory or file, meaning that per-commit `To:` and `Cc:`

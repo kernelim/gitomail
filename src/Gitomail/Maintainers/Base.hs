@@ -11,7 +11,7 @@ module Gitomail.Maintainers.Base
   , Unit(..)
   , UnitDef(..)
   , AliasName
-  , EMail
+  , Email
   , lexer
   , module Gitomail.Maintainers.Lexer
   )
@@ -40,11 +40,11 @@ happyError = do
 
 type Scope = BS.ByteString
 type AliasName = BS.ByteString
-type EMail = BS.ByteString
+type Email = BS.ByteString
 type LineNum = Int
 
 data UnitDef
-  = Alias AliasName EMail
+  = Alias AliasName Email
   | Observer AliasName (Maybe Scope)
   | Maintainer AliasName (Maybe Scope)
   | Reviewer AliasName (Maybe Scope)

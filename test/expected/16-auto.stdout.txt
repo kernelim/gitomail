@@ -1,5 +1,5 @@
 Relating commits to refs
 Ref heads/master: creating summaries
-Ref heads/master: creating Emails
+Ref heads/master: creating emails
   Formatting 00028fffffffffffffffffffffffffffffffffff
-No Emails to send.
+No emails to send.

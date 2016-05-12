@@ -23,8 +23,8 @@ module Gitomail.Config
        , commitSubjectLine
        , commitURL
        , excludeRefs
-       , filteredDestEMails
-       , fromEMail
+       , filteredDestEmails
+       , fromEmail
        , jiraCC
        , hashMap
        , hashSize
@@ -87,9 +87,9 @@ fmdString = "filtered_email_destinations"
   X(_summarySubjectLine , "summary_subject_line", a     , defl, "[%r] %s"        , Text          ) \
   X(_commitURL          , "commit_url"          , Maybe , pass,                  , Text          ) \
   X(_blobInCommitURL    , "blob_in_commit_url"  , Maybe , pass,                  , Text          ) \
-  X(_fromEMail          , "from_email"          , Maybe , pass,                  , Text          ) \
+  X(_fromEmail          , "from_email"          , Maybe , pass,                  , Text          ) \
   X(_jiraCC             , "jira_cc"             , Maybe , pass,                  , JIRACC        ) \
-  X(_filteredDestEMails , fmdString             , a     , defl, []               , [Text]        ) \
+  X(_filteredDestEmails , fmdString             , a     , defl, []               , [Text]        ) \
   X(_repoName           , "repo_name"           , Maybe , pass,                  , Text          ) \
   X(_sourceHighlight    , "source_highlight"    , a     , defl, True             , Bool          ) \
   X(_hashSize           , "hash_size"           , a     , defl, 9                , Int           ) \

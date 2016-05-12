@@ -88,8 +88,8 @@ import           Gitomail.Gitomail
 import qualified Gitomail.Maintainers        as Maintainers
 import qualified Gitomail.Opts               as O
 import           Gitomail.WhoMaintains
-import           Lib.EMail                   (InvalidEMail, emailRegEx,
-                                              parseEMail)
+import           Lib.Email                   (InvalidEmail, emailRegEx,
+                                              parseEmail)
 import qualified Lib.Formatting              as FI
 import qualified Lib.Git                     as GIT
 import qualified Lib.InlineFormatting        as FI
@@ -233,7 +233,7 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                       liftIO $ T.putStrLn $ T.concat ["getCommitInfo: ", T.pack s ]
     debug $ "ref: " ++ show ref ++ " hash: " ++ show commitHash
 
-    (authorName, commitSubjectLine, authorEMail, parentHashesStr) <- do
+    (authorName, commitSubjectLine, authorEmail, parentHashesStr) <- do
         let keys = intersperse commitHash
                        ["%aN", "%s", "%ae", "%P"]
         let params = ["show", commitHash, T.concat $ "--pretty=":keys, "-s"]
@@ -351,8 +351,8 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                        [] -> "<?>"
 
             let Maintainers.AssignedFileStatus {..} = maintainerInfo
-                getEMail (_, email) = E.catch (parseEMail (safeDecode email) >>= (return . Just))
-                                        (\(_ :: InvalidEMail) -> return Nothing)
+                getEmail (_, email) = E.catch (parseEmail (safeDecode email) >>= (return . Just))
+                                        (\(_ :: InvalidEmail) -> return Nothing)
                 flagsMaybe =
                     case flags of
                           [] -> Nothing
@@ -367,9 +367,9 @@ getCommitInfo cmk db ref commitHash maybeNr = do
 
                   maintainerM <- case fsMaintainer of
                       Nothing -> return Nothing
-                      Just e -> getEMail e
+                      Just e -> getEmail e
 
-                  others <- mapM getEMail (fsReviewers ++ fsObservers)
+                  others <- mapM getEmail (fsReviewers ++ fsObservers)
                   aliasTo <- case config ^.|| CFG.aliasRefMatch of
                       Nothing -> return []
                       Just aliasRefRegex -> do
@@ -423,9 +423,9 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                                               ":", T.pack $ show line, ": ",
                                                   case err of
                                                       Maintainers.InvalidAlias alias -> T.concat ["invalid alias - ", safeDecode alias]
-                                                      Maintainers.OverlappingAlias alias prevEmail ->
-                                                          T.concat ["overlapping alias - ", safeDecode alias, ", previous Email was ",
-                                                                    safeDecode prevEmail]]
+                                                      Maintainers.OverlappingAlias alias prevemail ->
+                                                          T.concat ["overlapping alias - ", safeDecode alias, ", previous email was ",
+                                                                    safeDecode prevemail]]
 
                       parsedFLists <- case cmk of
                           CommitMailFull -> do
@@ -446,12 +446,12 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                               return DList.empty
 
                       emailFooter <- getFooter
-                      emailAddress <- getFromEMail
+                      emailAddress <- getFromEmail
 
                       let Address _ actualSenderEmail = emailAddress
                           fromAddress = Address (Just authorName) actualSenderEmail
 
-                      extraHeaders <- genExtraEMailHeaders fromAddress
+                      extraHeaders <- genExtraEmailHeaders fromAddress
 
                       let mail = Mail
                             { mailFrom = fromAddress
@@ -469,7 +469,7 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                           plain = TL.fromChunks [ F.flistToText parsedFLists,
                                                   FI.flistToText emailFooter
                                                 ]
-                          replyTo = Address (Just authorName) authorEMail
+                          replyTo = Address (Just authorName) authorEmail
                           mailInfo = MailInfo mail subjectLine
                           contentInfo = CommitContentInfo diffInexactHash miInexactDiffHashNew parsedFLists emailFooter mailInfo
 
@@ -480,10 +480,10 @@ sendMails :: (MonadGitomail m) => [(IO (), MailInfo)] -> m ()
 sendMails mails = do
     config <- getConfig
     if length mails == 0
-        then putStrLn $ "No Emails to send."
-        else sendEmails config
-  where sendEmails config = do
-            putStrLn $ "Sending Emails!"
+        then putStrLn $ "No emails to send."
+        else sendemails config
+  where sendemails config = do
+            putStrLn $ "Sending emails!"
             opts <- gets opts
             indexI <- newIORef (1 :: Int)
             sendMailSession $ \mconn -> do
@@ -492,19 +492,19 @@ sendMails mails = do
                     liftIO $ act
             where
                 e mconn (opts, indexI) ((MailInfo {..})) =
-                    case filteredDestEMail miMail of
+                    case filteredDestEmail miMail of
                         Nothing -> return ()
-                        Just filteredEMail -> do
+                        Just filteredEmail -> do
                             case opts ^. O.outputPath of
                                 Nothing -> do
                                     case mconn of
-                                         Nothing -> do bs <- renderMail' filteredEMail
+                                         Nothing -> do bs <- renderMail' filteredEmail
                                                        BL.putStr bs
                                          Just conn -> do
                                              putStrLn $ "  Sending '" ++ (T.unpack miSubject) ++ "'"
-                                             sendMimeMail2 filteredEMail conn
+                                             sendMimeMail2 filteredEmail conn
                                 Just outputPath -> do
-                                    bs <- renderMail' filteredEMail
+                                    bs <- renderMail' filteredEmail
                                     index <- readIORef indexI
                                     modifyIORef' indexI (+1)
                                     let outputFile = outputPath </> show index -- TODO better filename
@@ -512,7 +512,7 @@ sendMails mails = do
                                                    ++ " - '" ++ (T.unpack miSubject) ++ "'"
                                     BS.writeFile outputFile $ BS.concat (BL.toChunks bs)
 
-                filteredDestEMail m@Mail{..} = root
+                filteredDestEmail m@Mail{..} = root
                     where root =
                               case (filteredTo, filteredCc) of
                                   ([], [])   -> Nothing
@@ -526,7 +526,7 @@ sendMails mails = do
                           filteredCc = f mailCc
                           f = filter g
                           g (Address _ email) =
-                              not (email `elem` (config ^.|| CFG.filteredDestEMails))
+                              not (email `elem` (config ^.|| CFG.filteredDestEmails))
 
 justOne :: MonadGitomail m => m CommitInfo
 justOne = do
