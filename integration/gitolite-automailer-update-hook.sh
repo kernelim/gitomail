@@ -2,7 +2,7 @@
 
 #
 # This script-let assumes that a single Gitolite server will send
-# E-Mails via a single E-Mail account, so that we protect from concurrent
+# Emails via a single Email account, so that we protect from concurrent
 # access to the account via flock, and also protect from concurrent
 # runs from pushes to the same repository.
 #

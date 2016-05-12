@@ -1,14 +1,14 @@
 Relating commits to refs
 Ref heads/master: creating summaries
-Ref heads/master: creating E-Mails
+Ref heads/master: creating Emails
   Skipping old commit 00035fffffffffffffffffffffffffffffffffff
   Skipping old commit 00036fffffffffffffffffffffffffffffffffff
   Skipping old commit 00037fffffffffffffffffffffffffffffffffff
   Formatting 00038fffffffffffffffffffffffffffffffffff
   Formatting 00039fffffffffffffffffffffffffffffffffff
   Formatting 00040fffffffffffffffffffffffffffffffffff
-Sending all E-Mails
-Sending E-Mails!
+Sending all Emails
+Sending Emails!
   Writing $TEMP/1 - '[repo] master branch added 6 commits: 00034ffff..00040ffff'
   Writing $TEMP/2 - '[repo master 00039ffff, #5] Updating README.md [25]'
   Writing $TEMP/3 - '[repo master 00040ffff, #6] Updating README.md [26]'

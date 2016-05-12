@@ -79,9 +79,9 @@ optsParse :: Parser Opts
 optsParse = Opts
      <$> switch ( long "debug"     <> short 'd'  <> help "Enable debug prints" )
      <*> switch ( long "version"   <> short 'v'  <> help "Just print version and exit" )
-     <*> switch ( long "dry-run"   <> short 'n'  <> help "Don't actually send or output E-Mails, nor update DB" )
+     <*> switch ( long "dry-run"   <> short 'n'  <> help "Don't actually send or output Emails, nor update DB" )
      <*> ( optional . strOption)
-         ( long "output-path"      <> short 'o'  <> help "Local directory in which to place E-Mails instead of sending by SMTP" )
+         ( long "output-path"      <> short 'o'  <> help "Local directory in which to place Emails instead of sending by SMTP" )
      <*> ( many . strOption)
          ( long "config"           <> short 'c'  <> help "Configuration files" )
      <*> switch ( long "no-implicit-configs"     <> help "Don't read configs paths such as ~/.gitomailconf.yaml or $GIT_DIR/gitomailconf.yaml" )
@@ -123,7 +123,7 @@ optsParse = Opts
             (progDesc "Show ineffective statements in the tree")
 
         sendOneRef = info (pure SendOne)
-            (progDesc "Send a single commit E-Mail for a specified git revision")
+            (progDesc "Send a single commit Email for a specified git revision")
 
         showOneRef = info (pure ShowOne)
             (progDesc "Console print of a single commit, in ANSI")

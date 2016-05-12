@@ -1,14 +1,14 @@
 Relating commits to refs
 Ref heads/master: creating summaries
-Ref heads/master: creating E-Mails
+Ref heads/master: creating Emails
 Ref heads/branch-a: creating summaries
-Ref heads/branch-a: creating E-Mails
+Ref heads/branch-a: creating Emails
   Formatting 00046fffffffffffffffffffffffffffffffffff
 Ref heads/branch-b: creating summaries
-Ref heads/branch-b: creating E-Mails
+Ref heads/branch-b: creating Emails
   Formatting 00047fffffffffffffffffffffffffffffffffff
-Sending all E-Mails
-Sending E-Mails!
+Sending all Emails
+Sending Emails!
   Writing $TEMP/1 - '[repo] branch-a branch is new with 1 commit'
   Writing $TEMP/2 - '[repo branch-a 00046ffff, #1] Updating README.md [33]'
   Writing $TEMP/3 - '[repo] branch-b branch is new with 1 commit'

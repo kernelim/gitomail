@@ -1,7 +1,7 @@
 Name:           gitomail
 Version:        PKG_VERSION
 Release:        PKG_RELEASE%{?dist}
-Summary:        Automatic E-Mail generation for Git with maintainership tracking
+Summary:        Automatic Email generation for Git with maintainership tracking
 Group:          System Environment/Development Tools
 License:        GPLv2
 URL:            https://github.com/kernelim/gitomail
@@ -26,7 +26,7 @@ BuildRequires:  glibc-langpack-en
 %endif
 
 %description
-Automatic E-Mail generation for Git with maintainership tracking.
+Automatic Email generation for Git with maintainership tracking.
 
 %global debug_package %{nil}
 

@@ -1,9 +1,9 @@
 Relating commits to refs
 Ref heads/topic2: creating summaries
-Ref heads/topic2: creating E-Mails
+Ref heads/topic2: creating Emails
   Skipping old commit 00011fffffffffffffffffffffffffffffffffff
   Skipping old commit 00013fffffffffffffffffffffffffffffffffff
   Skipping old commit 00012fffffffffffffffffffffffffffffffffff
-Sending all E-Mails
-Sending E-Mails!
+Sending all Emails
+Sending Emails!
   Writing $TEMP/1 - '[repo] topic2 branch *rebased* having 2 commits total: 00013ffff...00012ffff'

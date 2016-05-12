@@ -491,7 +491,7 @@ tests tempDir = do
     removeBranch "before-master-lexically"
     removeBranch "z-after-master"
 
-    msg "Check E-Mail destination filter"
+    msg "Check Email destination filter"
     -------------------------------------
 
     appendFile' "Maintainers" $ "alias other  Other User <other@gitomail.com>\n"

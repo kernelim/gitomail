@@ -424,7 +424,7 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                                                   case err of
                                                       Maintainers.InvalidAlias alias -> T.concat ["invalid alias - ", safeDecode alias]
                                                       Maintainers.OverlappingAlias alias prevEmail ->
-                                                          T.concat ["overlapping alias - ", safeDecode alias, ", previous E-Mail was ",
+                                                          T.concat ["overlapping alias - ", safeDecode alias, ", previous Email was ",
                                                                     safeDecode prevEmail]]
 
                       parsedFLists <- case cmk of
@@ -480,10 +480,10 @@ sendMails :: (MonadGitomail m) => [(IO (), MailInfo)] -> m ()
 sendMails mails = do
     config <- getConfig
     if length mails == 0
-        then putStrLn $ "No E-Mails to send."
+        then putStrLn $ "No Emails to send."
         else sendEmails config
   where sendEmails config = do
-            putStrLn $ "Sending E-Mails!"
+            putStrLn $ "Sending Emails!"
             opts <- gets opts
             indexI <- newIORef (1 :: Int)
             sendMailSession $ \mconn -> do

@@ -1,12 +1,12 @@
 Relating commits to refs
 Ref heads/topic2: creating summaries
-Ref heads/topic2: creating E-Mails
+Ref heads/topic2: creating Emails
   Skipping old commit 00011fffffffffffffffffffffffffffffffffff
   Skipping old commit 00012fffffffffffffffffffffffffffffffffff
   Formatting 00014fffffffffffffffffffffffffffffffffff
   Formatting 00015fffffffffffffffffffffffffffffffffff
-Sending all E-Mails
-Sending E-Mails!
+Sending all Emails
+Sending Emails!
   Writing $TEMP/1 - '[repo] topic2 branch added 2 commits (having 4 commits total): 00012ffff..00015ffff'
   Writing $TEMP/2 - '[repo topic2 00014ffff, #3] Updating Other.txt [10]'
   Writing $TEMP/3 - '[repo topic2 00015ffff, #4] Updating Other.txt [11]'

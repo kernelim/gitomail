@@ -280,7 +280,7 @@ makeSummaryEMail db (ref, topCommit) refMod isNewRef commits = do
             extraHeaders <- genExtraEMailHeaders emailAddress
 
             case toAddresses of
-                [] -> return (githashToNumber, Left "No E-Mail destination for summary")
+                [] -> return (githashToNumber, Left "No Email destination for summary")
                 _ -> do
                     let subjectLine =
                             config ^.|| CFG.summarySubjectLine
@@ -469,7 +469,7 @@ autoMailer = do
                     Right mailInfo -> modifyIORef' mailsI ((:) (return (), mailInfo))
                     Left _ -> return ()
 
-                liftIO $ T.putStrLn $ "Ref " +@ refName +@ ": creating E-Mails"
+                liftIO $ T.putStrLn $ "Ref " +@ refName +@ ": creating Emails"
 
                 forM_ commits $ \SummaryInfo {..} -> do
                     isNew <- commitHashIsNew db siCommitHash
@@ -493,7 +493,7 @@ autoMailer = do
 
             mails <- fmap reverse $ readIORef mailsI
             when (length mails /= 0) $ do
-                putStrLn $ "Sending all E-Mails"
+                putStrLn $ "Sending all Emails"
             sendMails mails
 
         when (not initTracking) $
