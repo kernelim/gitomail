@@ -12,36 +12,17 @@ Configuration files are loaded in this order:
 
 Later files override values that were set by former files.
 
-## Values
+## Values (general)
 
-### commit_url
+### repo_name
 
-Per commit sent or mentioned, Gitomail can create hyperlinks to a Web-based repository
-browser in the email, and this setting is the formating string for such links, where:
-
-* `%r` - name of the repository
-* `%H` - full commit hash
+If not guessed from working directory or passed from command line, this setting
+can provide the repository name to be used when sending emails and formatting links.
 
 For example:
 
 ```
-commit_url: https://github.com/kernelim/%r/commit/%H
-```
-
-### blob_in_commit_url
-
-In diffs, this optional field can help to create hyperlinks from the filenames presented
-in the meta-data to their full version. This setting is the formating string for such links,
-where:
-
-* `%r` - name of the repository
-* `%H` - full commit hash
-* `%f` - filename in tree.
-
-For example:
-
-```
-blob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f
+repo_name: someproject
 ```
 
 ### exclude_refs
@@ -90,15 +71,36 @@ and while it's only a convention that branches diverge from `master`, there coul
 other branches such as `release-x.y.z` from which people diverge (in that case, it
 would be fitting to put `heads/release-.*` after `heads/master`.
 
-### repo_name
+## Values (Email generation)
 
-If not guessed from working directory or passed from command line, this setting
-can provide the repository name to be used when sending emails and formatting links.
+### commit_url
+
+Per commit sent or mentioned, Gitomail can create hyperlinks to a Web-based repository
+browser in the email, and this setting is the formating string for such links, where:
+
+* `%r` - name of the repository
+* `%H` - full commit hash
 
 For example:
 
 ```
-repo_name: someproject
+commit_url: https://github.com/kernelim/%r/commit/%H
+```
+
+### blob_in_commit_url
+
+In diffs, this optional field can help to create hyperlinks from the filenames presented
+in the meta-data to their full version. This setting is the formating string for such links,
+where:
+
+* `%r` - name of the repository
+* `%H` - full commit hash
+* `%f` - filename in tree
+
+For example:
+
+```
+blob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f
 ```
 
 ### from_email
@@ -113,8 +115,39 @@ from_email: Gitomail <osiris@aloni.org>
 
 ### filtered_email_destinations
 
+Default: empty
+
 These are a list of email addresses (e.g. `a@b.c`) to which never to send emails, even
 if they appear as maintainers.
+
+### source_highlight
+
+Default: True
+
+A boolean which specifies whether to preform syntax highlighting.
+
+### commit_subject_line
+
+Default:
+
+```
+commit_subject_line: [%r %b %h%n] %s
+```
+
+Format string for the per-commit subject line.
+
+
+### summary_subject_line
+
+Default:
+
+```
+default_subject_line: [%r] %s
+```
+
+Format string for the summary email subject line.
+
+## Values (SMTP related)
 
 ### smtp_hostname
 
@@ -131,17 +164,49 @@ Whether to enable TLS - defaults to True.
 ### smtp_username
 ### smtp_password
 
+## Values (JIRA integration)
 
-**TBD**
+The following fields allow to optionally activate support for JIRA integration.
+
+### issue_track_match
+
+This field describes a regex that matches strings that link to issues. The inner
+most parenthesis is the part of the match that will receive the hyperlink.
+
+For example:
 
 ```
-TBD:
+issue_track_match: '[[]((PROJECT|OTHER|ISSUE)-[0-9]+)[]]'
+```
 
-  X(_commitSubjectLine  , "commit_subject_line" , a     , defl, "[%r %b %h%n] %s", Text          ) \
-  X(_summarySubjectLine , "summary_subject_line", a     , defl, "[%r] %s"        , Text          ) \
-  X(_jiraCC             , "jira_cc"             , Maybe , pass,                  , JIRACC        ) \
-  X(_sourceHighlight    , "source_highlight"    , a     , defl, True             , Bool          ) \
-  X(_aliasRefMatch      , "alias_ref_match"     , a     , defl, defaultAliasMatch, Maybe Text    ) \
-  X(_issueTrackMatch    , "issue_track_match"   , Maybe , pass,                  , Text          ) \
-  X(_issueTrackURL      , "issue_track_url"     , Maybe , pass,                  , Text          ) \
+With this matcher, `[PROJECT-123]` will match, and the substring `PROJECT-123`
+will get hyperlinked. Plus, that substring is used for the `jira_cc` field,
+and `issue_track_url` fields, later on.
+
+### issue_track_url
+
+This field describes the hyperlink to generate for each issue mention in the
+commit message.
+
+For example:
+
+```
+issue_track_url: https://somefakeproject.com/browse/%s
+```
+
+### jira_cc
+
+This field can specify a JIRA server and authentication credentials, from which
+Gitomail would automatically fetch data concerning issues mentioned in commits. The
+meta-data used from these issues can specify additional people to address when
+automatically sending the emails.
+
+For example:
+
+```
+jira_cc:
+  url: https://somecompany.atlassian.net/rest/api/2/issue/%s
+  http_creds: 'username:password'
+  fields:
+  - customfield_10300
 ```
