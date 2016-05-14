@@ -86,6 +86,13 @@
         
             <ul>
             
+                <li class="toctree-l3"><a href="#configuration">Configuration</a></li>
+                
+                    <li><a class="toctree-l4" href="#file-lookup">File lookup</a></li>
+                
+                    <li><a class="toctree-l4" href="#values">Values</a></li>
+                
+            
             </ul>
         
     </li>
@@ -148,7 +155,108 @@
           <div role="main">
             <div class="section">
               
-                <p>TBD</p>
+                <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
+<p>Gitomail receives configuration via one or more YAML formatted files, using a scheme described here.</p>
+<h2 id="file-lookup">File lookup<a class="headerlink" href="#file-lookup" title="Permanent link">&para;</a></h2>
+<p>Configuration files are loaded in this order:</p>
+<ul>
+<li>If exists - <code>~/.gitomailconf.yaml</code></li>
+<li>If exists - <code>$GIT_DIR/gitomailconf.yaml</code> (where <code>GIT_DIR</code> is the current Git's repo meta directory)</li>
+<li>Configuration files passed via the command line option <code>-c</code>.</li>
+</ul>
+<p>Later files override values that were set by former files.</p>
+<h2 id="values">Values<a class="headerlink" href="#values" title="Permanent link">&para;</a></h2>
+<h3 id="commit_url">commit_url<a class="headerlink" href="#commit_url" title="Permanent link">&para;</a></h3>
+<p>Per commit sent or mentioned, Gitomail can create hyperlinks to a Web-based repository
+browser in the email, and this setting is the formating string for such links, where:</p>
+<ul>
+<li><code>%r</code> - name of the repository</li>
+<li><code>%H</code> - full commit hash</li>
+</ul>
+<p>For example:</p>
+<pre><code>commit_url: https://github.com/kernelim/%r/commit/%H
+</code></pre>
+
+<h3 id="blob_in_commit_url">blob_in_commit_url<a class="headerlink" href="#blob_in_commit_url" title="Permanent link">&para;</a></h3>
+<p>In diffs, this optional field can help to create hyperlinks from the filenames presented
+in the meta-data to their full version. This setting is the formating string for such links,
+where:</p>
+<ul>
+<li><code>%r</code> - name of the repository</li>
+<li><code>%H</code> - full commit hash</li>
+<li><code>%f</code> - filename in tree.</li>
+</ul>
+<p>For example:</p>
+<pre><code>blob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f
+</code></pre>
+
+<h3 id="exclude_refs">exclude_refs<a class="headerlink" href="#exclude_refs" title="Permanent link">&para;</a></h3>
+<p>List of regular expressions that match refs to exclude from monitoring.</p>
+<p>For example:</p>
+<pre><code class="yaml">exclude_refs:
+- .*/_.*
+</code></pre>
+
+<p>This would exclude all refs that include the <code>_/</code> substring.</p>
+<h3 id="include_refs">include_refs<a class="headerlink" href="#include_refs" title="Permanent link">&para;</a></h3>
+<p>If provided, will only monitor refs that matches at least one of the references
+provided, and as long as they do match any of the regexes in <code>exclude_refs</code>.</p>
+<p>For example:</p>
+<pre><code class="yaml">include_refs:
+- heads/review/.*
+exclude_refs:
+- .*/_.*
+</code></pre>
+
+<p>This would include only refs that start with <code>review/</code> and among them
+exclude all refs that include the <code>_/</code> substring.</p>
+<h3 id="root_refs">root_refs<a class="headerlink" href="#root_refs" title="Permanent link">&para;</a></h3>
+<p>This setting is a list of regexes that determine the relationship between refs.
+Earlier ones will be traversed before later ones. It defaults to the following setting:</p>
+<pre><code class="yaml">root_refs:
+- tags/.*
+- heads/master
+</code></pre>
+
+<p>This is needed because Gitomail cannot guess which branch diverged from which branch,
+and while it's only a convention that branches diverge from <code>master</code>, there could be
+other branches such as <code>release-x.y.z</code> from which people diverge (in that case, it
+would be fitting to put <code>heads/release-.*</code> after <code>heads/master</code>.</p>
+<h3 id="repo_name">repo_name<a class="headerlink" href="#repo_name" title="Permanent link">&para;</a></h3>
+<p>If not guessed from working directory or passed from command line, this setting
+can provide the repository name to be used when sending emails and formatting links.</p>
+<p>For example:</p>
+<pre><code>repo_name: someproject
+</code></pre>
+
+<h3 id="from_email">from_email<a class="headerlink" href="#from_email" title="Permanent link">&para;</a></h3>
+<p>The fully formed email address to put in the <code>Form:</code> email field.</p>
+<p>For example:</p>
+<pre><code>from_email: Gitomail &lt;osiris@aloni.org&gt;
+</code></pre>
+
+<h3 id="filtered_email_destinations">filtered_email_destinations<a class="headerlink" href="#filtered_email_destinations" title="Permanent link">&para;</a></h3>
+<p>These are a list of email addresses (e.g. <code>a@b.c</code>) to which never to send emails, even
+if they appear as maintainers.</p>
+<h3 id="smtp_hostname">smtp_hostname<a class="headerlink" href="#smtp_hostname" title="Permanent link">&para;</a></h3>
+<p>SMTP hostname for sending mails.</p>
+<h3 id="smtp_port">smtp_port<a class="headerlink" href="#smtp_port" title="Permanent link">&para;</a></h3>
+<p>SMTP port for sending mails, defaults to 587.</p>
+<h3 id="smtp_starttls">smtp_starttls<a class="headerlink" href="#smtp_starttls" title="Permanent link">&para;</a></h3>
+<p>Whether to enable TLS - defaults to True.</p>
+<h3 id="smtp_username">smtp_username<a class="headerlink" href="#smtp_username" title="Permanent link">&para;</a></h3>
+<h3 id="smtp_password">smtp_password<a class="headerlink" href="#smtp_password" title="Permanent link">&para;</a></h3>
+<p><strong>TBD</strong></p>
+<pre><code>TBD:
+
+  X(_commitSubjectLine  , &quot;commit_subject_line&quot; , a     , defl, &quot;[%r %b %h%n] %s&quot;, Text          ) \
+  X(_summarySubjectLine , &quot;summary_subject_line&quot;, a     , defl, &quot;[%r] %s&quot;        , Text          ) \
+  X(_jiraCC             , &quot;jira_cc&quot;             , Maybe , pass,                  , JIRACC        ) \
+  X(_sourceHighlight    , &quot;source_highlight&quot;    , a     , defl, True             , Bool          ) \
+  X(_aliasRefMatch      , &quot;alias_ref_match&quot;     , a     , defl, defaultAliasMatch, Maybe Text    ) \
+  X(_issueTrackMatch    , &quot;issue_track_match&quot;   , Maybe , pass,                  , Text          ) \
+  X(_issueTrackURL      , &quot;issue_track_url&quot;     , Maybe , pass,                  , Text          ) \
+</code></pre>
               
             </div>
           </div>
