@@ -67,7 +67,7 @@
         }, 
         {
             "location": "/config/", 
-            "text": "Configuration\n\n\nGitomail receives configuration via one or more YAML formatted files, using a scheme described here.\n\n\nFile lookup\n\n\nConfiguration files are loaded in this order:\n\n\n\n\nIf exists - \n~/.gitomailconf.yaml\n\n\nIf exists - \n$GIT_DIR/gitomailconf.yaml\n (where \nGIT_DIR\n is the current Git's repo meta directory)\n\n\nConfiguration files passed via the command line option \n-c\n.\n\n\n\n\nLater files override values that were set by former files.\n\n\nValues\n\n\ncommit_url\n\n\nPer commit sent or mentioned, Gitomail can create hyperlinks to a Web-based repository\nbrowser in the email, and this setting is the formating string for such links, where:\n\n\n\n\n%r\n - name of the repository\n\n\n%H\n - full commit hash\n\n\n\n\nFor example:\n\n\ncommit_url: https://github.com/kernelim/%r/commit/%H\n\n\n\n\nblob_in_commit_url\n\n\nIn diffs, this optional field can help to create hyperlinks from the filenames presented\nin the meta-data to their full version. This setting is the formating string for such links,\nwhere:\n\n\n\n\n%r\n - name of the repository\n\n\n%H\n - full commit hash\n\n\n%f\n - filename in tree.\n\n\n\n\nFor example:\n\n\nblob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f\n\n\n\n\nexclude_refs\n\n\nList of regular expressions that match refs to exclude from monitoring.\n\n\nFor example:\n\n\nexclude_refs:\n- .*/_.*\n\n\n\n\nThis would exclude all refs that include the \n_/\n substring.\n\n\ninclude_refs\n\n\nIf provided, will only monitor refs that matches at least one of the references\nprovided, and as long as they do match any of the regexes in \nexclude_refs\n.\n\n\nFor example:\n\n\ninclude_refs:\n- heads/review/.*\nexclude_refs:\n- .*/_.*\n\n\n\n\nThis would include only refs that start with \nreview/\n and among them\nexclude all refs that include the \n_/\n substring.\n\n\nroot_refs\n\n\nThis setting is a list of regexes that determine the relationship between refs.\nEarlier ones will be traversed before later ones. It defaults to the following setting:\n\n\nroot_refs:\n- tags/.*\n- heads/master\n\n\n\n\nThis is needed because Gitomail cannot guess which branch diverged from which branch,\nand while it's only a convention that branches diverge from \nmaster\n, there could be\nother branches such as \nrelease-x.y.z\n from which people diverge (in that case, it\nwould be fitting to put \nheads/release-.*\n after \nheads/master\n.\n\n\nrepo_name\n\n\nIf not guessed from working directory or passed from command line, this setting\ncan provide the repository name to be used when sending emails and formatting links.\n\n\nFor example:\n\n\nrepo_name: someproject\n\n\n\n\nfrom_email\n\n\nThe fully formed email address to put in the \nForm:\n email field.\n\n\nFor example:\n\n\nfrom_email: Gitomail \nosiris@aloni.org\n\n\n\n\n\nfiltered_email_destinations\n\n\nThese are a list of email addresses (e.g. \na@b.c\n) to which never to send emails, even\nif they appear as maintainers.\n\n\nsmtp_hostname\n\n\nSMTP hostname for sending mails.\n\n\nsmtp_port\n\n\nSMTP port for sending mails, defaults to 587.\n\n\nsmtp_starttls\n\n\nWhether to enable TLS - defaults to True.\n\n\nsmtp_username\n\n\nsmtp_password\n\n\nTBD\n\n\nTBD:\n\n  X(_commitSubjectLine  , \ncommit_subject_line\n , a     , defl, \n[%r %b %h%n] %s\n, Text          ) \\\n  X(_summarySubjectLine , \nsummary_subject_line\n, a     , defl, \n[%r] %s\n        , Text          ) \\\n  X(_jiraCC             , \njira_cc\n             , Maybe , pass,                  , JIRACC        ) \\\n  X(_sourceHighlight    , \nsource_highlight\n    , a     , defl, True             , Bool          ) \\\n  X(_aliasRefMatch      , \nalias_ref_match\n     , a     , defl, defaultAliasMatch, Maybe Text    ) \\\n  X(_issueTrackMatch    , \nissue_track_match\n   , Maybe , pass,                  , Text          ) \\\n  X(_issueTrackURL      , \nissue_track_url\n     , Maybe , pass,                  , Text          ) \\", 
+            "text": "Configuration\n\n\nGitomail receives configuration via one or more YAML formatted files, using a scheme described here.\n\n\nFile lookup\n\n\nConfiguration files are loaded in this order:\n\n\n\n\nIf exists - \n~/.gitomailconf.yaml\n\n\nIf exists - \n$GIT_DIR/gitomailconf.yaml\n (where \nGIT_DIR\n is the current Git's repo meta directory)\n\n\nConfiguration files passed via the command line option \n-c\n.\n\n\n\n\nLater files override values that were set by former files.\n\n\nValues (general)\n\n\nrepo_name\n\n\nIf not guessed from working directory or passed from command line, this setting\ncan provide the repository name to be used when sending emails and formatting links.\n\n\nFor example:\n\n\nrepo_name: someproject\n\n\n\n\nexclude_refs\n\n\nList of regular expressions that match refs to exclude from monitoring.\n\n\nFor example:\n\n\nexclude_refs:\n- .*/_.*\n\n\n\n\nThis would exclude all refs that include the \n_/\n substring.\n\n\ninclude_refs\n\n\nIf provided, will only monitor refs that matches at least one of the references\nprovided, and as long as they do match any of the regexes in \nexclude_refs\n.\n\n\nFor example:\n\n\ninclude_refs:\n- heads/review/.*\nexclude_refs:\n- .*/_.*\n\n\n\n\nThis would include only refs that start with \nreview/\n and among them\nexclude all refs that include the \n_/\n substring.\n\n\nroot_refs\n\n\nThis setting is a list of regexes that determine the relationship between refs.\nEarlier ones will be traversed before later ones. It defaults to the following setting:\n\n\nroot_refs:\n- tags/.*\n- heads/master\n\n\n\n\nThis is needed because Gitomail cannot guess which branch diverged from which branch,\nand while it's only a convention that branches diverge from \nmaster\n, there could be\nother branches such as \nrelease-x.y.z\n from which people diverge (in that case, it\nwould be fitting to put \nheads/release-.*\n after \nheads/master\n.\n\n\nValues (Email generation)\n\n\ncommit_url\n\n\nPer commit sent or mentioned, Gitomail can create hyperlinks to a Web-based repository\nbrowser in the email, and this setting is the formating string for such links, where:\n\n\n\n\n%r\n - name of the repository\n\n\n%H\n - full commit hash\n\n\n\n\nFor example:\n\n\ncommit_url: https://github.com/kernelim/%r/commit/%H\n\n\n\n\nblob_in_commit_url\n\n\nIn diffs, this optional field can help to create hyperlinks from the filenames presented\nin the meta-data to their full version. This setting is the formating string for such links,\nwhere:\n\n\n\n\n%r\n - name of the repository\n\n\n%H\n - full commit hash\n\n\n%f\n - filename in tree\n\n\n\n\nFor example:\n\n\nblob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f\n\n\n\n\nfrom_email\n\n\nThe fully formed email address to put in the \nForm:\n email field.\n\n\nFor example:\n\n\nfrom_email: Gitomail \nosiris@aloni.org\n\n\n\n\n\nfiltered_email_destinations\n\n\nDefault: empty\n\n\nThese are a list of email addresses (e.g. \na@b.c\n) to which never to send emails, even\nif they appear as maintainers.\n\n\nsource_highlight\n\n\nDefault: True\n\n\nA boolean which specifies whether to preform syntax highlighting.\n\n\ncommit_subject_line\n\n\nDefault:\n\n\ncommit_subject_line: [%r %b %h%n] %s\n\n\n\n\nFormat string for the per-commit subject line.\n\n\nsummary_subject_line\n\n\nDefault:\n\n\ndefault_subject_line: [%r] %s\n\n\n\n\nFormat string for the summary email subject line.\n\n\nValues (SMTP related)\n\n\nsmtp_hostname\n\n\nSMTP hostname for sending mails.\n\n\nsmtp_port\n\n\nSMTP port for sending mails, defaults to 587.\n\n\nsmtp_starttls\n\n\nWhether to enable TLS - defaults to True.\n\n\nsmtp_username\n\n\nsmtp_password\n\n\nValues (JIRA integration)\n\n\nThe following fields allow to optionally activate support for JIRA integration.\n\n\nissue_track_match\n\n\nThis field describes a regex that matches strings that link to issues. The inner\nmost parenthesis is the part of the match that will receive the hyperlink.\n\n\nFor example:\n\n\nissue_track_match: '[[]((PROJECT|OTHER|ISSUE)-[0-9]+)[]]'\n\n\n\n\nWith this matcher, \n[PROJECT-123]\n will match, and the substring \nPROJECT-123\n\nwill get hyperlinked. Plus, that substring is used for the \njira_cc\n field,\nand \nissue_track_url\n fields, later on.\n\n\nissue_track_url\n\n\nThis field describes the hyperlink to generate for each issue mention in the\ncommit message.\n\n\nFor example:\n\n\nissue_track_url: https://somefakeproject.com/browse/%s\n\n\n\n\njira_cc\n\n\nThis field can specify a JIRA server and authentication credentials, from which\nGitomail would automatically fetch data concerning issues mentioned in commits. The\nmeta-data used from these issues can specify additional people to address when\nautomatically sending the emails.\n\n\nFor example:\n\n\njira_cc:\n  url: https://somecompany.atlassian.net/rest/api/2/issue/%s\n  http_creds: 'username:password'\n  fields:\n  - customfield_10300", 
             "title": "Configuration"
         }, 
         {
@@ -81,19 +81,14 @@
             "title": "File lookup"
         }, 
         {
-            "location": "/config/#values", 
+            "location": "/config/#values-general", 
             "text": "", 
-            "title": "Values"
+            "title": "Values (general)"
         }, 
         {
-            "location": "/config/#commit_url", 
-            "text": "Per commit sent or mentioned, Gitomail can create hyperlinks to a Web-based repository\nbrowser in the email, and this setting is the formating string for such links, where:   %r  - name of the repository  %H  - full commit hash   For example:  commit_url: https://github.com/kernelim/%r/commit/%H", 
-            "title": "commit_url"
-        }, 
-        {
-            "location": "/config/#blob_in_commit_url", 
-            "text": "In diffs, this optional field can help to create hyperlinks from the filenames presented\nin the meta-data to their full version. This setting is the formating string for such links,\nwhere:   %r  - name of the repository  %H  - full commit hash  %f  - filename in tree.   For example:  blob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f", 
-            "title": "blob_in_commit_url"
+            "location": "/config/#repo_name", 
+            "text": "If not guessed from working directory or passed from command line, this setting\ncan provide the repository name to be used when sending emails and formatting links.  For example:  repo_name: someproject", 
+            "title": "repo_name"
         }, 
         {
             "location": "/config/#exclude_refs", 
@@ -111,9 +106,19 @@
             "title": "root_refs"
         }, 
         {
-            "location": "/config/#repo_name", 
-            "text": "If not guessed from working directory or passed from command line, this setting\ncan provide the repository name to be used when sending emails and formatting links.  For example:  repo_name: someproject", 
-            "title": "repo_name"
+            "location": "/config/#values-email-generation", 
+            "text": "", 
+            "title": "Values (Email generation)"
+        }, 
+        {
+            "location": "/config/#commit_url", 
+            "text": "Per commit sent or mentioned, Gitomail can create hyperlinks to a Web-based repository\nbrowser in the email, and this setting is the formating string for such links, where:   %r  - name of the repository  %H  - full commit hash   For example:  commit_url: https://github.com/kernelim/%r/commit/%H", 
+            "title": "commit_url"
+        }, 
+        {
+            "location": "/config/#blob_in_commit_url", 
+            "text": "In diffs, this optional field can help to create hyperlinks from the filenames presented\nin the meta-data to their full version. This setting is the formating string for such links,\nwhere:   %r  - name of the repository  %H  - full commit hash  %f  - filename in tree   For example:  blob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f", 
+            "title": "blob_in_commit_url"
         }, 
         {
             "location": "/config/#from_email", 
@@ -122,8 +127,28 @@
         }, 
         {
             "location": "/config/#filtered_email_destinations", 
-            "text": "These are a list of email addresses (e.g.  a@b.c ) to which never to send emails, even\nif they appear as maintainers.", 
+            "text": "Default: empty  These are a list of email addresses (e.g.  a@b.c ) to which never to send emails, even\nif they appear as maintainers.", 
             "title": "filtered_email_destinations"
+        }, 
+        {
+            "location": "/config/#source_highlight", 
+            "text": "Default: True  A boolean which specifies whether to preform syntax highlighting.", 
+            "title": "source_highlight"
+        }, 
+        {
+            "location": "/config/#commit_subject_line", 
+            "text": "Default:  commit_subject_line: [%r %b %h%n] %s  Format string for the per-commit subject line.", 
+            "title": "commit_subject_line"
+        }, 
+        {
+            "location": "/config/#summary_subject_line", 
+            "text": "Default:  default_subject_line: [%r] %s  Format string for the summary email subject line.", 
+            "title": "summary_subject_line"
+        }, 
+        {
+            "location": "/config/#values-smtp-related", 
+            "text": "", 
+            "title": "Values (SMTP related)"
         }, 
         {
             "location": "/config/#smtp_hostname", 
@@ -147,8 +172,28 @@
         }, 
         {
             "location": "/config/#smtp_password", 
-            "text": "TBD  TBD:\n\n  X(_commitSubjectLine  ,  commit_subject_line  , a     , defl,  [%r %b %h%n] %s , Text          ) \\\n  X(_summarySubjectLine ,  summary_subject_line , a     , defl,  [%r] %s         , Text          ) \\\n  X(_jiraCC             ,  jira_cc              , Maybe , pass,                  , JIRACC        ) \\\n  X(_sourceHighlight    ,  source_highlight     , a     , defl, True             , Bool          ) \\\n  X(_aliasRefMatch      ,  alias_ref_match      , a     , defl, defaultAliasMatch, Maybe Text    ) \\\n  X(_issueTrackMatch    ,  issue_track_match    , Maybe , pass,                  , Text          ) \\\n  X(_issueTrackURL      ,  issue_track_url      , Maybe , pass,                  , Text          ) \\", 
+            "text": "", 
             "title": "smtp_password"
+        }, 
+        {
+            "location": "/config/#values-jira-integration", 
+            "text": "The following fields allow to optionally activate support for JIRA integration.", 
+            "title": "Values (JIRA integration)"
+        }, 
+        {
+            "location": "/config/#issue_track_match", 
+            "text": "This field describes a regex that matches strings that link to issues. The inner\nmost parenthesis is the part of the match that will receive the hyperlink.  For example:  issue_track_match: '[[]((PROJECT|OTHER|ISSUE)-[0-9]+)[]]'  With this matcher,  [PROJECT-123]  will match, and the substring  PROJECT-123 \nwill get hyperlinked. Plus, that substring is used for the  jira_cc  field,\nand  issue_track_url  fields, later on.", 
+            "title": "issue_track_match"
+        }, 
+        {
+            "location": "/config/#issue_track_url", 
+            "text": "This field describes the hyperlink to generate for each issue mention in the\ncommit message.  For example:  issue_track_url: https://somefakeproject.com/browse/%s", 
+            "title": "issue_track_url"
+        }, 
+        {
+            "location": "/config/#jira_cc", 
+            "text": "This field can specify a JIRA server and authentication credentials, from which\nGitomail would automatically fetch data concerning issues mentioned in commits. The\nmeta-data used from these issues can specify additional people to address when\nautomatically sending the emails.  For example:  jira_cc:\n  url: https://somecompany.atlassian.net/rest/api/2/issue/%s\n  http_creds: 'username:password'\n  fields:\n  - customfield_10300", 
+            "title": "jira_cc"
         }, 
         {
             "location": "/execution/", 
