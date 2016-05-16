@@ -21,7 +21,7 @@ can provide the repository name to be used when sending emails and formatting li
 
 For example:
 
-```
+```no-highlight
 repo_name: someproject
 ```
 
@@ -31,7 +31,7 @@ List of regular expressions that match refs to exclude from monitoring.
 
 For example:
 
-```yaml
+```no-highlight
 exclude_refs:
 - .*/_.*
 ```
@@ -45,7 +45,7 @@ provided, and as long as they do match any of the regexes in `exclude_refs`.
 
 For example:
 
-```yaml
+```no-highlight
 include_refs:
 - heads/review/.*
 exclude_refs:
@@ -60,7 +60,7 @@ exclude all refs that include the `_/` substring.
 This setting is a list of regexes that determine the relationship between refs.
 Earlier ones will be traversed before later ones. It defaults to the following setting:
 
-```yaml
+```no-highlight
 root_refs:
 - tags/.*
 - heads/master
@@ -83,7 +83,7 @@ browser in the email, and this setting is the formating string for such links, w
 
 For example:
 
-```
+```no-highlight
 commit_url: https://github.com/kernelim/%r/commit/%H
 ```
 
@@ -99,7 +99,7 @@ where:
 
 For example:
 
-```
+```no-highlight
 blob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f
 ```
 
@@ -109,7 +109,7 @@ The fully formed email address to put in the `Form:` email field.
 
 For example:
 
-```
+```no-highlight
 from_email: Gitomail <osiris@aloni.org>
 ```
 
@@ -128,7 +128,7 @@ A boolean which specifies whether to preform syntax highlighting.
 
 ### commit_subject_line
 
-Default:
+Default (below):
 
 ```
 commit_subject_line: [%r %b %h%n] %s
@@ -139,7 +139,7 @@ Format string for the per-commit subject line.
 
 ### summary_subject_line
 
-Default:
+Default (below):
 
 ```
 default_subject_line: [%r] %s
@@ -175,7 +175,7 @@ most parenthesis is the part of the match that will receive the hyperlink.
 
 For example:
 
-```
+```no-highlight
 issue_track_match: '[[]((PROJECT|OTHER|ISSUE)-[0-9]+)[]]'
 ```
 
@@ -190,7 +190,7 @@ commit message.
 
 For example:
 
-```
+```no-highlight
 issue_track_url: https://somefakeproject.com/browse/%s
 ```
 
@@ -203,7 +203,7 @@ automatically sending the emails.
 
 For example:
 
-```
+```no-highlight
 jira_cc:
   url: https://somecompany.atlassian.net/rest/api/2/issue/%s
   http_creds: 'username:password'

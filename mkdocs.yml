@@ -12,8 +12,8 @@ pages:
 - Changelog: ChangeLog.md
 - Documentation:
   - Installation: install.md
-  - Configuration: config.md
   - Execution: execution.md
+  - Configuration: config.md
   - Recommended GMail filters: gmail.md
 
 markdown_extensions:
