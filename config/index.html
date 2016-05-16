@@ -81,6 +81,13 @@
 
         
             
+    <li class="toctree-l1 ">
+        <a class="" href="../execution/">Execution</a>
+        
+    </li>
+
+        
+            
     <li class="toctree-l1 current">
         <a class="current" href="./">Configuration</a>
         
@@ -100,13 +107,6 @@
                 
             
             </ul>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../execution/">Execution</a>
         
     </li>
 
@@ -176,13 +176,13 @@
 <p>If not guessed from working directory or passed from command line, this setting
 can provide the repository name to be used when sending emails and formatting links.</p>
 <p>For example:</p>
-<pre><code>repo_name: someproject
+<pre><code class="no-highlight">repo_name: someproject
 </code></pre>
 
 <h3 id="exclude_refs">exclude_refs<a class="headerlink" href="#exclude_refs" title="Permanent link">&para;</a></h3>
 <p>List of regular expressions that match refs to exclude from monitoring.</p>
 <p>For example:</p>
-<pre><code class="yaml">exclude_refs:
+<pre><code class="no-highlight">exclude_refs:
 - .*/_.*
 </code></pre>
 
@@ -191,7 +191,7 @@ can provide the repository name to be used when sending emails and formatting li
 <p>If provided, will only monitor refs that matches at least one of the references
 provided, and as long as they do match any of the regexes in <code>exclude_refs</code>.</p>
 <p>For example:</p>
-<pre><code class="yaml">include_refs:
+<pre><code class="no-highlight">include_refs:
 - heads/review/.*
 exclude_refs:
 - .*/_.*
@@ -202,7 +202,7 @@ exclude all refs that include the <code>_/</code> substring.</p>
 <h3 id="root_refs">root_refs<a class="headerlink" href="#root_refs" title="Permanent link">&para;</a></h3>
 <p>This setting is a list of regexes that determine the relationship between refs.
 Earlier ones will be traversed before later ones. It defaults to the following setting:</p>
-<pre><code class="yaml">root_refs:
+<pre><code class="no-highlight">root_refs:
 - tags/.*
 - heads/master
 </code></pre>
@@ -220,7 +220,7 @@ browser in the email, and this setting is the formating string for such links, w
 <li><code>%H</code> - full commit hash</li>
 </ul>
 <p>For example:</p>
-<pre><code>commit_url: https://github.com/kernelim/%r/commit/%H
+<pre><code class="no-highlight">commit_url: https://github.com/kernelim/%r/commit/%H
 </code></pre>
 
 <h3 id="blob_in_commit_url">blob_in_commit_url<a class="headerlink" href="#blob_in_commit_url" title="Permanent link">&para;</a></h3>
@@ -233,13 +233,13 @@ where:</p>
 <li><code>%f</code> - filename in tree</li>
 </ul>
 <p>For example:</p>
-<pre><code>blob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f
+<pre><code class="no-highlight">blob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f
 </code></pre>
 
 <h3 id="from_email">from_email<a class="headerlink" href="#from_email" title="Permanent link">&para;</a></h3>
 <p>The fully formed email address to put in the <code>Form:</code> email field.</p>
 <p>For example:</p>
-<pre><code>from_email: Gitomail &lt;osiris@aloni.org&gt;
+<pre><code class="no-highlight">from_email: Gitomail &lt;osiris@aloni.org&gt;
 </code></pre>
 
 <h3 id="filtered_email_destinations">filtered_email_destinations<a class="headerlink" href="#filtered_email_destinations" title="Permanent link">&para;</a></h3>
@@ -276,7 +276,7 @@ if they appear as maintainers.</p>
 <p>This field describes a regex that matches strings that link to issues. The inner
 most parenthesis is the part of the match that will receive the hyperlink.</p>
 <p>For example:</p>
-<pre><code>issue_track_match: '[[]((PROJECT|OTHER|ISSUE)-[0-9]+)[]]'
+<pre><code class="no-highlight">issue_track_match: '[[]((PROJECT|OTHER|ISSUE)-[0-9]+)[]]'
 </code></pre>
 
 <p>With this matcher, <code>[PROJECT-123]</code> will match, and the substring <code>PROJECT-123</code>
@@ -286,7 +286,7 @@ and <code>issue_track_url</code> fields, later on.</p>
 <p>This field describes the hyperlink to generate for each issue mention in the
 commit message.</p>
 <p>For example:</p>
-<pre><code>issue_track_url: https://somefakeproject.com/browse/%s
+<pre><code class="no-highlight">issue_track_url: https://somefakeproject.com/browse/%s
 </code></pre>
 
 <h3 id="jira_cc">jira_cc<a class="headerlink" href="#jira_cc" title="Permanent link">&para;</a></h3>
@@ -295,7 +295,7 @@ Gitomail would automatically fetch data concerning issues mentioned in commits. 
 meta-data used from these issues can specify additional people to address when
 automatically sending the emails.</p>
 <p>For example:</p>
-<pre><code>jira_cc:
+<pre><code class="no-highlight">jira_cc:
   url: https://somecompany.atlassian.net/rest/api/2/issue/%s
   http_creds: 'username:password'
   fields:
@@ -308,10 +308,10 @@ automatically sending the emails.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../execution/" class="btn btn-neutral float-right" title="Execution">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../gmail/" class="btn btn-neutral float-right" title="Recommended GMail filters">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../install/" class="btn btn-neutral" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../execution/" class="btn btn-neutral" title="Execution"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -341,10 +341,10 @@ automatically sending the emails.</p>
           <a href="https://github.com/kernelim/gitomail/tree/master/doc" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../install/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../execution/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../execution/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../gmail/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
