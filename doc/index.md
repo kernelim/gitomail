@@ -46,9 +46,9 @@ Gitomail tracks changes to branches, and can describe what changed, dealing prop
 
 ## Automatic recipients and code maintainership
 
-Of course, it is not enough to formatt the emails. We would also like to designate their recipients, preferrably in an automated way.
+Of course, it is not enough to format the emails. We would also like to designate their recipients, preferrably in an automated way.
 
-Inspired by a very wonderful script in the Linux kernel source tree named [get_maintainers.pl](https://github.com/torvalds/linux/blob/master/scripts/get_maintainer.pl), Gitomail supports its own `Maintainers` file format, which can specify rules to match people to certain files or directories.
+Inspired by a very wonderful script in the Linux kernel source tree named [get_maintainers.pl](https://github.com/torvalds/linux/blob/master/scripts/get_maintainer.pl), Gitomail supports its own [Maintainers file format](maintainers-spec.md), which can specify rules to match people to certain files or directories.
 
 ```python
 maintainer dan file.*
