@@ -12,8 +12,8 @@ Alternatively, it's possible to build Gitomail from source.
 1. install the [Stack tool](http://docs.haskellstack.org).
 2. Using `stack`, perform build and install:
 
-```shell
-git clone "https://github.com/kernelim/gitomail"
+```no-highlight
+git clone https://github.com/kernelim/gitomail
 cd gitomail
 stack install
 ```
