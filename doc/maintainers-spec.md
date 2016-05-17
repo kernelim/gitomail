@@ -4,7 +4,7 @@ Gitomail supports its own `Maintainers` file format, which can optionally specif
 
 ## Directory structure
 
-Each `Maintainers` file applies to the sub-directory in which it resides, and its own sub-directories. Directories need not have `Maintainers` files, so dispresal of these files across the tree and how they match pathnames are under the developer's full control.
+Each `Maintainers` file applies to the sub-directory in which it resides, and its own sub-directories. Directories need not have `Maintainers` files, so dispersal of these files across the tree and how they match pathnames are under the developer's full control.
 
 ## 'alias' lines
 
