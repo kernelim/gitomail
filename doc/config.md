@@ -162,7 +162,24 @@ SMTP port for sending mails, defaults to 587.
 Whether to enable TLS - defaults to True.
 
 ### smtp_username
+
+SMTP username for sending mails.
+
 ### smtp_password
+
+SMTP password for sending mails.
+
+__Example GMail configuration__
+
+A configuration for GMail or 'Google for Domains' can be based on the following template:
+
+```no-highlight
+smtp_hostname: smtp.gmail.com
+smtp_starttls: true
+smtp_username: example-user@gmail.com
+smtp_password: example-password
+from_email: Example User <example-user@gmail.com>
+```
 
 ## Values (JIRA integration)
 
