@@ -12,7 +12,6 @@ Ref heads/mergetopic-2: creating emails
 Ref heads/staging: creating summaries
 Ref heads/staging: creating emails
   Formatting 00038fffffffffffffffffffffffffffffffffff
-Sending all emails
 Sending emails!
   Writing $TEMP/1 - '[repo] master branch added 3 commits: 00028ffff..00034ffff'
   Writing $TEMP/2 - '[repo master 00032ffff, #1] Updating Other.txt [22]'

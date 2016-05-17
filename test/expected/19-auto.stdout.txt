@@ -7,7 +7,6 @@ Ref heads/master: creating emails
   Formatting 00038fffffffffffffffffffffffffffffffffff
   Formatting 00039fffffffffffffffffffffffffffffffffff
   Formatting 00040fffffffffffffffffffffffffffffffffff
-Sending all emails
 Sending emails!
   Writing $TEMP/1 - '[repo] master branch added 6 commits: 00034ffff..00040ffff'
   Writing $TEMP/2 - '[repo master 00039ffff, #5] Updating README.md [25]'

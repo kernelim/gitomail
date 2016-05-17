@@ -4,7 +4,6 @@ Ref heads/mergetopic-2: creating emails
   Formatting 00029fffffffffffffffffffffffffffffffffff
   Formatting 00030fffffffffffffffffffffffffffffffffff
   Formatting 00031fffffffffffffffffffffffffffffffffff
-Sending all emails
 Sending emails!
   Writing $TEMP/1 - '[repo] mergetopic-2 branch is new with 3 commits'
   Writing $TEMP/2 - '[repo mergetopic-2 00029ffff, #1] Updating README.md [19]'

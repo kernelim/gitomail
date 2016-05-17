@@ -3,7 +3,6 @@ Ref heads/topic: creating summaries
 Ref heads/topic: creating emails
   Formatting 00003fffffffffffffffffffffffffffffffffff
   Formatting 00004fffffffffffffffffffffffffffffffffff
-Sending all emails
 Sending emails!
   Writing $TEMP/1 - '[repo] topic branch is new with 2 commits'
   Writing $TEMP/2 - '[repo topic 00003ffff, #1] Updating README.md [2]'

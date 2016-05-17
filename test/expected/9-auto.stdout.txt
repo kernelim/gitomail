@@ -3,7 +3,6 @@ Ref heads/user/for/other/feature: creating summaries
 Ref heads/user/for/other/feature: creating emails
   Formatting 00022fffffffffffffffffffffffffffffffffff
   Formatting 00023fffffffffffffffffffffffffffffffffff
-Sending all emails
 Sending emails!
   Writing $TEMP/1 - '[repo] user/for/other/feature branch is new with 2 commits'
   Writing $TEMP/2 - '[repo user/for/other/feature 00022ffff, #1] Updating README.md [12]'

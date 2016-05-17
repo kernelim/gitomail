@@ -7,7 +7,6 @@ Ref heads/branch-a: creating emails
 Ref heads/branch-b: creating summaries
 Ref heads/branch-b: creating emails
   Formatting 00047fffffffffffffffffffffffffffffffffff
-Sending all emails
 Sending emails!
   Writing $TEMP/1 - '[repo] branch-a branch is new with 1 commit'
   Writing $TEMP/2 - '[repo branch-a 00046ffff, #1] Updating README.md [33]'

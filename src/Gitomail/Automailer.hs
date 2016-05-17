@@ -492,8 +492,6 @@ autoMailer = do
 
 
             mails <- fmap reverse $ readIORef mailsI
-            when (length mails /= 0) $ do
-                putStrLn $ "Sending all emails"
             sendMails mails
 
         when (not initTracking) $

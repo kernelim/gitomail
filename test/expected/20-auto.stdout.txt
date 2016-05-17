@@ -8,7 +8,6 @@ Ref heads/before-master-lexically: creating emails
   Formatting 00043fffffffffffffffffffffffffffffffffff
 Ref heads/z-after-master: creating summaries
 Ref heads/z-after-master: creating emails
-Sending all emails
 Sending emails!
   Writing $TEMP/1 - '[repo] master branch added 1 commit: 00040ffff..00041ffff'
   Writing $TEMP/2 - '[repo master 00041ffff, #1] Updating Other.txt [27]'

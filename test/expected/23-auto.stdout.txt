@@ -4,7 +4,6 @@ Ref heads/topic2: creating emails
   Skipping old commit 00011fffffffffffffffffffffffffffffffffff
   Skipping old commit 00012fffffffffffffffffffffffffffffffffff
   Formatting 00013fffffffffffffffffffffffffffffffffff
-Sending all emails
 Sending emails!
   Writing $TEMP/1 - '[repo] topic2 branch *rebased* having 2 commits total: 00012ffff...00013ffff'
   Writing $TEMP/2 - '[repo topic2 00013ffff, #2] amended commit'
