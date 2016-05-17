@@ -276,7 +276,18 @@ if they appear as maintainers.</p>
 <h3 id="smtp_starttls">smtp_starttls<a class="headerlink" href="#smtp_starttls" title="Permanent link">&para;</a></h3>
 <p>Whether to enable TLS - defaults to True.</p>
 <h3 id="smtp_username">smtp_username<a class="headerlink" href="#smtp_username" title="Permanent link">&para;</a></h3>
+<p>SMTP username for sending mails.</p>
 <h3 id="smtp_password">smtp_password<a class="headerlink" href="#smtp_password" title="Permanent link">&para;</a></h3>
+<p>SMTP password for sending mails.</p>
+<p><strong>Example GMail configuration</strong></p>
+<p>A configuration for GMail or 'Google for Domains' can be based on the following template:</p>
+<pre><code class="no-highlight">smtp_hostname: smtp.gmail.com
+smtp_starttls: true
+smtp_username: example-user@gmail.com
+smtp_password: example-password
+from_email: Example User &lt;example-user@gmail.com&gt;
+</code></pre>
+
 <h2 id="values-jira-integration">Values (JIRA integration)<a class="headerlink" href="#values-jira-integration" title="Permanent link">&para;</a></h2>
 <p>The following fields allow to optionally activate support for JIRA integration.</p>
 <h3 id="issue_track_match">issue_track_match<a class="headerlink" href="#issue_track_match" title="Permanent link">&para;</a></h3>
