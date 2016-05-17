@@ -56,4 +56,4 @@ maintainer jack Makefile
 reviewer mailinglist
 ```
 
-Using a very minimal specification language, and formatted similarly to `.gitignore`, these `Maintainers` files can optionally spread across the source tree, assigning code to maintainers. It's especially useful for single repositories bearing multiple maintainers of code. These files are then used to automatically set the destination address of emails to the rightful maintainers, based on the code changed in the commit, effectively working very similar to [get_maintainers.pl](https://github.com/torvalds/linux/blob/master/scripts/get_maintainer.pl).
+Using a very minimal specification language, and formatted similarly to `.gitignore`, these `Maintainers` files can optionally spread across the source tree, assigning code to maintainers. It's especially useful for single repositories bearing multiple maintainers of code. These files are then used to automatically set the destination address of emails to the rightful maintainers, based on the code changed in the commit, effectively working very similarly to [get_maintainers.pl](https://github.com/torvalds/linux/blob/master/scripts/get_maintainer.pl).

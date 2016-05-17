@@ -1,6 +1,6 @@
 # Maintainers Specification
 
-Gitomail supports its own `Maintainers` file format, which can optionally specify rules to match people to certain files or directories. It's especially useful for single repositories bearing multiple maintainers of code. These files are then used to automatically set the destination address of emails to the rightful maintainers, based on the files modified in the commit, effectively working very similar to [get_maintainers.pl](https://github.com/torvalds/linux/blob/master/scripts/get_maintainer.pl).
+Gitomail supports its own `Maintainers` file format, which can optionally specify rules to match people to certain files or directories. It's especially useful for single repositories bearing multiple maintainers of code. These files are then used to automatically set the destination address of emails to the rightful maintainers, based on the files modified in the commit, effectively working very similarly to [get_maintainers.pl](https://github.com/torvalds/linux/blob/master/scripts/get_maintainer.pl).
 
 ## Directory structure
 
