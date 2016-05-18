@@ -8,7 +8,7 @@
   
   <meta name="author" content="Dan Aloni">
   
-  <title>Changelog - Gitomail</title>
+  <title>Similar Commits Detection - Gitomail</title>
   
 
   <link rel="shortcut icon" href="../img/favicon.ico">
@@ -23,9 +23,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Changelog";
-    var mkdocs_page_input_path = "ChangeLog.md";
-    var mkdocs_page_url = "/ChangeLog/";
+    var mkdocs_page_name = "Similar Commits Detection";
+    var mkdocs_page_input_path = "similar-commits.md";
+    var mkdocs_page_url = "/similar-commits/";
   </script>
   
   <script src="../js/jquery-2.1.1.min.js"></script>
@@ -62,12 +62,8 @@
 <li>
           
             <li>
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Changelog</a>
-        
-            <ul>
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../ChangeLog/">Changelog</a>
         
     </li>
 <li>
@@ -106,8 +102,17 @@
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../similar-commits/">Similar Commits Detection</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Similar Commits Detection</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#similar-commits-detection">Similar Commits Detection</a></li>
+                
+                    <li><a class="toctree-l4" href="#example">Example</a></li>
+                
+            
+            </ul>
         
     </li>
 
@@ -143,8 +148,12 @@
     <li><a href="..">Docs</a> &raquo;</li>
     
       
+        
+          <li>Documentation &raquo;</li>
+        
+      
     
-    <li>Changelog</li>
+    <li>Similar Commits Detection</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -158,7 +167,16 @@
           <div role="main">
             <div class="section">
               
-                <p>TBD</p>
+                <h1 id="similar-commits-detection">Similar Commits Detection<a class="headerlink" href="#similar-commits-detection" title="Permanent link">&para;</a></h1>
+<p>Many teams working with with Git often <a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">rebase their history</a> between reviews, and before pushing their work to to shared branches. In teams where there is not a single person in charge of 'pulling' and doing integration, this helps keep the shared history linear, with little to no changes hidden inside merge commits, and overall history tidyness is improved.</p>
+<p>However, when commits are being rebased and possibly modified, it's hard to do a 'second order diff' to see what changed in the commit diff itself.</p>
+<p>To solve this one of the features of Gitomail is the detection of commits that look similar to previous posted ones. It does so by calculating a hash over each of the commit diffs, after stripping line numbers. When a branch is rebased, only the commits that appear new are marked as bold. In addition, the mails sent for the identical commits are marked with the <code>InexactDiffDup</code> flag.</p>
+<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<p>Suppose a new branch was pushed. The summary mail will appear as such:</p>
+<p><img alt="example" src="../rebase2.png" /></p>
+<p>But later it was re-pushed, with a single commit being modified. Only that commit will be marked as bold:</p>
+<p><img alt="example" src="../rebase1.png" /></p>
+<p>Gitomail does not resend emails if the commit hash did not change, as can be seen above for commits #1 and #2. For commit #3 and #4, the emails are resent, but for #4 is flagged with <code>InexactDiffDup</code>.</p>
               
             </div>
           </div>
@@ -166,10 +184,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../install/" class="btn btn-neutral float-right" title="Installation">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../gmail/" class="btn btn-neutral float-right" title="Recommended GMail filters">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../maintainers-spec/" class="btn btn-neutral" title="Specifying Maintainers"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -199,10 +217,10 @@
           <a href="https://github.com/kernelim/gitomail/tree/master/doc" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../maintainers-spec/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../install/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../gmail/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
