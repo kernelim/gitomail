@@ -2,9 +2,9 @@
 
 * Commits that only remove files are skipped (no maintainers for them).
 * Should probably not number merge commits in summaries.
-* Occasionally GMail's SMTP interaction throws an exception:
+* Occasionally Gmail's SMTP interaction throws an exception:
   `HandshakeFailed (Error_Packet_unexpected "Alert [(AlertLevel_Fatal,BadRecordMac)]" " expected: change cipher")`
-* Some SMTP servers (notabily GMail's) take measures against programs
+* Some SMTP servers (notabily Gmail's) take measures against programs
   that send too many mails in a short time. Specially Gitomail's TCP connection
   is thrown during send:
 
@@ -12,7 +12,7 @@
 
   It should be configurable.
 
-  For GMail, looks like the default for a safe throttle would be one email every 5 seconds
+  For Gmail, looks like the default for a safe throttle would be one email every 5 seconds
   At one instance it tried to send more than 105 emails, and got thrown away for 5 minutes.
 
 ## Possible features and other ToDo's
@@ -20,7 +20,7 @@
 * Maintainers in diffstat.
 * Facilitate support for easier client-side filtering between summaries and commits.
 * Support sending a user welcome messages.
-    * Provide a template for it, pointers to GMail filtering and such.
+    * Provide a template for it, pointers to Gmail filtering and such.
     * To track who we have already sent a welcome message - need a different DB for that.
 * Handle LevelDB corruptions more gracefully.
 * Add in-reply-to from the commit mails to the summary emails.

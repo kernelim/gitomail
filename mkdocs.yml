@@ -16,7 +16,7 @@ pages:
   - Configuration: config.md
   - Specifying Maintainers: maintainers-spec.md
   - Similar Commits Detection: similar-commits.md
-  - Recommended GMail filters: gmail.md
+  - Recommended Gmail filters: gmail.md
 
 markdown_extensions:
 - toc:

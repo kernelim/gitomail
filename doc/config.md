@@ -169,9 +169,9 @@ SMTP username for sending mails.
 
 SMTP password for sending mails.
 
-__Example GMail configuration__
+__Example Gmail configuration__
 
-A configuration for GMail or 'Google for Domains' can be based on the following template:
+A configuration for Gmail or 'Google for Domains' can be based on the following template:
 
 ```no-highlight
 smtp_hostname: smtp.gmail.com
