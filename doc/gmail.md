@@ -1,6 +1,6 @@
 # Recommended Gmail filters
 
-If a mailing list is [configured as a recipient](mainteiners-spec.md) for all code changes, it is recommended to use Gmail's filtering so that emails not directly addressed to you (via `To:` or `Cc`) are skipped from the inbox. This way you can paicipiate in discussions on all code, but these discussions get prioritized if they involve code under your maintainership.
+If a mailing list is [configured as a recipient](maintainers-spec.md) for all code changes, it is recommended to use Gmail's filtering so that emails not directly addressed to you (via `To:` or `Cc`) are skipped from the inbox. This way you can paicipiate in discussions on all code, but these discussions get prioritized if they involve code under your maintainership.
 
 Also, for duplicate commits, the flag `InexactDiffDup` can be used in the filtering so that emails for duplicate diffs also skip the inbox and marked as read.
 
