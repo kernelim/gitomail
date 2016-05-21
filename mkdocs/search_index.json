@@ -282,12 +282,12 @@
         }, 
         {
             "location": "/gmail/", 
-            "text": "Gmail filters\n\n\nTBD", 
+            "text": "Gmail filters\n\n\nIf a mailing list is \nconfigured as a recipient\n for all code changes, it is recommended to use Gmail's filtering so that emails not directly addressed to you (via \nTo:\n or \nCc\n) are skipped from the inbox. This way you can paicipiate in discussions on all code, but these discussions get prioritized if they involve code under your maintainership.\n\n\nAlso, for duplicate commits, the flag \nInexactDiffDup\n can be used in the filtering so that emails for duplicate diffs also skip the inbox and marked as read.\n\n\nThe next three filter descriptions can be \nused as template\n to accomplish both targets. To add each of them, take the string in \nMatches:\n into Gmail's search, and when instructed to create 'a filter like this', follow with the list under \nDo this:\n.\n\n\nMatches: from:(gitomail@company.com) -{to:your.name@company.com InexactDiffDup}\nDo this: Skip Inbox, Apply label \nCode Review\n\nMatches: from:(gitomail@company.com) to:(your.name@company.com) -InexactDiffDup\nDo this: Apply label \nCode Review\n\n\nMatches: from:(gitomail@company.com) InexactDiffDup\nDo this: Skip Inbox, Mark as read, Apply label \nCode Review", 
             "title": "Recommended Gmail filters"
         }, 
         {
             "location": "/gmail/#gmail-filters", 
-            "text": "TBD", 
+            "text": "If a mailing list is  configured as a recipient  for all code changes, it is recommended to use Gmail's filtering so that emails not directly addressed to you (via  To:  or  Cc ) are skipped from the inbox. This way you can paicipiate in discussions on all code, but these discussions get prioritized if they involve code under your maintainership.  Also, for duplicate commits, the flag  InexactDiffDup  can be used in the filtering so that emails for duplicate diffs also skip the inbox and marked as read.  The next three filter descriptions can be  used as template  to accomplish both targets. To add each of them, take the string in  Matches:  into Gmail's search, and when instructed to create 'a filter like this', follow with the list under  Do this: .  Matches: from:(gitomail@company.com) -{to:your.name@company.com InexactDiffDup}\nDo this: Skip Inbox, Apply label  Code Review\n\nMatches: from:(gitomail@company.com) to:(your.name@company.com) -InexactDiffDup\nDo this: Apply label  Code Review \n\nMatches: from:(gitomail@company.com) InexactDiffDup\nDo this: Skip Inbox, Mark as read, Apply label  Code Review", 
             "title": "Gmail filters"
         }
     ]
