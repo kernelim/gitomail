@@ -170,7 +170,7 @@
 <p>Also, for duplicate commits, the flag <code>InexactDiffDup</code> can be used in the filtering so that emails for duplicate diffs also skip the inbox and marked as read.</p>
 <p>The next three filter descriptions can be <em>used as template</em> to accomplish both targets. To add each of them, take the string in <code>Matches:</code> into Gmail's search, and when instructed to create 'a filter like this', follow with the list under <code>Do this:</code>.</p>
 <pre><code class="no-highlight">Matches: from:(gitomail@company.com) -{to:your.name@company.com InexactDiffDup}
-Do this: Skip Inbox, Apply label &quot;Code Review
+Do this: Skip Inbox, Apply label &quot;Code Review&quot;
 
 Matches: from:(gitomail@company.com) to:(your.name@company.com) -InexactDiffDup
 Do this: Apply label &quot;Code Review&quot;
