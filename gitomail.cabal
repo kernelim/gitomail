@@ -42,50 +42,49 @@ executable gitomail
                    , Lib.Text
                    , Paths_gitomail
   build-depends:       Glob                 >= 0.7    &&  < 0.8
-                     , HaskellNet
-                     , HaskellNet-SSL
+                     , HaskellNet           >= 0.5
+                     , HaskellNet-SSL       >= 0.3.2.1
                      , aeson                >= 0.8.0.2
-                     , ansi-terminal >= 0.6.2.3
-                     , array
+                     , ansi-terminal        >= 0.6.2.3
+                     , array                >= 0.5.1.0
                      , base                 >= 4.7    &&  < 5.0
                      , base16-bytestring    >= 0.1.1.6
-                     , blaze-html
-                     , bytestring
-                     , bytestring
-                     , conduit >= 1.2.6.2
+                     , blaze-html           >= 0.8.1.1
+                     , bytestring           >= 0.10.6.0
+                     , conduit              >= 1.2.6.2
                      , containers           >= 0.5.6.2
                      , cryptohash           >= 0.11.6
-                     , deepseq >= 1.4.1.1
-                     , deepseq-generics >= 0.1.1.2
-                     , directory
-                     , dlist
+                     , deepseq              >= 1.4.1.1
+                     , deepseq-generics     >= 0.1.1.2
+                     , directory            >= 1.2.2
+                     , dlist                >= 0.7.1
                      , either               >= 4.4.1
                      , exceptions           >= 0.8.0.2
-                     , fancydiff
-                     , filepath
-                     , gitlib
-                     , gitlib-libgit2
-                     , http-conduit
+                     , fancydiff            >= 0.2.2
+                     , filepath             >= 1.4.0.0
+                     , gitlib               >= 3.1.1.1
+                     , gitlib-libgit2       >= 3.1.1.1
+                     , http-conduit         >= 2.1.8
                      , lens                 >= 4.12.3
                      , leveldb-haskell      >= 0.6.3
                      , lifted-base          >= 0.2.3.6
                      , mime-mail            >= 0.4.11
-                     , monad-control
+                     , monad-control        >= 1.0.0.5
                      , mtl                  >= 2.2.1
                      , optparse-applicative >= 0.11
-                     , process-extras
-                     , random >= 1.1
+                     , process-extras       >= 0.3.3.7
+                     , random               >= 1.1
                      , regex-base           >= 0.93.2
                      , regex-tdfa           >= 1.2.1
-                     , regex-tdfa-text
+                     , regex-tdfa-text      >= 1.0.0.3
                      , tagged               >= 0.8.1
-                     , temporary >= 1.2.0.4
-                     , text
-                     , time >= 1.5.0.1
+                     , temporary            >= 1.2.0.4
+                     , text                 >= 1.2.2.0
+                     , time                 >= 1.5.0.1
                      , transformers         >= 0.4.2.0
-                     , unix-time
+                     , unix-time            >= 0.3.6
                      , unordered-containers >= 0.2.5.1
-                     , vector >= 0.11.0.0
+                     , vector               >= 0.11.0.0
                      , yaml                 >= 0.8.15.1
   build-tools:         happy, alex
   default-language:    Haskell2010
@@ -99,32 +98,32 @@ test-suite gitomail-test
                        Lib.Process
                        Lib.Text
                        Paths_gitomail
-  build-depends:       ansi-terminal
-                     , array
-                     , base
-                     , bytestring
-                     , conduit >= 1.2.6.2
-                     , containers
-                     , deepseq >= 1.4.1.1
-                     , deepseq-generics >= 0.1.1.2
-                     , directory
-                     , exceptions
-                     , fancydiff
-                     , filepath
-                     , lens
+  build-depends:       ansi-terminal        >= 0.6.2.3
+                     , array                >= 0.5.1.0
+                     , base                 >= 4.8.2.0
+                     , bytestring           >= 0.10.6.0
+                     , conduit              >= 1.2.6.2
+                     , containers           >= 0.5.6.2
+                     , deepseq              >= 1.4.1.1
+                     , deepseq-generics     >= 0.1.1.2
+                     , directory            >= 1.2.2.0
+                     , exceptions           >= 0.8.2.1
+                     , fancydiff            >= 0.2.2
+                     , filepath             >= 1.4.0.0
+                     , lens                 >= 4.13
                      , lifted-base          >= 0.2.3.6
-                     , monad-control
+                     , monad-control        >= 1.0.0.5
                      , mtl                  >= 2.2.1
-                     , process-extras
+                     , process-extras       >= 0.3.3.7
                      , regex-tdfa           >= 1.2.1
-                     , regex-tdfa-text
-                     , temporary >= 1.2.0.4
-                     , text
-                     , time >= 1.5.0.1
+                     , regex-tdfa-text      >= 1.0.0.3
+                     , temporary            >= 1.2.0.4
+                     , text                 >= 1.2.2.0
+                     , time                 >= 1.5.0.1
                      , transformers         >= 0.4.2.0
                      , unordered-containers >= 0.2.5.1
-                     , vector >= 0.11.0.0
-                     , yaml
+                     , vector               >= 0.11.0.0
+                     , yaml                 >= 0.8.15.1
   ghc-options:         -O2 -Wall
   build-tools:         gitomail
   default-language:    Haskell2010
