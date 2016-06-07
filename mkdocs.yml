@@ -17,6 +17,7 @@ pages:
   - Specifying Maintainers: maintainers-spec.md
   - Similar Commits Detection: similar-commits.md
   - Recommended Gmail filters: gmail.md
+- Reporting issues: issues.md
 
 markdown_extensions:
 - toc:
