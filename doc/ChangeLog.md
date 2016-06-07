@@ -1,4 +1,4 @@
-## 0.9.1.0 (prerelease)
+## 0.9.1.1
 
 * Fix an assert that was thrown on annotated tags.
 
