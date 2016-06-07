@@ -186,37 +186,37 @@
 </ul>
 <p>Later files override values that were set by former files.</p>
 <h2 id="values-general">Values (general)<a class="headerlink" href="#values-general" title="Permanent link">&para;</a></h2>
-<h3 id="repo_name">repo_name<a class="headerlink" href="#repo_name" title="Permanent link">&para;</a></h3>
+<h3 id="repo-name">repo-name<a class="headerlink" href="#repo-name" title="Permanent link">&para;</a></h3>
 <p>If not guessed from working directory or passed from command line, this setting
 can provide the repository name to be used when sending emails and formatting links.</p>
 <p>For example:</p>
-<pre><code class="no-highlight">repo_name: someproject
+<pre><code class="no-highlight">repo-name: someproject
 </code></pre>
 
-<h3 id="exclude_refs">exclude_refs<a class="headerlink" href="#exclude_refs" title="Permanent link">&para;</a></h3>
+<h3 id="exclude-refs">exclude-refs<a class="headerlink" href="#exclude-refs" title="Permanent link">&para;</a></h3>
 <p>List of regular expressions that match refs to exclude from monitoring.</p>
 <p>For example:</p>
-<pre><code class="no-highlight">exclude_refs:
+<pre><code class="no-highlight">exclude-refs:
 - .*/_.*
 </code></pre>
 
 <p>This would exclude all refs that include the <code>_/</code> substring.</p>
-<h3 id="include_refs">include_refs<a class="headerlink" href="#include_refs" title="Permanent link">&para;</a></h3>
+<h3 id="include-refs">include-refs<a class="headerlink" href="#include-refs" title="Permanent link">&para;</a></h3>
 <p>If provided, will only monitor refs that matches at least one of the references
-provided, and as long as they do match any of the regexes in <code>exclude_refs</code>.</p>
+provided, and as long as they do match any of the regexes in <code>exclude-refs</code>.</p>
 <p>For example:</p>
-<pre><code class="no-highlight">include_refs:
+<pre><code class="no-highlight">include-refs:
 - heads/review/.*
-exclude_refs:
+exclude-refs:
 - .*/_.*
 </code></pre>
 
 <p>This would include only refs that start with <code>review/</code> and among them
 exclude all refs that include the <code>_/</code> substring.</p>
-<h3 id="root_refs">root_refs<a class="headerlink" href="#root_refs" title="Permanent link">&para;</a></h3>
+<h3 id="root-refs">root-refs<a class="headerlink" href="#root-refs" title="Permanent link">&para;</a></h3>
 <p>This setting is a list of regexes that determine the relationship between refs.
 Earlier ones will be traversed before later ones. It defaults to the following setting:</p>
-<pre><code class="no-highlight">root_refs:
+<pre><code class="no-highlight">root-refs:
 - tags/.*
 - heads/master
 </code></pre>
@@ -226,7 +226,7 @@ and while it's only a convention that branches diverge from <code>master</code>,
 other branches such as <code>release-x.y.z</code> from which people diverge (in that case, it
 would be fitting to put <code>heads/release-.*</code> after <code>heads/master</code>.</p>
 <h2 id="values-email-generation">Values (Email generation)<a class="headerlink" href="#values-email-generation" title="Permanent link">&para;</a></h2>
-<h3 id="commit_url">commit_url<a class="headerlink" href="#commit_url" title="Permanent link">&para;</a></h3>
+<h3 id="commit-url">commit-url<a class="headerlink" href="#commit-url" title="Permanent link">&para;</a></h3>
 <p>Per commit sent or mentioned, Gitomail can create hyperlinks to a Web-based repository
 browser in the email, and this setting is the formating string for such links, where:</p>
 <ul>
@@ -234,10 +234,10 @@ browser in the email, and this setting is the formating string for such links, w
 <li><code>%H</code> - full commit hash</li>
 </ul>
 <p>For example:</p>
-<pre><code class="no-highlight">commit_url: https://github.com/kernelim/%r/commit/%H
+<pre><code class="no-highlight">commit-url: https://github.com/kernelim/%r/commit/%H
 </code></pre>
 
-<h3 id="blob_in_commit_url">blob_in_commit_url<a class="headerlink" href="#blob_in_commit_url" title="Permanent link">&para;</a></h3>
+<h3 id="blob-in-commit-url">blob-in-commit-url<a class="headerlink" href="#blob-in-commit-url" title="Permanent link">&para;</a></h3>
 <p>In diffs, this optional field can help to create hyperlinks from the filenames presented
 in the meta-data to their full version. This setting is the formating string for such links,
 where:</p>
@@ -247,80 +247,80 @@ where:</p>
 <li><code>%f</code> - filename in tree</li>
 </ul>
 <p>For example:</p>
-<pre><code class="no-highlight">blob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f
+<pre><code class="no-highlight">blob-in-commit-url: https://github.com/kernelim/%r/blob/%H/%f
 </code></pre>
 
-<h3 id="from_email">from_email<a class="headerlink" href="#from_email" title="Permanent link">&para;</a></h3>
+<h3 id="from-email">from-email<a class="headerlink" href="#from-email" title="Permanent link">&para;</a></h3>
 <p>The fully formed email address to put in the <code>Form:</code> email field.</p>
 <p>For example:</p>
-<pre><code class="no-highlight">from_email: Gitomail &lt;osiris@aloni.org&gt;
+<pre><code class="no-highlight">from-email: Gitomail &lt;osiris@aloni.org&gt;
 </code></pre>
 
-<h3 id="filtered_email_destinations">filtered_email_destinations<a class="headerlink" href="#filtered_email_destinations" title="Permanent link">&para;</a></h3>
+<h3 id="filtered-email-destinations">filtered-email-destinations<a class="headerlink" href="#filtered-email-destinations" title="Permanent link">&para;</a></h3>
 <p>Default: empty</p>
 <p>These are a list of email addresses (e.g. <code>a@b.c</code>) to which never to send emails, even
 if they appear as maintainers.</p>
-<h3 id="source_highlight">source_highlight<a class="headerlink" href="#source_highlight" title="Permanent link">&para;</a></h3>
+<h3 id="source-highlight">source-highlight<a class="headerlink" href="#source-highlight" title="Permanent link">&para;</a></h3>
 <p>Default: True</p>
 <p>A boolean which specifies whether to preform syntax highlighting.</p>
-<h3 id="commit_subject_line">commit_subject_line<a class="headerlink" href="#commit_subject_line" title="Permanent link">&para;</a></h3>
+<h3 id="commit-subject-line">commit-subject-line<a class="headerlink" href="#commit-subject-line" title="Permanent link">&para;</a></h3>
 <p>Default (below):</p>
-<pre><code>commit_subject_line: [%r %b %h%n] %s
+<pre><code>commit-subject-line: [%r %b %h%n] %s
 </code></pre>
 
 <p>Format string for the per-commit subject line.</p>
-<h3 id="summary_subject_line">summary_subject_line<a class="headerlink" href="#summary_subject_line" title="Permanent link">&para;</a></h3>
+<h3 id="summary-subject-line">summary-subject-line<a class="headerlink" href="#summary-subject-line" title="Permanent link">&para;</a></h3>
 <p>Default (below):</p>
 <pre><code>default_subject_line: [%r] %s
 </code></pre>
 
 <p>Format string for the summary email subject line.</p>
 <h2 id="values-smtp-related">Values (SMTP related)<a class="headerlink" href="#values-smtp-related" title="Permanent link">&para;</a></h2>
-<h3 id="smtp_hostname">smtp_hostname<a class="headerlink" href="#smtp_hostname" title="Permanent link">&para;</a></h3>
+<h3 id="smtp-hostname">smtp-hostname<a class="headerlink" href="#smtp-hostname" title="Permanent link">&para;</a></h3>
 <p>SMTP hostname for sending mails.</p>
-<h3 id="smtp_port">smtp_port<a class="headerlink" href="#smtp_port" title="Permanent link">&para;</a></h3>
+<h3 id="smtp-port">smtp-port<a class="headerlink" href="#smtp-port" title="Permanent link">&para;</a></h3>
 <p>SMTP port for sending mails, defaults to 587.</p>
-<h3 id="smtp_starttls">smtp_starttls<a class="headerlink" href="#smtp_starttls" title="Permanent link">&para;</a></h3>
+<h3 id="smtp-starttls">smtp-starttls<a class="headerlink" href="#smtp-starttls" title="Permanent link">&para;</a></h3>
 <p>Whether to enable TLS - defaults to True.</p>
-<h3 id="smtp_username">smtp_username<a class="headerlink" href="#smtp_username" title="Permanent link">&para;</a></h3>
+<h3 id="smtp-username">smtp-username<a class="headerlink" href="#smtp-username" title="Permanent link">&para;</a></h3>
 <p>SMTP username for sending mails.</p>
-<h3 id="smtp_password">smtp_password<a class="headerlink" href="#smtp_password" title="Permanent link">&para;</a></h3>
+<h3 id="smtp-password">smtp-password<a class="headerlink" href="#smtp-password" title="Permanent link">&para;</a></h3>
 <p>SMTP password for sending mails.</p>
 <p><strong>Example Gmail configuration</strong></p>
 <p>A configuration for Gmail or 'Google for Domains' can be based on the following template:</p>
-<pre><code class="no-highlight">smtp_hostname: smtp.gmail.com
-smtp_starttls: true
-smtp_username: example-user@gmail.com
-smtp_password: example-password
-from_email: Example User &lt;example-user@gmail.com&gt;
+<pre><code class="no-highlight">smtp-hostname: smtp.gmail.com
+smtp-starttls: true
+smtp-username: example-user@gmail.com
+smtp-password: example-password
+from-email: Example User &lt;example-user@gmail.com&gt;
 </code></pre>
 
 <h2 id="values-jira-integration">Values (JIRA integration)<a class="headerlink" href="#values-jira-integration" title="Permanent link">&para;</a></h2>
 <p>The following fields allow to optionally activate support for JIRA integration.</p>
-<h3 id="issue_track_match">issue_track_match<a class="headerlink" href="#issue_track_match" title="Permanent link">&para;</a></h3>
+<h3 id="issue-track-match">issue-track-match<a class="headerlink" href="#issue-track-match" title="Permanent link">&para;</a></h3>
 <p>This field describes a regex that matches strings that link to issues. The inner
 most parenthesis is the part of the match that will receive the hyperlink.</p>
 <p>For example:</p>
-<pre><code class="no-highlight">issue_track_match: '[[]((PROJECT|OTHER|ISSUE)-[0-9]+)[]]'
+<pre><code class="no-highlight">issue-track-match: '[[]((PROJECT|OTHER|ISSUE)-[0-9]+)[]]'
 </code></pre>
 
 <p>With this matcher, <code>[PROJECT-123]</code> will match, and the substring <code>PROJECT-123</code>
-will get hyperlinked. Plus, that substring is used for the <code>jira_cc</code> field,
-and <code>issue_track_url</code> fields, later on.</p>
-<h3 id="issue_track_url">issue_track_url<a class="headerlink" href="#issue_track_url" title="Permanent link">&para;</a></h3>
+will get hyperlinked. Plus, that substring is used for the <code>jira-cc</code> field,
+and <code>issue-track-url</code> fields, later on.</p>
+<h3 id="issue-track-url">issue-track-url<a class="headerlink" href="#issue-track-url" title="Permanent link">&para;</a></h3>
 <p>This field describes the hyperlink to generate for each issue mention in the
 commit message.</p>
 <p>For example:</p>
-<pre><code class="no-highlight">issue_track_url: https://somefakeproject.com/browse/%s
+<pre><code class="no-highlight">issue-track-url: https://somefakeproject.com/browse/%s
 </code></pre>
 
-<h3 id="jira_cc">jira_cc<a class="headerlink" href="#jira_cc" title="Permanent link">&para;</a></h3>
+<h3 id="jira-cc">jira-cc<a class="headerlink" href="#jira-cc" title="Permanent link">&para;</a></h3>
 <p>This field can specify a JIRA server and authentication credentials, from which
 Gitomail would automatically fetch data concerning issues mentioned in commits. The
 meta-data used from these issues can specify additional people to address when
 automatically sending the emails.</p>
 <p>For example:</p>
-<pre><code class="no-highlight">jira_cc:
+<pre><code class="no-highlight">jira-cc:
   url: https://somecompany.atlassian.net/rest/api/2/issue/%s
   http_creds: 'username:password'
   fields:
