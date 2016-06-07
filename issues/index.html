@@ -8,7 +8,7 @@
   
   <meta name="author" content="Dan Aloni">
   
-  <title>Installation - Gitomail</title>
+  <title>Reporting issues - Gitomail</title>
   
 
   <link rel="shortcut icon" href="../img/favicon.ico">
@@ -23,9 +23,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Installation";
-    var mkdocs_page_input_path = "install.md";
-    var mkdocs_page_url = "/install/";
+    var mkdocs_page_name = "Reporting issues";
+    var mkdocs_page_input_path = "issues.md";
+    var mkdocs_page_url = "/issues/";
   </script>
   
   <script src="../js/jquery-2.1.1.min.js"></script>
@@ -74,18 +74,8 @@
 
         
             
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Installation</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#install-from-precompiled-binaries">Install from precompiled binaries</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#or-build-and-install-from-source">Or, build and install from source</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../install/">Installation</a>
         
     </li>
 
@@ -129,8 +119,15 @@
 <li>
           
             <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../issues/">Reporting issues</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Reporting issues</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#reporting-issues">Reporting issues</a></li>
+                
+            
+            </ul>
         
     </li>
 <li>
@@ -156,12 +153,8 @@
     <li><a href="..">Docs</a> &raquo;</li>
     
       
-        
-          <li>Documentation &raquo;</li>
-        
-      
     
-    <li>Installation</li>
+    <li>Reporting issues</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -175,24 +168,10 @@
           <div role="main">
             <div class="section">
               
-                <h2 id="install-from-precompiled-binaries">Install from precompiled binaries<a class="headerlink" href="#install-from-precompiled-binaries" title="Permanent link">&para;</a></h2>
-<p>Binary RPMs for some Linux environments are provided:</p>
-<ul>
-<li><strong>Fedora</strong> : Available at <a href="https://copr.fedorainfracloud.org/coprs/alonid/gitomail/">Copr</a></li>
-<li><strong>CentOS</strong> : Available at <a href="https://copr.fedorainfracloud.org/coprs/alonid/gitomail/">Copr</a></li>
-</ul>
-<h2 id="or-build-and-install-from-source">Or, build and install from source<a class="headerlink" href="#or-build-and-install-from-source" title="Permanent link">&para;</a></h2>
-<p>Alternatively, it's possible to build Gitomail from source.</p>
-<ol>
-<li>install the <a href="http://docs.haskellstack.org">Stack tool</a>.</li>
-<li>Using <code>stack</code>, perform build and install:</li>
-</ol>
-<pre><code class="no-highlight">git clone https://github.com/kernelim/gitomail
-cd gitomail
-stack install
-</code></pre>
-
-<p>The binary should be available as <code>~/.local/bin/gitomail</code>.</p>
+                <h2 id="reporting-issues">Reporting issues<a class="headerlink" href="#reporting-issues" title="Permanent link">&para;</a></h2>
+<p>Please <a href="https://github.com/kernelim/gitomail/issues?utf8=%E2%9C%93&amp;q=">search all past and current issues</a> before
+reporting new ones, and feel free to open new issues <a href="https://github.com/kernelim/gitomail/issues">on Github</a> to 
+discuss about new features, bugs, and anything that you think that can be improved.</p>
               
             </div>
           </div>
@@ -200,10 +179,8 @@ stack install
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../execution/" class="btn btn-neutral float-right" title="Execution">Next <span class="icon icon-circle-arrow-right"></span></a>
       
-      
-        <a href="../ChangeLog/" class="btn btn-neutral" title="Changelog"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gmail/" class="btn btn-neutral" title="Recommended Gmail filters"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -233,10 +210,8 @@ stack install
           <a href="https://github.com/kernelim/gitomail/tree/master/doc" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../ChangeLog/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../gmail/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
-      
-        <span style="margin-left: 15px"><a href="../execution/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

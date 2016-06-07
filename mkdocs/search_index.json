@@ -299,6 +299,16 @@
             "location": "/gmail/#recommended-gmail-filters", 
             "text": "If a mailing list is  configured as a recipient  for all code changes, it is recommended to use Gmail's filtering so that emails not directly addressed to you (via  To:  or  Cc ) are skipped from the inbox. This way you can paicipiate in discussions on all code, but these discussions get prioritized if they involve code under your maintainership.  Also, for duplicate commits, the flag  InexactDiffDup  can be used in the filtering so that emails for duplicate diffs also skip the inbox and marked as read.  The next three filter descriptions can be  used as template  to accomplish both targets. To add each of them, take the string in  Matches:  into Gmail's search, and when instructed to create 'a filter like this', follow with the list under  Do this: .  Matches: from:(gitomail@company.com) -{to:your.name@company.com InexactDiffDup}\nDo this: Skip Inbox, Apply label  Code Review \n\nMatches: from:(gitomail@company.com) to:(your.name@company.com) -InexactDiffDup\nDo this: Apply label  Code Review \n\nMatches: from:(gitomail@company.com) InexactDiffDup\nDo this: Skip Inbox, Mark as read, Apply label  Code Review", 
             "title": "Recommended Gmail filters"
+        }, 
+        {
+            "location": "/issues/", 
+            "text": "Reporting issues\n\n\nPlease \nsearch all past and current issues\n before\nreporting new ones, and feel free to open new issues \non Github\n to \ndiscuss about new features, bugs, and anything that you think that can be improved.", 
+            "title": "Reporting issues"
+        }, 
+        {
+            "location": "/issues/#reporting-issues", 
+            "text": "Please  search all past and current issues  before\nreporting new ones, and feel free to open new issues  on Github  to \ndiscuss about new features, bugs, and anything that you think that can be improved.", 
+            "title": "Reporting issues"
         }
     ]
 }
