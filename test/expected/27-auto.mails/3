@@ -1,0 +1,79 @@
+From: =?utf-8?Q?Main_User?= <bot@gitomail.com>
+To: =?utf-8?Q?Main_User?= <main@gitomail.com>
+Message-Id: <0000000000-0000026-0009-gitomail-bot@gitomail.com>
+X-Mailer: gitomail 0.0.0
+Reply-to: =?utf-8?Q?Main_User?= <main@gitomail.com>
+Subject: [repo r0.8.x 00050ffff, #1] Updating README.md [37]
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="<random-replaced-for-test>"
+
+--<random-replaced-for-test>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+
+
+---
+ README=2Emd | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/README=2Emd b/README=2Emd
+index b281d2b06b02=2E=2E132a65d44d80 100644
+--- a/README=2Emd
++++ b/README=2Emd
+@@ -1,3 +1,4 @@
+ Content 2
+ Added content 35
+ Added content 36
++Added content 37
+
+-- 
+x=2Ex=2Ex
+
+Sent by Gitomail 
+
+--<random-replaced-for-test>
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+https://github=2Ecom/gitomail/repo/commit/00050ffffffffffffffffffffffffffff=
+fffffff<br>Branches: r0=2E8=2Ex<br><pre><div style=3D"font-family: monospac=
+e; background: #f5f5f5; color: #111111"><font size=3D"3"><div><pre line-hei=
+ght: 125%">
+</pre></div></font><font size=3D"3"><div><pre line-height: 125%"><div style=
+=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace">---
+ README&#8203;=2Emd | 1 +
+ 1 file changed, 1 insertion(+)
+</div><div style=3D"font-family: monospace">
+</div><div style=3D"font-family: monospace; background: #a8c0e0; color: #33=
+3333; font-weight: bold">diff --git a/README&#8203;=2Emd b/README&#8203;=2E=
+md
+</div><div style=3D"font-family: monospace; background: #a0b8d8; color: #33=
+3333">index b281d2b06b02&#8203;=2E&#8203;=2E132a65d44d80 100644
+</div><div style=3D"font-family: monospace; background: #cccccc; color: #33=
+3333">--- a/README&#8203;=2Emd
+</div><div style=3D"font-family: monospace; background: #dddddd; color: #33=
+3333">+++ b/README&#8203;=2Emd
+</div><div style=3D"font-family: monospace; background: #c8e0f8; color: #54=
+5454; font-weight: bold">@@ -1,3 +1,4 @@
+</div><div style=3D"font-family: monospace"> <span style=3D"font-family: mo=
+nospace; color: #111111">Content 2
+</span> <span style=3D"font-family: monospace; color: #111111">Added conten=
+t 35
+</span> <span style=3D"font-family: monospace; color: #111111">Added conten=
+t 36
+</span></div><div style=3D"font-family: monospace; background: #ceffce; col=
+or: #333333">+<span style=3D"font-family: monospace; color: #0c0c0c">Added =
+content 37
+</span></div></pre></div></font><font size=3D"3"><div><pre line-height: 125=
+%">
+-- 
+x&#8203;=2Ex&#8203;=2Ex
+
+</pre></div></font></div></pre><div height=3D"20">&nbsp;</div><div style=3D=
+"color: #b0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/ke=
+rnelim/gitomail" style=3D"text-decoration: none"><span style=3D"color: #a0a=
+0a0">Gitomail</span></a> 
+</div>
+--<random-replaced-for-test>--

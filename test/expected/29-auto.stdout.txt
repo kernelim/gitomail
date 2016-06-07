@@ -1,0 +1,7 @@
+Relating commits to refs
+Ref heads/r0.8.x: creating summaries
+Ref heads/r0.8.x: creating emails
+  Formatting 00052fffffffffffffffffffffffffffffffffff
+Sending emails!
+  Writing $TEMP/1 - '[repo] r0.8.x branch added 1 commit: 00051ffff..00052ffff'
+  Writing $TEMP/2 - '[repo r0.8.x 00052ffff, #1] Updating README.md [39]'

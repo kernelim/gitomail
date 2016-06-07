@@ -493,7 +493,7 @@ getRefState = do
     fmap (partitionEithers . catMaybes) $ lSeqForM refsLines $ \line -> do
         let op = runEitherT $ do
               case line =~ ("^([a-f0-9]+) refs/(tags/[^^]+)([\\^]{})?$" :: Text) of
-                  [[_, hash, name, "^{}"]] -> left $ Left (name, hash)
+                  [[_, hash, name, _]]     -> left $ Left (name, hash)
                   _                        -> right ()
 
               case line =~ ("^([a-f0-9]+) refs/(heads/.*)$" :: Text) of

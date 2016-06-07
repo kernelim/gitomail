@@ -522,7 +522,34 @@ tests tempDir = do
     removeBranch "branch-a"
     removeBranch "branch-b"
 
+    ----------------------------------
+
+    msg "Summaries about tagging"
+    checkoutCreate "r0.8.x"
+
+    writeFile' readme "Content 2\n"
+    forM_ [35..36] readmeAppend
+
+    gitomailC "26-auto" automailer
+    git' ["tag", "v0.8.2"]
+
+    forM_ [37..38] readmeAppend
+    gitomailCconf "27-auto" automailer [
+        "root_refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
+        ]
+
+    git' ["tag", "v0.8.3"]
+    gitomailCconf "28-auto" automailer [
+        "root_refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
+        ]
+
+    forM_ [39] readmeAppend
+    gitomailCconf "29-auto" automailer [
+        "root_refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
+        ]
+
     msg "Ref going backward after init"
+
     ----------------------------------
 
     initRepo repo2Dir
@@ -540,6 +567,8 @@ tests tempDir = do
 
     gitomailC "8-auto" automailer
     checkout "master"
+
+    msg ""
 
 run :: (MonadSpec m) => m ()
 run = do

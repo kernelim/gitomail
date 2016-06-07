@@ -1,0 +1,7 @@
+Relating commits to refs
+Ref tags/v0.8.3: creating summaries
+Ref tags/v0.8.3: creating emails
+  Skipping old commit 00050fffffffffffffffffffffffffffffffffff
+  Skipping old commit 00051fffffffffffffffffffffffffffffffffff
+Sending emails!
+  Writing $TEMP/1 - '[repo] v0.8.3 tag is new with 2 commits'
