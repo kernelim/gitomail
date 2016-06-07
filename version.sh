@@ -9,14 +9,24 @@ TAG=`git describe --tags $(git rev-list --tags --max-count=1)`
 
 TAG_DIFF=`git log ${TAG}..HEAD --oneline | wc -l`
 TAG_DIFF=`printf "%04d." ${TAG_DIFF}`
-GITVER=g`git log --pretty=format:%h -1 HEAD`
 
+if [[ "$TAG_DIFF" == "0000." ]] ; then
+    # A percisely tagged version
+    V=" ${DATE}"
+    if [[ "$1" == "simple" ]] ; then
+        echo 0
+        exit
+    fi
+else
+    # A pre-release
 
-V=".${TAG_DIFF}${GITVER} ${DATE}"
+    GITVER=g`git log --pretty=format:%h -1 HEAD`
+    V=".${TAG_DIFF}${GITVER}"
 
-if [[ "$1" == "simple" ]] ; then
-    echo ${TAG_DIFF}${GITVER}
-    exit
+    if [[ "$1" == "simple" ]] ; then
+        echo ${TAG_DIFF}${GITVER}
+        exit
+    fi
 fi
 
 echo """
