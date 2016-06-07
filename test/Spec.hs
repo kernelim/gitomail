@@ -538,7 +538,7 @@ tests tempDir = do
         "root-refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
         ]
 
-    git' ["tag", "v0.8.3"]
+    git' ["tag", "-m", "foo", "-a", "v0.8.3"]
     gitomailCconf "28-auto" automailer [
         "root-refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
         ]

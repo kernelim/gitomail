@@ -489,7 +489,7 @@ getRefScoreFunc = do
 
 getRefState :: (MonadGitomail m) => m (GitRefList, GitRefList)
 getRefState = do
-    refsLines <- fmap T.lines $ gitCmd ["show-ref", "--dereference"]
+    refsLines <- fmap T.lines $ gitCmd ["show-ref"]
     fmap (partitionEithers . catMaybes) $ lSeqForM refsLines $ \line -> do
         let op = runEitherT $ do
               case line =~ ("^([a-f0-9]+) refs/(tags/[^^]+)([\\^]{})?$" :: Text) of

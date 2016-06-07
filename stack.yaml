@@ -4,7 +4,7 @@ packages:
   extra-dep: true
 - location: https://github.com/da-x/fancydiff/archive/4052768d5538c052a86e98a7f029f298254d4c73.zip
   extra-dep: true
-- location: https://github.com/da-x/gitlib/archive/5b338169a2618337a60aaf17e2ab56a2654b1244.zip
+- location: https://github.com/da-x/gitlib/archive/5b1ad46aaf091802b26828c68c625dac5a0e7444.zip
   extra-dep: true
   subdirs:
   - gitlib
