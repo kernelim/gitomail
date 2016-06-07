@@ -135,12 +135,12 @@ gitomailCconf save params conf = do
     curTestRunId <- testRunId <+= 1
 
     writeFile' fp $ T.decodeUtf8 $ Yaml.encode $ Yaml.object $
-        [ "from_email"         Yaml..= Yaml.toJSON ("bot@gitomail.com" :: Text)
-        , "hash_map"           Yaml..= Yaml.toJSON (Just derandoms)
-        , "test_run_id"        Yaml..= Yaml.toJSON (curTestRunId)
-        , "issue_track_match"  Yaml..= Yaml.toJSON ("[[]((PROJECT|OTHER)-[0-9]+)[]]" :: Text)
-        , "issue_track_url"    Yaml..= Yaml.toJSON ("https://somefakeproject.com/browse/%s" :: Text)
-        , "commit_url"         Yaml..= Yaml.toJSON ("https://github.com/gitomail/%r/commit/%H" :: Text)
+        [ "from-email"         Yaml..= Yaml.toJSON ("bot@gitomail.com" :: Text)
+        , "hash-map"           Yaml..= Yaml.toJSON (Just derandoms)
+        , "test-run-id"        Yaml..= Yaml.toJSON (curTestRunId)
+        , "issue-track-match"  Yaml..= Yaml.toJSON ("[[]((PROJECT|OTHER)-[0-9]+)[]]" :: Text)
+        , "issue-track-url"    Yaml..= Yaml.toJSON ("https://somefakeproject.com/browse/%s" :: Text)
+        , "commit-url"         Yaml..= Yaml.toJSON ("https://github.com/gitomail/%r/commit/%H" :: Text)
         ] ++ conf
 
     t <- gets contextOutputs >>= \case
@@ -499,7 +499,7 @@ tests tempDir = do
     git' [add, "Maintainers"]
     forM_ [30..31] readmeAppend
     gitomailCconf "21-auto" automailer [
-        "filtered_email_destinations"  Yaml..= Yaml.toJSON ["other@gitomail.com" :: Text]
+        "filtered-email-destinations"  Yaml..= Yaml.toJSON ["other@gitomail.com" :: Text]
         ]
 
     git' ["reset", "--hard", "HEAD~2"]
@@ -535,17 +535,17 @@ tests tempDir = do
 
     forM_ [37..38] readmeAppend
     gitomailCconf "27-auto" automailer [
-        "root_refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
+        "root-refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
         ]
 
     git' ["tag", "v0.8.3"]
     gitomailCconf "28-auto" automailer [
-        "root_refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
+        "root-refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
         ]
 
     forM_ [39] readmeAppend
     gitomailCconf "29-auto" automailer [
-        "root_refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
+        "root-refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
         ]
 
     msg "Ref going backward after init"

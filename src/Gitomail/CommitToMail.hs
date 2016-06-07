@@ -128,9 +128,9 @@ sendMailSession f = do
                     maybeVar name var = maybe (E.throw $
                                                ParameterNeeded name) return var
 
-                username <- maybeVar "smtp_username" username'
-                hostname <- maybeVar "smtp_hostname" hostname'
-                password <- maybeVar "smtp_password" password'
+                username <- maybeVar "smtp-username" username'
+                hostname <- maybeVar "smtp-hostname" hostname'
+                password <- maybeVar "smtp-password" password'
 
                 liftIO $ r hostname (d {sslPort = port}) $ \conn -> do
                   authSucceed <- authenticate PLAIN username password conn

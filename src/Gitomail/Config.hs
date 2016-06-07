@@ -69,32 +69,32 @@ defaultAliasMatch :: Maybe Text
 defaultAliasMatch = (Just "heads/[^/]+/for/%a(/.+)?")
 
 fmdString :: Text
-fmdString = "filtered_email_destinations"
+fmdString = "filtered-email-destinations"
 
 #define FIELDS(X)                                                                                  \
-  X(_sMTPHostname       , "smtp_hostname"       , Maybe , pass,                  , Text          ) \
-  X(_sMTPPort           , "smtp_port"           , a     , defl, 587              , Int           ) \
-  X(_sMTPStartTls       , "smtp_starttls"       , a     , defl, True             , Bool          ) \
-  X(_sMTPUsername       , "smtp_username"       , Maybe , pass,                  , Text          ) \
-  X(_sMTPPassword       , "smtp_password"       , Maybe , pass,                  , Text          ) \
-  X(_excludeRefs        , "exclude_refs"        , Maybe , pass,                  , [Text]        ) \
-  X(_includeRefs        , "include_refs"        , Maybe , pass,                  , [Text]        ) \
-  X(_rootRefs           , "root_refs"           , a     , defl, defaultRootRefs  , [Text]        ) \
-  X(_aliasRefMatch      , "alias_ref_match"     , a     , defl, defaultAliasMatch, Maybe Text    ) \
-  X(_issueTrackMatch    , "issue_track_match"   , Maybe , pass,                  , Text          ) \
-  X(_issueTrackURL      , "issue_track_url"     , Maybe , pass,                  , Text          ) \
-  X(_commitSubjectLine  , "commit_subject_line" , a     , defl, "[%r %b %h%n] %s", Text          ) \
-  X(_summarySubjectLine , "summary_subject_line", a     , defl, "[%r] %s"        , Text          ) \
-  X(_commitURL          , "commit_url"          , Maybe , pass,                  , Text          ) \
-  X(_blobInCommitURL    , "blob_in_commit_url"  , Maybe , pass,                  , Text          ) \
-  X(_fromEmail          , "from_email"          , Maybe , pass,                  , Text          ) \
-  X(_jiraCC             , "jira_cc"             , Maybe , pass,                  , JIRACC        ) \
+  X(_sMTPHostname       , "smtp-hostname"       , Maybe , pass,                  , Text          ) \
+  X(_sMTPPort           , "smtp-port"           , a     , defl, 587              , Int           ) \
+  X(_sMTPStartTls       , "smtp-starttls"       , a     , defl, True             , Bool          ) \
+  X(_sMTPUsername       , "smtp-username"       , Maybe , pass,                  , Text          ) \
+  X(_sMTPPassword       , "smtp-password"       , Maybe , pass,                  , Text          ) \
+  X(_excludeRefs        , "exclude-refs"        , Maybe , pass,                  , [Text]        ) \
+  X(_includeRefs        , "include-refs"        , Maybe , pass,                  , [Text]        ) \
+  X(_rootRefs           , "root-refs"           , a     , defl, defaultRootRefs  , [Text]        ) \
+  X(_aliasRefMatch      , "alias-ref-match"     , a     , defl, defaultAliasMatch, Maybe Text    ) \
+  X(_issueTrackMatch    , "issue-track-match"   , Maybe , pass,                  , Text          ) \
+  X(_issueTrackURL      , "issue-track-url"     , Maybe , pass,                  , Text          ) \
+  X(_commitSubjectLine  , "commit-subject-line" , a     , defl, "[%r %b %h%n] %s", Text          ) \
+  X(_summarySubjectLine , "summary-subject-line", a     , defl, "[%r] %s"        , Text          ) \
+  X(_commitURL          , "commit-url"          , Maybe , pass,                  , Text          ) \
+  X(_blobInCommitURL    , "blob-in-commit-url"  , Maybe , pass,                  , Text          ) \
+  X(_fromEmail          , "from-email"          , Maybe , pass,                  , Text          ) \
+  X(_jiraCC             , "jira-cc"             , Maybe , pass,                  , JIRACC        ) \
   X(_filteredDestEmails , fmdString             , a     , defl, []               , [Text]        ) \
-  X(_repoName           , "repo_name"           , Maybe , pass,                  , Text          ) \
-  X(_sourceHighlight    , "source_highlight"    , a     , defl, True             , Bool          ) \
-  X(_hashSize           , "hash_size"           , a     , defl, 9                , Int           ) \
-  X(_hashMap            , "hash_map"            , Maybe , pass,                  , Map Text Text ) \
-  X(_testRunId          , "test_run_id"         , a     , defl, 0                , Int           ) \
+  X(_repoName           , "repo-name"           , Maybe , pass,                  , Text          ) \
+  X(_sourceHighlight    , "source-highlight"    , a     , defl, True             , Bool          ) \
+  X(_hashSize           , "hash-size"           , a     , defl, 9                , Int           ) \
+  X(_hashMap            , "hash-map"            , Maybe , pass,                  , Map Text Text ) \
+  X(_testRunId          , "test-run-id"         , a     , defl, 0                , Int           ) \
 
 #define X1(_name, s, f, p, v, t)  ,_name :: f (t)
 data ConfigA a = Config { __unused :: () FIELDS(X1) }

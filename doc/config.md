@@ -14,7 +14,7 @@ Later files override values that were set by former files.
 
 ## Values (general)
 
-### repo_name
+### repo-name
 
 If not guessed from working directory or passed from command line, this setting
 can provide the repository name to be used when sending emails and formatting links.
@@ -22,46 +22,46 @@ can provide the repository name to be used when sending emails and formatting li
 For example:
 
 ```no-highlight
-repo_name: someproject
+repo-name: someproject
 ```
 
-### exclude_refs
+### exclude-refs
 
 List of regular expressions that match refs to exclude from monitoring.
 
 For example:
 
 ```no-highlight
-exclude_refs:
+exclude-refs:
 - .*/_.*
 ```
 
 This would exclude all refs that include the `_/` substring.
 
-### include_refs
+### include-refs
 
 If provided, will only monitor refs that matches at least one of the references
-provided, and as long as they do match any of the regexes in `exclude_refs`.
+provided, and as long as they do match any of the regexes in `exclude-refs`.
 
 For example:
 
 ```no-highlight
-include_refs:
+include-refs:
 - heads/review/.*
-exclude_refs:
+exclude-refs:
 - .*/_.*
 ```
 
 This would include only refs that start with `review/` and among them
 exclude all refs that include the `_/` substring.
 
-### root_refs
+### root-refs
 
 This setting is a list of regexes that determine the relationship between refs.
 Earlier ones will be traversed before later ones. It defaults to the following setting:
 
 ```no-highlight
-root_refs:
+root-refs:
 - tags/.*
 - heads/master
 ```
@@ -73,7 +73,7 @@ would be fitting to put `heads/release-.*` after `heads/master`.
 
 ## Values (Email generation)
 
-### commit_url
+### commit-url
 
 Per commit sent or mentioned, Gitomail can create hyperlinks to a Web-based repository
 browser in the email, and this setting is the formating string for such links, where:
@@ -84,10 +84,10 @@ browser in the email, and this setting is the formating string for such links, w
 For example:
 
 ```no-highlight
-commit_url: https://github.com/kernelim/%r/commit/%H
+commit-url: https://github.com/kernelim/%r/commit/%H
 ```
 
-### blob_in_commit_url
+### blob-in-commit-url
 
 In diffs, this optional field can help to create hyperlinks from the filenames presented
 in the meta-data to their full version. This setting is the formating string for such links,
@@ -100,44 +100,44 @@ where:
 For example:
 
 ```no-highlight
-blob_in_commit_url: https://github.com/kernelim/%r/blob/%H/%f
+blob-in-commit-url: https://github.com/kernelim/%r/blob/%H/%f
 ```
 
-### from_email
+### from-email
 
 The fully formed email address to put in the `Form:` email field.
 
 For example:
 
 ```no-highlight
-from_email: Gitomail <osiris@aloni.org>
+from-email: Gitomail <osiris@aloni.org>
 ```
 
-### filtered_email_destinations
+### filtered-email-destinations
 
 Default: empty
 
 These are a list of email addresses (e.g. `a@b.c`) to which never to send emails, even
 if they appear as maintainers.
 
-### source_highlight
+### source-highlight
 
 Default: True
 
 A boolean which specifies whether to preform syntax highlighting.
 
-### commit_subject_line
+### commit-subject-line
 
 Default (below):
 
 ```
-commit_subject_line: [%r %b %h%n] %s
+commit-subject-line: [%r %b %h%n] %s
 ```
 
 Format string for the per-commit subject line.
 
 
-### summary_subject_line
+### summary-subject-line
 
 Default (below):
 
@@ -149,23 +149,23 @@ Format string for the summary email subject line.
 
 ## Values (SMTP related)
 
-### smtp_hostname
+### smtp-hostname
 
 SMTP hostname for sending mails.
 
-### smtp_port
+### smtp-port
 
 SMTP port for sending mails, defaults to 587.
 
-### smtp_starttls
+### smtp-starttls
 
 Whether to enable TLS - defaults to True.
 
-### smtp_username
+### smtp-username
 
 SMTP username for sending mails.
 
-### smtp_password
+### smtp-password
 
 SMTP password for sending mails.
 
@@ -174,18 +174,18 @@ __Example Gmail configuration__
 A configuration for Gmail or 'Google for Domains' can be based on the following template:
 
 ```no-highlight
-smtp_hostname: smtp.gmail.com
-smtp_starttls: true
-smtp_username: example-user@gmail.com
-smtp_password: example-password
-from_email: Example User <example-user@gmail.com>
+smtp-hostname: smtp.gmail.com
+smtp-starttls: true
+smtp-username: example-user@gmail.com
+smtp-password: example-password
+from-email: Example User <example-user@gmail.com>
 ```
 
 ## Values (JIRA integration)
 
 The following fields allow to optionally activate support for JIRA integration.
 
-### issue_track_match
+### issue-track-match
 
 This field describes a regex that matches strings that link to issues. The inner
 most parenthesis is the part of the match that will receive the hyperlink.
@@ -193,14 +193,14 @@ most parenthesis is the part of the match that will receive the hyperlink.
 For example:
 
 ```no-highlight
-issue_track_match: '[[]((PROJECT|OTHER|ISSUE)-[0-9]+)[]]'
+issue-track-match: '[[]((PROJECT|OTHER|ISSUE)-[0-9]+)[]]'
 ```
 
 With this matcher, `[PROJECT-123]` will match, and the substring `PROJECT-123`
-will get hyperlinked. Plus, that substring is used for the `jira_cc` field,
-and `issue_track_url` fields, later on.
+will get hyperlinked. Plus, that substring is used for the `jira-cc` field,
+and `issue-track-url` fields, later on.
 
-### issue_track_url
+### issue-track-url
 
 This field describes the hyperlink to generate for each issue mention in the
 commit message.
@@ -208,10 +208,10 @@ commit message.
 For example:
 
 ```no-highlight
-issue_track_url: https://somefakeproject.com/browse/%s
+issue-track-url: https://somefakeproject.com/browse/%s
 ```
 
-### jira_cc
+### jira-cc
 
 This field can specify a JIRA server and authentication credentials, from which
 Gitomail would automatically fetch data concerning issues mentioned in commits. The
@@ -221,7 +221,7 @@ automatically sending the emails.
 For example:
 
 ```no-highlight
-jira_cc:
+jira-cc:
   url: https://somecompany.atlassian.net/rest/api/2/issue/%s
   http_creds: 'username:password'
   fields:

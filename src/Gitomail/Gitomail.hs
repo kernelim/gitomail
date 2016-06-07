@@ -259,10 +259,10 @@ getFromEmail      = do
         act = do
           config <- getConfig
           case config ^. CFG.fromEmail of
-              Nothing  -> E.throw $ ParameterNeeded $ BS8.unpack "from_email"
+              Nothing  -> E.throw $ ParameterNeeded $ BS8.unpack "from-email"
               Just fromEmail ->
                   case parseEmail' fromEmail of
-                      Left r -> E.throw $ InvalidEmail $ "from_email: " ++ r
+                      Left r -> E.throw $ InvalidEmail $ "from-email: " ++ r
                       Right r -> return r
 
 getExtraCCTo      :: (MonadGitomail m) => m ([Address], [Address])
