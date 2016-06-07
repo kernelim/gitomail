@@ -1,3 +1,3 @@
-## 0.9.0.0 (prerelease)
+## 0.9.0.1
 
 * First release providing documentation.
