@@ -16,7 +16,7 @@ Main User 00043ffff #2 Updating Other=2Etxt [29]
 Main User 00042ffff #1 Updating Other=2Etxt [28]
 
 Branch points
-Main User 00041ffff (master branch) Updating Other=2Etxt [27]
+Main User 00041ffff (contained in master branch) Updating Other=2Etxt [27]
 
 Sent by Gitomail 
 
@@ -48,9 +48,9 @@ Branch points
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
 a href=3D"https://github=2Ecom/gitomail/repo/commit/00041ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00041ffff </a></span></f=
-ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">(master branch)=
- </div></td><td colspan=3D"1"><div style=3D"font-weight: bold">Updating Oth=
-er&#8203;=2Etxt [27]
+ont></td><td colspan=3D"1"><div style=3D"font-weight: bold">(contained in m=
+aster branch) </div></td><td colspan=3D"1"><div style=3D"font-weight: bold"=
+>Updating Other&#8203;=2Etxt [27]
 </div></td></tr>
 </table></blockqoute><div height=3D"20">&nbsp;</div><div style=3D"color: #b=
 0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/git=

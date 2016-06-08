@@ -172,7 +172,7 @@ makeSummaryEmail db (ref, topCommit) refMod isNewRef commits = do
                     commitsNotReachedOld' = commitsStr $ length newCommits
                   in case (isNewRef, refMod) of
                      (NewRef, _)  -> do
-                         return [GIT.refRepr ref, " is new with ",  commitsSeenStr]
+                         return [GIT.refRepr ref, " is new with ", commitsSeenStr]
                      (ModifiedRef hash, RefFFModFast)  -> do
                          githashFrom <- mapCommitHash hash >>= githashRepr
                          return [(GIT.refRepr ref), " added ",
@@ -241,7 +241,7 @@ makeSummaryEmail db (ref, topCommit) refMod isNewRef commits = do
                            Nothing ->
                                case maybeRefName of
                                    Just refName -> do
-                                       return $ "(" +@ GIT.refRepr refName +@ ") "
+                                       return $ "(contained in " +@ GIT.refRepr refName +@ ") "
                                    Nothing ->
                                        return " "
 

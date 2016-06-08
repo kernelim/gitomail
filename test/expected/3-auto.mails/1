@@ -16,7 +16,7 @@ Main User 00004ffff #2 Updating README=2Emd [3]
 Main User 00003ffff #1 Updating README=2Emd [2]
 
 Branch points
-Main User 00002ffff (master branch) Updating README=2Emd [1]
+Main User 00002ffff (contained in master branch) Updating README=2Emd [1]
 
 Sent by Gitomail 
 
@@ -48,8 +48,8 @@ Branch points
 <td colspan=3D"1"><font size=3D"3"><span style=3D"font-family: monospace"><=
 a href=3D"https://github=2Ecom/gitomail/repo/commit/00002ffffffffffffffffff=
 fffffffffffffffff" style=3D"text-decoration: none">00002ffff </a></span></f=
-ont></td><td colspan=3D"1">(master branch) </td><td colspan=3D"1">Updating =
-README&#8203;=2Emd [1]
+ont></td><td colspan=3D"1">(contained in master branch) </td><td colspan=3D=
+"1">Updating README&#8203;=2Emd [1]
 </td></tr>
 </table></blockqoute><div height=3D"20">&nbsp;</div><div style=3D"color: #b=
 0b0b0; font-size: 10px">Sent by <a href=3D"http://github=2Ecom/kernelim/git=

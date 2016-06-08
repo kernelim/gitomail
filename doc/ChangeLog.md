@@ -1,6 +1,8 @@
 ## 0.9.2.0 (prerelease)
 
 * Documentation extension.
+* Add 'contained in' for branch points, reducing confusion
+  when the branch points are contained inside tags.
 
 ## 0.9.1.1
 
