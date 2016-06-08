@@ -1,4 +1,4 @@
-## 0.9.2.0 (prerelease)
+## 0.9.2.1
 
 * Documentation extension.
 * Add 'contained in' for branch points, reducing confusion
