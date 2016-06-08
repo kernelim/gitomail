@@ -63,7 +63,7 @@ import           Lib.Process                (readProcess)
 ------------------------------------------------------------------------------------
 
 defaultRootRefs :: [Text]
-defaultRootRefs = ["tags/.*", "heads/master"]
+defaultRootRefs = ["heads/master", "tags/.*"]
 
 defaultAliasMatch :: Maybe Text
 defaultAliasMatch = (Just "heads/[^/]+/for/%a(/.+)?")

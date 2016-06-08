@@ -534,19 +534,11 @@ tests tempDir = do
     git' ["tag", "v0.8.2"]
 
     forM_ [37..38] readmeAppend
-    gitomailCconf "27-auto" automailer [
-        "root-refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
-        ]
-
+    gitomailC "27-auto" automailer
     git' ["tag", "-m", "foo", "-a", "v0.8.3"]
-    gitomailCconf "28-auto" automailer [
-        "root-refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
-        ]
-
+    gitomailC "28-auto" automailer
     forM_ [39] readmeAppend
-    gitomailCconf "29-auto" automailer [
-        "root-refs"  Yaml..= Yaml.toJSON ["tags/.*", "heads/master" :: Text]
-        ]
+    gitomailC "29-auto" automailer
 
     msg "Ref going backward after init"
 

@@ -484,7 +484,7 @@ getRefScoreFunc = do
     config <- getConfig
     let rootRefsTexts = config ^.|| CFG.rootRefs
     let rootRefs = map matchWhole rootRefsTexts
-    let scoreRef ref = fromMaybe 0 $ lookup True $ zip (rootRefs <*> [ref]) [1..(length rootRefsTexts)]
+    let scoreRef ref = fromMaybe 0 $ lookup True $ zip ((reverse rootRefs) <*> [ref]) [1..(length rootRefsTexts)]
     return scoreRef
 
 getRefState :: (MonadGitomail m) => m (GitRefList, GitRefList)

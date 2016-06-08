@@ -62,8 +62,8 @@ Earlier ones will be traversed before later ones. It defaults to the following s
 
 ```no-highlight
 root-refs:
-- tags/.*
 - heads/master
+- tags/.*
 ```
 
 This is needed because Gitomail cannot guess which branch diverged from which branch,

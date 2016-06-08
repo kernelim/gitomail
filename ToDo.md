@@ -14,6 +14,9 @@
 
   For Gmail, looks like the default for a safe throttle would be one email every 5 seconds
   At one instance it tried to send more than 105 emails, and got thrown away for 5 minutes.
+* Having tags/.* first in the root-refs means that every push to say, master, will summerize
+  all the commits since the previous tag in the 'previously pushed'. We need some way to
+  suppress that so that tags can be first, in a convenient manner.
 
 ## Possible features and other ToDo's
 

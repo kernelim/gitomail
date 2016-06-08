@@ -216,7 +216,7 @@ printTree tree =
           indent = forM_ [0..d] $ \_ -> (BS.putStr "  ")
 
 refRepr :: Text -> Text
-refRepr ref  = do
+refRepr ref = do
     case T.stripPrefix "heads/" ref of
         Just branch -> T.concat [branch, " branch"]
         Nothing -> case T.stripPrefix "tags/" ref of
