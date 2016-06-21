@@ -4,7 +4,7 @@
 
 Gitomail is a tool for generating pretty inline-HTML emails for [Git](https://git-scm.com/) commits, with a sending capability to proper recipients.
 
-[Documetation](http://gitomail.kernelim.com/)
+[Documentation](http://gitomail.kernelim.com/)
 
 ### In a nutshell
 
