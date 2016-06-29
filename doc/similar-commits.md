@@ -16,4 +16,4 @@ But later it was re-pushed, with a single commit being modified. Only that commi
 
 ![example](rebase1.png)
 
-Gitomail does not resend emails if the commit hash did not change, as can be seen above for commits #1 and #2. For commit #3 and #4, the emails are resent, but for #4 is flagged with `InexactDiffDup`.
+Gitomail does not resend emails if the commit hash did not change, as can be seen above for commits #1 and #2. For commit #3 and #4, the emails are resent, but #4 is flagged with `InexactDiffDup`.
