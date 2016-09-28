@@ -53,6 +53,7 @@ runCmd = do
             -- Debug
             O.JiraCCByIssue issue          -> showCcByIssue issue
             O.ForgetHash                   -> forgetHash
+            O.SeenHash hash                -> seenHash hash
             O.ShowAutoMailerRefs           -> showAutoMailerRefs
             O.BranchesContaining commitHash -> do
                 refs <- getBranchesContainingCommit $ T.pack commitHash

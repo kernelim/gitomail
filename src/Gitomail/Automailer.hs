@@ -19,6 +19,7 @@ module Gitomail.Automailer
     ( autoMailer
     , showAutoMailerRefs
     , forgetHash
+    , seenHash
     , UnexpectedGitState(..)
     ) where
 
@@ -119,6 +120,21 @@ forgetHash = do
                     Just _ -> do DB.delete db DB.defaultWriteOptions k
                                  putStrLn "Sucesss"
         Nothing -> putStrLn "Hash not specified"
+
+seenHash :: (MonadGitomail m) => String -> m ()
+seenHash hash = do
+    opts <- gets opts
+    withDB $ \db -> do
+        markSeen db opts True $ T.pack hash
+
+markSeen :: MonadIO m => DB -> O.Opts -> Bool -> Text -> m ()
+markSeen db opts sync siCommitHash = do
+    let putDB opt k v =
+            when (not (opts ^. O.dryRun)) $ do
+                    DB.put db opt k v
+    putDB (DB.defaultWriteOptions {DB.sync = sync })
+                   (commitSeenKey (T.encodeUtf8 siCommitHash))
+                   "true"
 
 addIssueTrackLinks :: (MonadGitomail m) => Text -> m F.FList
 addIssueTrackLinks msg = parseIssueTrackMentions F.TPlain (\a b -> F.TForm (F.Link a) b) msg
@@ -317,9 +333,6 @@ autoMailer = do
                     return (True, refsMap)
             else return (False, prevRefsMap)
 
-        let putDB opt k v =
-                when (not (opts ^. O.dryRun)) $ do
-                    DB.put db opt k v
         let syncOp = True
         let asyncOp = False
         let refNamePrefixed refName = T.concat ["refs/gitomail/", refName]
@@ -331,16 +344,13 @@ autoMailer = do
                 let md = Map.describeDifferences prevRefsMap refsMap
                 forM_ (Map.toList $ Map.newValues md) updateRefCmd
                 forM_ (Map.keys $ Map.inFirst md) removeRefCmd
-        let markSeen sync siCommitHash =
-                putDB (DB.defaultWriteOptions {DB.sync = sync })
-                   (commitSeenKey (T.encodeUtf8 siCommitHash))
-                   "true"
+        let markSeen' = markSeen db opts
 
         putStrLn "Relating commits to refs"
 
         (refCommits, world, _) <- relateCommits refsByPriority oldRefsMap
         when initTracking $ do
-            forM_ (HMS.keys world) $ markSeen asyncOp
+            forM_ (HMS.keys world) $ markSeen' asyncOp
 
         let commitSet startList = do
                 listI <- newIORef (startList :: [GIT.CommitHash])
@@ -483,7 +493,7 @@ autoMailer = do
                                           CommitInfo _ _ (Right CommitContentInfo{..}) -> do
                                               let mailinfoAndAction = (action, cciMail)
                                                   action = do
-                                                      markSeen syncOp siCommitHash
+                                                      markSeen' syncOp siCommitHash
                                                       putInexactDiffHashInDB db cciInexactDiffHash
                                                       void $ updateRefCmd (refName, siCommitHash)
                                               modifyIORef' mailsI ((:) mailinfoAndAction)
