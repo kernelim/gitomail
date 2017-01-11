@@ -26,7 +26,7 @@ import qualified Data.DList                     as DList
 import           Data.Foldable                 (toList)
 ------------------------------------------------------------------------------------
 
-mapWithKeyM :: (Ord k, Functor m, Monad m) => (k -> a -> m b) -> Map k a -> m (Map k b)
+mapWithKeyM :: (Ord k, Monad m) => (k -> a -> m b) -> Map k a -> m (Map k b)
 mapWithKeyM !f !m = fmap Map.fromList $
    lSeqForM (Map.toList m) $ \(!k, !a) -> do
        i <- f k a

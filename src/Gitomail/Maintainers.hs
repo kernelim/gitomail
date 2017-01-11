@@ -170,7 +170,7 @@ data MatchError
 
 data MatchErrors = MatchErrors (Set (Location, MatchError))
 
-matchFiles :: (MonadIO m, Monad m) =>
+matchFiles :: MonadIO m =>
                GIT.Tree [(BS8.ByteString, [DefInFile])] -> m (GIT.Tree AssignedFileStatus,
                                                               MatchErrors)
 matchFiles tree =

@@ -11,4 +11,4 @@ packages:
   - gitlib-libgit2
   - hlibgit2
 - .
-resolver: lts-5.18
+resolver: lts-7.15

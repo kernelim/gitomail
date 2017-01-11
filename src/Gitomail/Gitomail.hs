@@ -381,7 +381,7 @@ getJiraCcByIssue issueName = do
                         let contentType = ("Content-Type","application/json")
                         putStrLn $ "Fetching JIRA info for issue " ++ T.unpack issueName
                         request <- fmap (applyBasicAuth bsUsername bsPassword) $
-                                            parseUrl $ T.unpack url
+                                            parseUrlThrow $ T.unpack url
                         manager <- newManager tlsManagerSettings
                         res <- httpLbs request { requestHeaders = contentType:(requestHeaders request) } manager
                         v <- case Aeson.decode $ responseBody res :: Maybe Aeson.Value of

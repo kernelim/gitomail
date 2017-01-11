@@ -75,7 +75,7 @@ treeMap :: Tree t -> TreeMap t
 treeMap (File _) = Map.empty
 treeMap (Node _ x) = x
 
-loadAnyRevStr :: (MonadIO m, Git.MonadGit r m, MonadMask m, MonadBaseControl IO m) =>
+loadAnyRevStr :: (MonadIO m, Git.MonadGit r m, MonadBaseControl IO m) =>
                   T.Text -> EitherT String m (Git.Object r m)
 loadAnyRevStr revstr =
     E.catch (lift $ parseOid revstr >>= lookupObject) $ \(_ :: Git.GitException) -> do
@@ -92,7 +92,7 @@ textToOid :: Text -> IO OidPtr
 textToOid t = Git.textToSha t >>= shaToOid
 
 iterateHistoryUntil :: forall (m :: * -> *) (t :: * -> *) a.
-                       (Traversable t, Foldable t, MonadIO m, MonadBaseControl IO m, MonadMask m)
+                       (Traversable t, MonadIO m, MonadBaseControl IO m, MonadMask m)
                        => a
                        -> (a -> CommitHash -> [CommitHash] -> IO (a, t (CommitHash)))
                        -> FilePath
