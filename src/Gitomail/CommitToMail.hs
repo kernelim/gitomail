@@ -324,16 +324,21 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                                  return Nothing
                     Right (_, name, email) -> return $ Just $ Address name email
 
-            debug $ "iterating maintainers"
             let refmfilter = (commitHash, Just affectedPathsList)
-            (matched, matchErrors) <- matchFiles refmfilter
-            debug $ "done matching"
+            (maintainerInfo, matchErrors) <- case opts ^. O.noAutoMaintainers of
+                True ->
+                    return (mempty, Maintainers.MatchErrors (Set.empty))
+                False -> do
+                    debug $ "iterating maintainers"
+                    (matched, matchErrors) <- matchFiles refmfilter
+                    debug $ "done matching"
 
-            maintainerInfo <- iterateFilesWithMaintainers matched $ \path i ->
-                return $
-                    if path `Set.member` affectedPathsSet
-                       then GIT.treeVal i
-                       else mempty
+                    maintainerInfo <- iterateFilesWithMaintainers matched $ \path i ->
+                        return $
+                            if path `Set.member` affectedPathsSet
+                               then GIT.treeVal i
+                               else mempty
+                    return (maintainerInfo, matchErrors)
 
             repoName <- getRepoName
             shortHash <- mapCommitHash commitHash >>= githashRepr
@@ -536,11 +541,24 @@ justOne = do
         commitHash <- fmap removeTrailingNewLine $ gitCmd ["show", gitRef, "--pretty=%H", "-s"]
         getCommitInfo CommitMailFull db gitRef commitHash Nothing
 
-sendOne :: (MonadGitomail m) => m ()
-sendOne = do
+sendOne :: Maybe Text -> Maybe Text -> (MonadGitomail m) => m ()
+sendOne mSubject mReplyID = do
     contentinfo <- justOne
     case ciToMaybeMailInfo contentinfo of
-        (Just mailinfo) -> sendMails [(return (), mailinfo)]
+        (Just mailinfo@(MailInfo {..})) -> do
+            let changeSubject (Just x) = map f
+                    where f (s@"Subject", _) = (s, x)
+                          f y = y
+                changeSubject Nothing = id
+            let miMail' = miMail {
+                    mailHeaders = changeSubject mSubject (mailHeaders miMail) ++
+                        case mReplyID of
+                            Nothing -> []
+                            Just replyId -> [("In-Reply-To",
+                                              renderAddress (Address Nothing replyId))]
+                  }
+            let mailinfo' = mailinfo { miMail = miMail' }
+            sendMails [(return (), mailinfo')]
         _ -> return ()
 
 showOne :: (MonadGitomail m) => m ()

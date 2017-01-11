@@ -1,5 +1,8 @@
 ## 0.9.3.0.0 (prerelease)
 
+* Add --no-auto-maintainers, to suppress Maintainers file recipient inference.
+* And --subject and --in-reply-to to the 'send-one' command.
+
 ## 0.9.2.1
 
 * Documentation extension.

@@ -14,6 +14,7 @@ module Gitomail.Opts
   , repositoryPath
   , repositoryName
   , outputPath
+  , noAutoMaintainers
   , version
   , verbose
   , extraCC
@@ -37,12 +38,14 @@ import           Options.Applicative (many, short, long, Mod, OptionFields,
 type RepPath = FilePath
 type GitRef = Text
 type EmailAddress = Text
+type Subject = Text
+type ReplyToId = Text
 type DryRun = Bool
 
 data Command
     = WhoMaintainsCmnd
     | ShowIneffectiveDefinitions
-    | SendOne
+    | SendOne (Maybe Subject) (Maybe ReplyToId)
     | ShowOne
     | AutoMailer
     | ShowAutoMailerRefs
@@ -66,6 +69,7 @@ data Opts = Opts
     , _outputPath          :: Maybe FilePath
     , _configPaths         :: [FilePath]
     , _noImplicitConfigs   :: Bool
+    , _noAutoMaintainers   :: Bool
     , _extraCC             :: [EmailAddress]
     , _extraTo             :: [EmailAddress]
     , _repositoryPath      :: Maybe RepPath
@@ -86,6 +90,7 @@ optsParse = Opts
      <*> ( many . strOption)
          ( long "config"           <> short 'c'  <> help "Configuration files" )
      <*> switch ( long "no-implicit-configs"     <> help "Don't read configs paths such as ~/.gitomailconf.yaml or $GIT_DIR/gitomailconf.yaml" )
+     <*> switch ( long "no-auto-maintainers"     <> help "Don't use Maintainers data from repository")
      <*> ( many . textOption)      ( long "cc"    <> help "Extra people for 'Cc:' in this invocation" )
      <*> ( many . textOption)      ( long "to"    <> help "Extra people for 'To:' in this invocation" )
      <*> ( optional . strOption)
@@ -124,7 +129,8 @@ optsParse = Opts
         showIneffectiveDefinitions = info (pure ShowIneffectiveDefinitions)
             (progDesc "Show ineffective statements in the tree")
 
-        sendOneRef = info (pure SendOne)
+        sendOneRef = info (SendOne <$> ( optional . textOption) ( long "subject" <> help "Force email sibject" )
+                                   <*> ( optional . textOption) ( long "in-reply-to" <> help "Message ID to reply to" ))
             (progDesc "Send a single commit email for a specified git revision")
 
         showOneRef = info (pure ShowOne)

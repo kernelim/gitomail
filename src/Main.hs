@@ -46,7 +46,7 @@ runCmd = do
             -- Commands
             O.WhoMaintainsCmnd             -> whoMaintains
             O.ShowIneffectiveDefinitions   -> showEffectiveDefs
-            O.SendOne                      -> sendOne
+            O.SendOne mSubject mReplyID    -> sendOne mSubject mReplyID
             O.ShowOne                      -> showOne
             O.AutoMailer                   -> autoMailer
 
