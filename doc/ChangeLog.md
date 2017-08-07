@@ -1,3 +1,5 @@
+## 0.9.4.0.0 (prerelease)
+
 ## 0.9.3.1
 
 * Add --no-auto-maintainers, to suppress Maintainers file recipient inference.
