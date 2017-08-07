@@ -18,17 +18,18 @@ module Gitomail.Config
        -- Lens
        , aliasRefMatch
        , blobInCommitURL
-       , issueTrackMatch
-       , issueTrackURL
        , commitSubjectLine
        , commitURL
        , excludeRefs
        , filteredDestEmails
        , fromEmail
-       , jiraCC
        , hashMap
        , hashSize
        , includeRefs
+       , issueTrackMatch
+       , issueTrackURL
+       , jiraCC
+       , maxEmailSize
        , repoName
        , rootRefs
        , sMTPHostname
@@ -93,6 +94,7 @@ fmdString = "filtered-email-destinations"
   X(_repoName           , "repo-name"           , Maybe , pass,                  , Text          ) \
   X(_sourceHighlight    , "source-highlight"    , a     , defl, True             , Bool          ) \
   X(_hashSize           , "hash-size"           , a     , defl, 9                , Int           ) \
+  X(_maxEmailSize       , "max-email-size"      , a     , defl, 8000000          , Int           ) \
   X(_hashMap            , "hash-map"            , Maybe , pass,                  , Map Text Text ) \
   X(_testRunId          , "test-run-id"         , a     , defl, 0                , Int           ) \
 

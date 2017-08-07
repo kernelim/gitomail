@@ -500,16 +500,18 @@ sendMails mails = do
                     case filteredDestEmail miMail of
                         Nothing -> return ()
                         Just filteredEmail -> do
-                            case opts ^. O.outputPath of
-                                Nothing -> do
+                            bs <- renderMail' filteredEmail
+                            case (opts ^. O.outputPath,
+                                    (fromIntegral $ config ^.|| CFG.maxEmailSize) > BL.length bs) of
+                                (_, False) -> do
+                                    putStrLn $ "  Skipping too large an email '" ++ (T.unpack miSubject) ++ "'"
+                                (Nothing, True) -> do
                                     case mconn of
-                                         Nothing -> do bs <- renderMail' filteredEmail
-                                                       BL.putStr bs
+                                         Nothing -> BL.putStr bs
                                          Just conn -> do
                                              putStrLn $ "  Sending '" ++ (T.unpack miSubject) ++ "'"
                                              sendMimeMail2 filteredEmail conn
-                                Just outputPath -> do
-                                    bs <- renderMail' filteredEmail
+                                (Just outputPath, True) -> do
                                     index <- readIORef indexI
                                     modifyIORef' indexI (+1)
                                     let outputFile = outputPath </> show index -- TODO better filename

@@ -1,7 +1,8 @@
-## 0.9.3.0.0 (prerelease)
+## 0.9.3.0 (prerelease)
 
 * Add --no-auto-maintainers, to suppress Maintainers file recipient inference.
 * And --subject and --in-reply-to to the 'send-one' command.
+* Add 'max-email-size' and set the default to 8MB. Gmail chokes on large emails.
 
 ## 0.9.2.1
 
