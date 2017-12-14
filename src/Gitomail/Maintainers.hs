@@ -26,6 +26,7 @@ module Gitomail.Maintainers
   , fsMaintainer
   , fsObservers
   , fsReviewers
+  , FailedMaintainersParse
   )
   where
 

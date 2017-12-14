@@ -1,0 +1,7 @@
+Relating commits to refs
+Ref heads/branch-a: creating summaries
+Skipping due to Maintainers parse error: FailedMaintainersParse: 0:0:ical error at line 5, column 2
+Ref heads/branch-a: creating emails
+  Formatting 00048fffffffffffffffffffffffffffffffffff
+Skipping due to Maintainers parse error: FailedMaintainersParse: 0:0:ical error at line 5, column 2
+No emails to send.

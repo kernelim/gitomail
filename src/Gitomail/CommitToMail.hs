@@ -330,15 +330,18 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                     return (mempty, Maintainers.MatchErrors (Set.empty))
                 False -> do
                     debug $ "iterating maintainers"
-                    (matched, matchErrors) <- matchFiles refmfilter
-                    debug $ "done matching"
+                    E.catch (do
+                        (matched, matchErrors) <- matchFiles refmfilter
+                        debug $ "done matching"
 
-                    maintainerInfo <- iterateFilesWithMaintainers matched $ \path i ->
-                        return $
-                            if path `Set.member` affectedPathsSet
-                               then GIT.treeVal i
-                               else mempty
-                    return (maintainerInfo, matchErrors)
+                        maintainerInfo <- iterateFilesWithMaintainers matched $ \path i ->
+                            return $
+                                if path `Set.member` affectedPathsSet
+                                then GIT.treeVal i
+                                else mempty
+                        return (maintainerInfo, matchErrors)
+                     ) $ \(_ :: Maintainers.FailedMaintainersParse) ->
+                              return (mempty, Maintainers.MatchErrors (Set.empty))
 
             repoName <- getRepoName
             shortHash <- mapCommitHash commitHash >>= githashRepr
@@ -378,11 +381,15 @@ getCommitInfo cmk db ref commitHash maybeNr = do
                   aliasTo <- case config ^.|| CFG.aliasRefMatch of
                       Nothing -> return []
                       Just aliasRefRegex -> do
-                          aliasMap <- getTopAliases refmfilter
-                          fmap catMaybes $ forM (Map.toList aliasMap) $ \(name, email) -> do
-                              if matchWhole (aliasRefRegex & T.replace "%a" name) ref
-                                 then return (Just email)
-                                 else return Nothing
+                          E.catch (do
+                            aliasMap <- getTopAliases refmfilter
+                            fmap catMaybes $ forM (Map.toList aliasMap) $ \(name, email) -> do
+                                if matchWhole (aliasRefRegex & T.replace "%a" name) ref
+                                    then return (Just email)
+                                    else return Nothing
+                            ) $ \(e :: Maintainers.FailedMaintainersParse) -> do
+                                putStrLn $ "Skipping due to Maintainers parse error: " ++ show e
+                                return []
                   return $
                       let otherAddresses =
                               -- FIXME: unique over the address only and not the name

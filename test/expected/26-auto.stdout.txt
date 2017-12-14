@@ -1,9 +1,9 @@
 Relating commits to refs
 Ref heads/r0.8.x: creating summaries
 Ref heads/r0.8.x: creating emails
-  Formatting 00048fffffffffffffffffffffffffffffffffff
   Formatting 00049fffffffffffffffffffffffffffffffffff
+  Formatting 00050fffffffffffffffffffffffffffffffffff
 Sending emails!
   Writing $TEMP/1 - '[repo] r0.8.x branch is new with 2 commits'
-  Writing $TEMP/2 - '[repo r0.8.x 00048ffff, #1] Updating README.md [35]'
-  Writing $TEMP/3 - '[repo r0.8.x 00049ffff, #2] Updating README.md [36]'
+  Writing $TEMP/2 - '[repo r0.8.x 00049ffff, #1] Updating README.md [35]'
+  Writing $TEMP/3 - '[repo r0.8.x 00050ffff, #2] Updating README.md [36]'
