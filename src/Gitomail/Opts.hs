@@ -29,10 +29,11 @@ import           Data.Text           (Text)
 import qualified Data.Text           as T
 
 import           Options.Applicative (many, short, long, Mod, OptionFields,
-                                      Parser, strOption, switch, help, (<>),
+                                      Parser, strOption, switch, help,
                                       optional, subparser, command, info,
                                       argument, str, metavar, progDesc,
                                       ParserInfo, helper, idm, (<**>))
+import           Data.Monoid         ((<>))
 ------------------------------------------------------------------------------------
 
 type RepPath = FilePath
